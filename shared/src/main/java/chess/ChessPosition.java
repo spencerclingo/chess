@@ -10,6 +10,7 @@ public class ChessPosition {
 
     private int row;
     private int col;
+    private ChessPiece pieceInPosition;
 
     public ChessPosition(int row, int col) {
         this.row = row;
@@ -39,4 +40,17 @@ public class ChessPosition {
     public void setCol(int col) {
         this.col=col;
     }
+
+    public ChessPiece getPieceInPosition() {
+        return pieceInPosition;
+    }
+
+    public void setPieceInPosition(ChessPiece pieceInPosition) {
+        this.pieceInPosition=pieceInPosition;
+    }
+
+    public void removePieceFromPosition() {
+        pieceInPosition = null;
+    }
+
 }
