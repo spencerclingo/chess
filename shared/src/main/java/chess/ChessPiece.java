@@ -116,10 +116,11 @@ public class ChessPiece {
     public ArrayList<ChessMove> diagonalMove(ChessPiece piece, ChessPosition position, ChessBoard board) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
 
-        ChessPosition oldPosition = new ChessPosition(position.getRow(),position.getCol());
+        ChessPosition oldPosition = position;
         //Moving up and to the right
         while(oldPosition.getRow() < 8 && oldPosition.getCol() < 8) {
-            ChessPosition checkPosition=new ChessPosition(oldPosition.getRow() + 1, oldPosition.getCol() + 1);
+            ChessPosition checkPosition = board.getPosition(oldPosition.getRow() + 1, oldPosition.getCol() + 1);
+            //ChessPosition checkPosition=new ChessPosition(oldPosition.getRow() + 1, oldPosition.getCol() + 1);
             ChessMove newMove = Movement(oldPosition, checkPosition, board, piece);
             if (newMove != null) {
                 possibleMoves.add(newMove);
@@ -135,7 +136,7 @@ public class ChessPiece {
         //Moving up and to the left
         oldPosition = position;
         while(oldPosition.getRow() < 8 && oldPosition.getCol() > 1) {
-            ChessPosition checkPosition=new ChessPosition(oldPosition.getRow() + 1, oldPosition.getCol() - 1);
+            ChessPosition checkPosition = board.getPosition(oldPosition.getRow() + 1, oldPosition.getCol() - 1);
             ChessMove newMove = Movement(oldPosition, checkPosition, board, piece);
             if (newMove != null) {
                 possibleMoves.add(newMove);
@@ -151,7 +152,7 @@ public class ChessPiece {
         //Moving down and to the left
         oldPosition = position;
         while(oldPosition.getRow() > 1 && oldPosition.getCol() > 1) {
-            ChessPosition checkPosition=new ChessPosition(oldPosition.getRow() - 1, oldPosition.getCol() - 1);
+            ChessPosition checkPosition = board.getPosition(oldPosition.getRow() - 1, oldPosition.getCol() - 1);
             ChessMove newMove = Movement(oldPosition, checkPosition, board, piece);
             if (newMove != null) {
                 possibleMoves.add(newMove);
@@ -167,7 +168,7 @@ public class ChessPiece {
         //Moving down and to the right
         oldPosition = position;
         while(oldPosition.getRow() > 1 && oldPosition.getCol() < 8) {
-            ChessPosition checkPosition=new ChessPosition(oldPosition.getRow() - 1, oldPosition.getCol() + 1);
+            ChessPosition checkPosition = board.getPosition(oldPosition.getRow() - 1, oldPosition.getCol() + 1);
             ChessMove newMove = Movement(oldPosition, checkPosition, board, piece);
             if (newMove != null) {
                 possibleMoves.add(newMove);
