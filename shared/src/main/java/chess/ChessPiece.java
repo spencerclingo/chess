@@ -134,7 +134,7 @@ public class ChessPiece {
         }
         //Moving up and to the left
         oldPosition = position;
-        while(oldPosition.getRow() < 8 && oldPosition.getCol() > 0) {
+        while(oldPosition.getRow() < 8 && oldPosition.getCol() > 1) {
             ChessPosition checkPosition=new ChessPosition(oldPosition.getRow() + 1, oldPosition.getCol() - 1);
             ChessMove newMove = Movement(oldPosition, checkPosition, board, piece);
             if (newMove != null) {
@@ -150,7 +150,7 @@ public class ChessPiece {
         }
         //Moving down and to the left
         oldPosition = position;
-        while(oldPosition.getRow() > 0 && oldPosition.getCol() > 0) {
+        while(oldPosition.getRow() > 1 && oldPosition.getCol() > 1) {
             ChessPosition checkPosition=new ChessPosition(oldPosition.getRow() - 1, oldPosition.getCol() - 1);
             ChessMove newMove = Movement(oldPosition, checkPosition, board, piece);
             if (newMove != null) {
@@ -166,7 +166,7 @@ public class ChessPiece {
         }
         //Moving down and to the right
         oldPosition = position;
-        while(oldPosition.getRow() > 0 && oldPosition.getCol() < 8) {
+        while(oldPosition.getRow() > 1 && oldPosition.getCol() < 8) {
             ChessPosition checkPosition=new ChessPosition(oldPosition.getRow() - 1, oldPosition.getCol() + 1);
             ChessMove newMove = Movement(oldPosition, checkPosition, board, piece);
             if (newMove != null) {
