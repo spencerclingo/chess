@@ -12,7 +12,6 @@ public class ChessPosition {
 
     private int row;
     private int col;
-    private ChessPiece pieceInPosition = null;
 
     public ChessPosition(int row, int col) {
         this.row = row;
@@ -22,7 +21,6 @@ public class ChessPosition {
     public ChessPosition(ChessPosition positionCopy) {
         row = positionCopy.getRow();
         col = positionCopy.getCol();
-        pieceInPosition = positionCopy.getPieceInPosition();
     }
 
     /**
@@ -49,17 +47,6 @@ public class ChessPosition {
         this.col=col;
     }
 
-    public ChessPiece getPieceInPosition() {
-        return pieceInPosition;
-    }
-
-    public void setPieceInPosition(ChessPiece pieceInPosition) {
-        this.pieceInPosition=pieceInPosition;
-    }
-
-    public void removePieceFromPosition() {
-        pieceInPosition = null;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -74,7 +61,11 @@ public class ChessPosition {
         return Objects.hash(getRow(), getCol());
     }
 
-    public boolean hasPiece() {
-        return pieceInPosition != null;
+    @Override
+    public String toString() {
+        return "ChessPosition{" +
+                "row=" + row +
+                ", col=" + col +
+                '}';
     }
 }

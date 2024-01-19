@@ -3,6 +3,8 @@ package chess;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -14,7 +16,6 @@ public class ChessPiece {
 
     private final ChessGame.TeamColor teamColor;
     private ChessPiece.PieceType pieceType;
-    private ChessPosition position;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.teamColor = pieceColor;
@@ -59,13 +60,6 @@ public class ChessPiece {
         this.pieceType = pieceType;
     }
 
-    public ChessPosition getPosition() {
-        return position;
-    }
-
-    public void setPosition(ChessPosition position) {
-        this.position=position;
-    }
 
     /**
      * Calculates all the positions a chess piece can move to
@@ -77,8 +71,8 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         myPosition = board.getPosition(myPosition);
         ArrayList<ChessMove> pieceMovesArray = new ArrayList<>();
-        if(myPosition.hasPiece()) {
-            switch (myPosition.getPieceInPosition().pieceType) {
+        if(board.getPiece(myPosition) != null) {
+            switch (board.getPiece(myPosition).pieceType) {
                 case PAWN:
                     throw new RuntimeException("Pawn Not implemented");
                     //break;
@@ -86,7 +80,7 @@ public class ChessPiece {
                     throw new RuntimeException("Knight Not implemented");
                     //break;
                 case BISHOP:
-                    pieceMovesArray = diagonalMove(myPosition.getPieceInPosition(), myPosition, board);
+                    pieceMovesArray = diagonalMove(board.getPiece(myPosition), myPosition, board);
                     break;
                 case ROOK:
                     throw new RuntimeException("Rook Not implemented");
@@ -117,41 +111,8 @@ public class ChessPiece {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
 
         ChessPosition oldPosition = new ChessPosition(position);
-        //Moving up and to the right
-        while(oldPosition.getRow() < 8 && oldPosition.getCol() < 8) {
-            ChessPosition checkPosition = board.getPosition(oldPosition.getRow() + 1, oldPosition.getCol() + 1);
 
-            ChessMove newMove = Movement(position, checkPosition, board, piece);
-            if (newMove != null) {
-                possibleMoves.add(newMove);
-            } else {
-                break;
-            }
-            if (MoveOccupied(checkPosition, board)) {
-                oldPosition = new ChessPosition(checkPosition);
-            } else {
-                break;
-            }
-        }
-        //Moving up and to the left
-        oldPosition = new ChessPosition(position);
-        while(oldPosition.getRow() < 8 && oldPosition.getCol() > 1) {
-            ChessPosition checkPosition = board.getPosition(oldPosition.getRow() + 1, oldPosition.getCol() - 1);
-
-            ChessMove newMove = Movement(position, checkPosition, board, piece);
-            if (newMove != null) {
-                possibleMoves.add(newMove);
-            } else {
-                break;
-            }
-            if (MoveOccupied(checkPosition, board)) {
-                oldPosition = new ChessPosition(checkPosition);
-            } else {
-                break;
-            }
-        }
         //Moving down and to the left
-        oldPosition = new ChessPosition(position);
         while(oldPosition.getRow() > 1 && oldPosition.getCol() > 1) {
             ChessPosition checkPosition = board.getPosition(oldPosition.getRow() - 1, oldPosition.getCol() - 1);
 
@@ -167,10 +128,34 @@ public class ChessPiece {
                 break;
             }
         }
+
+        ArrayList<ChessMove> reverseList = new ArrayList<>();
         //Moving down and to the right
+
         oldPosition = new ChessPosition(position);
         while(oldPosition.getRow() > 1 && oldPosition.getCol() < 8) {
             ChessPosition checkPosition = board.getPosition(oldPosition.getRow() - 1, oldPosition.getCol() + 1);
+
+            ChessMove newMove = Movement(position, checkPosition, board, piece);
+            if (newMove != null) {
+                reverseList.add(newMove);
+            } else {
+                break;
+            }
+            if (MoveOccupied(checkPosition, board)) {
+                oldPosition = new ChessPosition(checkPosition);
+            } else {
+                break;
+            }
+        }
+        for (int i = reverseList.size()-1; i >= 0; i--) {
+            possibleMoves.add(reverseList.get(i));
+        }
+
+        //Moving up and to the right
+        oldPosition = new ChessPosition(position);
+        while(oldPosition.getRow() < 8 && oldPosition.getCol() < 8) {
+            ChessPosition checkPosition = board.getPosition(oldPosition.getRow() + 1, oldPosition.getCol() + 1);
 
             ChessMove newMove = Movement(position, checkPosition, board, piece);
             if (newMove != null) {
@@ -184,6 +169,31 @@ public class ChessPiece {
                 break;
             }
         }
+
+
+        reverseList = new ArrayList<>();
+        //Moving up and to the left
+        oldPosition = new ChessPosition(position);
+        while(oldPosition.getRow() < 8 && oldPosition.getCol() > 1) {
+            ChessPosition checkPosition = board.getPosition(oldPosition.getRow() + 1, oldPosition.getCol() - 1);
+
+            ChessMove newMove = Movement(position, checkPosition, board, piece);
+            if (newMove != null) {
+                reverseList.add(newMove);
+            } else {
+                break;
+            }
+            if (MoveOccupied(checkPosition, board)) {
+                oldPosition = new ChessPosition(checkPosition);
+            } else {
+                break;
+            }
+        }
+
+        for (int i = reverseList.size()-1; i >= 0; i--) {
+            possibleMoves.add(reverseList.get(i));
+        }
+
         return possibleMoves;
     }
 
@@ -223,5 +233,26 @@ public class ChessPiece {
 
     public boolean MoveOccupied(ChessPosition checkPosition, ChessBoard board) {
         return board.getPiece(checkPosition) == null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPiece that=(ChessPiece) o;
+        return getTeamColor() == that.getTeamColor() && getPieceType() == that.getPieceType();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getTeamColor(), getPieceType());
+    }
+
+    @Override
+    public String toString() {
+        return "ChessPiece{" +
+                "teamColor=" + teamColor +
+                ", pieceType=" + pieceType +
+                '}';
     }
 }

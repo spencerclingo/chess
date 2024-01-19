@@ -1,5 +1,7 @@
 package chess;
 
+import java.util.Arrays;
+
 /**
  * A chessboard that can hold and rearrange chess pieces.
  * <p>
@@ -9,12 +11,14 @@ package chess;
 public class ChessBoard {
 
     private ChessPosition[][] chessBoardArray = new ChessPosition[9][9];
+    private ChessPiece[][] chessPiecesArray = new ChessPiece[9][9];
 
     public ChessBoard() {
         for(int rows = 1; rows < 9; rows++) {
             for(int cols = 1; cols < 9; cols++) {
                 ChessPosition position = new ChessPosition(rows, cols);
                 chessBoardArray[rows][cols] = position;
+                chessPiecesArray[rows][cols] = null;
             }
         }
     }
@@ -26,10 +30,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        chessBoardArray[position.getRow()][position.getCol()] = position;
-        position.setPieceInPosition(piece);
-        piece.setPosition(position);
-
+        chessPiecesArray[position.getRow()][position.getCol()] = piece;
     }
 
     /**
@@ -40,7 +41,10 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        return chessBoardArray[position.getRow()][position.getCol()].getPieceInPosition();
+        return chessPiecesArray[position.getRow()][position.getCol()];
+    }
+    public void movePiece(ChessPosition oldPosition, ChessPosition newPosition) {
+        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -56,5 +60,28 @@ public class ChessBoard {
     }
     public ChessPosition getPosition(int row, int col) {
         return chessBoardArray[row][col];
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessBoard that=(ChessBoard) o;
+        return Arrays.equals(chessBoardArray, that.chessBoardArray) && Arrays.equals(chessPiecesArray, that.chessPiecesArray);
+    }
+
+    @Override
+    public int hashCode() {
+        int result=Arrays.hashCode(chessBoardArray);
+        result=31 * result + Arrays.hashCode(chessPiecesArray);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "ChessBoard{" +
+                "chessBoardArray=" + Arrays.deepToString(chessBoardArray) +
+                ", chessPiecesArray=" + Arrays.deepToString(chessPiecesArray) +
+                '}';
     }
 }
