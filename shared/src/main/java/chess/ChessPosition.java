@@ -12,7 +12,7 @@ public class ChessPosition {
 
     private int row;
     private int col;
-    private ChessPiece pieceInPosition;
+    private ChessPiece pieceInPosition = null;
 
     public ChessPosition(int row, int col) {
         this.row = row;
@@ -66,5 +66,9 @@ public class ChessPosition {
     @Override
     public int hashCode() {
         return Objects.hash(getRow(), getCol());
+    }
+
+    public boolean hasPiece() {
+        return pieceInPosition != null;
     }
 }

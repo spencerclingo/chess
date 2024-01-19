@@ -1,5 +1,7 @@
 package chess;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -42,7 +44,7 @@ public class ChessPiece {
     /**
      * @return Which team this chess piece belongs to
      */
-    public ChessGame.TeamColor getTeamColor() {
+    public ChessGame.TeamColor getPieceColor() {
         return teamColor;
     }
 
@@ -73,6 +75,149 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        ArrayList<ChessMove> pieceMovesArray = new ArrayList<>();
+        if(myPosition.hasPiece()) {
+            switch (myPosition.getPieceInPosition().pieceType) {
+                case PAWN:
+                    throw new RuntimeException("Pawn Not implemented");
+                    break;
+                case KNIGHT:
+                    throw new RuntimeException("Knight Not implemented");
+                    break;
+                case BISHOP:
+                    pieceMovesArray = diagonalMove(myPosition.getPieceInPosition(), myPosition, board);
+                    break;
+                case ROOK:
+                    throw new RuntimeException("Rook Not implemented");
+                    break;
+                case QUEEN:
+                    throw new RuntimeException("Queen Not implemented");
+                    break;
+                case KING:
+                    throw new RuntimeException("King Not implemented");
+                    break;
+            }
+        }
+
+
+        return pieceMovesArray;
+    }
+
+    /**
+     * Method for determining the diagonal moves a piece can make
+     * Used for: Bishop, Queen
+     *
+     * @param piece
+     * @param position
+     * @param board
+     * @return ArrayList of ChessMove
+     */
+    public ArrayList<ChessMove> diagonalMove(ChessPiece piece, ChessPosition position, ChessBoard board) {
+        ArrayList<ChessMove> possibleMoves = new ArrayList<>();
+
+        ChessPosition oldPosition = new ChessPosition(position.getRow(),position.getCol());
+        //Moving up and to the right
+        while(oldPosition.getRow() < 8 && oldPosition.getCol() < 8) {
+            ChessPosition checkPosition=new ChessPosition(oldPosition.getRow() + 1, oldPosition.getCol() + 1);
+            ChessMove newMove = Movement(oldPosition, checkPosition, board, piece);
+            if (newMove != null) {
+                possibleMoves.add(newMove);
+            } else {
+                break;
+            }
+            if (MoveOccupied(checkPosition, board)) {
+                oldPosition = checkPosition;
+            } else {
+                break;
+            }
+        }
+        //Moving up and to the left
+        oldPosition = position;
+        while(oldPosition.getRow() < 8 && oldPosition.getCol() > 0) {
+            ChessPosition checkPosition=new ChessPosition(oldPosition.getRow() + 1, oldPosition.getCol() - 1);
+            ChessMove newMove = Movement(oldPosition, checkPosition, board, piece);
+            if (newMove != null) {
+                possibleMoves.add(newMove);
+            } else {
+                break;
+            }
+            if (MoveOccupied(checkPosition, board)) {
+                oldPosition = checkPosition;
+            } else {
+                break;
+            }
+        }
+        //Moving down and to the left
+        oldPosition = position;
+        while(oldPosition.getRow() > 0 && oldPosition.getCol() > 0) {
+            ChessPosition checkPosition=new ChessPosition(oldPosition.getRow() - 1, oldPosition.getCol() - 1);
+            ChessMove newMove = Movement(oldPosition, checkPosition, board, piece);
+            if (newMove != null) {
+                possibleMoves.add(newMove);
+            } else {
+                break;
+            }
+            if (MoveOccupied(checkPosition, board)) {
+                oldPosition = checkPosition;
+            } else {
+                break;
+            }
+        }
+        //Moving down and to the right
+        oldPosition = position;
+        while(oldPosition.getRow() > 0 && oldPosition.getCol() < 8) {
+            ChessPosition checkPosition=new ChessPosition(oldPosition.getRow() - 1, oldPosition.getCol() + 1);
+            ChessMove newMove = Movement(oldPosition, checkPosition, board, piece);
+            if (newMove != null) {
+                possibleMoves.add(newMove);
+            } else {
+                break;
+            }
+            if (MoveOccupied(checkPosition, board)) {
+                oldPosition = checkPosition;
+            } else {
+                break;
+            }
+        }
+
+        return possibleMoves;
+    }
+
+    /**
+     * Handles checking for pieces in movement
+     * MUST BE CALLED WITH MoveOccupied TO ENSURE CORRECT MOVEMENT
+     *
+     * @param oldPosition
+     * @param checkPosition
+     * @param board
+     * @param piece
+     * @return ChessMove
+     */
+    public ChessMove Movement(ChessPosition oldPosition, ChessPosition checkPosition, ChessBoard board, ChessPiece piece) {
+        if (piece.getPieceType() != PieceType.PAWN) {
+            if (board.getPiece(checkPosition) == null) {
+                return new ChessMove(oldPosition, checkPosition, null);
+            } else if (board.getPiece(checkPosition).getPieceColor() != piece.getPieceColor()) {
+                return new ChessMove(oldPosition, checkPosition, null);
+            } else if (board.getPiece(checkPosition).getPieceColor() == piece.getPieceColor()) {
+                return null;
+            }
+            throw new RuntimeException("Position doesn't have null piece, an opposite team piece, or a same team piece.");
+        }
+        throw new RuntimeException("Pawn Movement Not implemented");
+    }
+
+    /**
+     * Checks if a movement loop should stop
+     * If a piece is in the new location, should end loop
+     * Otherwise, doesn't
+     *
+     * @param checkPosition
+     * @param board
+     * @return boolean
+     */
+
+    public boolean MoveOccupied(ChessPosition checkPosition, ChessBoard board) {
+        return board.getPiece(checkPosition) == null;
     }
 }
