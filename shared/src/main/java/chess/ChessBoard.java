@@ -50,4 +50,8 @@ public class ChessBoard {
     public void resetBoard() {
         throw new RuntimeException("Not implemented");
     }
+
+    public ChessPosition getPosition(ChessPosition position) {
+        return chessBoardArray[position.getRow()][position.getCol()];
+    }
 }

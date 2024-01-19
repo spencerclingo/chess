@@ -44,7 +44,7 @@ public class ChessPiece {
     /**
      * @return Which team this chess piece belongs to
      */
-    public ChessGame.TeamColor getPieceColor() {
+    public ChessGame.TeamColor getTeamColor() {
         return teamColor;
     }
 
@@ -75,27 +75,28 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        myPosition = board.getPosition(myPosition);
         ArrayList<ChessMove> pieceMovesArray = new ArrayList<>();
         if(myPosition.hasPiece()) {
             switch (myPosition.getPieceInPosition().pieceType) {
                 case PAWN:
                     throw new RuntimeException("Pawn Not implemented");
-                    break;
+                    //break;
                 case KNIGHT:
                     throw new RuntimeException("Knight Not implemented");
-                    break;
+                    //break;
                 case BISHOP:
                     pieceMovesArray = diagonalMove(myPosition.getPieceInPosition(), myPosition, board);
                     break;
                 case ROOK:
                     throw new RuntimeException("Rook Not implemented");
-                    break;
+                    //break;
                 case QUEEN:
                     throw new RuntimeException("Queen Not implemented");
-                    break;
+                    //break;
                 case KING:
                     throw new RuntimeException("King Not implemented");
-                    break;
+                    //break;
             }
         }
 
@@ -179,7 +180,6 @@ public class ChessPiece {
                 break;
             }
         }
-
         return possibleMoves;
     }
 
@@ -197,9 +197,9 @@ public class ChessPiece {
         if (piece.getPieceType() != PieceType.PAWN) {
             if (board.getPiece(checkPosition) == null) {
                 return new ChessMove(oldPosition, checkPosition, null);
-            } else if (board.getPiece(checkPosition).getPieceColor() != piece.getPieceColor()) {
+            } else if (board.getPiece(checkPosition).getTeamColor() != piece.getTeamColor()) {
                 return new ChessMove(oldPosition, checkPosition, null);
-            } else if (board.getPiece(checkPosition).getPieceColor() == piece.getPieceColor()) {
+            } else if (board.getPiece(checkPosition).getTeamColor() == piece.getTeamColor()) {
                 return null;
             }
             throw new RuntimeException("Position doesn't have null piece, an opposite team piece, or a same team piece.");
