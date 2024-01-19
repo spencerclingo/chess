@@ -19,6 +19,12 @@ public class ChessPosition {
         this.col = col;
     }
 
+    public ChessPosition(ChessPosition positionCopy) {
+        row = positionCopy.getRow();
+        col = positionCopy.getCol();
+        pieceInPosition = positionCopy.getPieceInPosition();
+    }
+
     /**
      * @return which row this position is in
      * 1 codes for the bottom row
