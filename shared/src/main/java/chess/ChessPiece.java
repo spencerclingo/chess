@@ -76,11 +76,11 @@ public class ChessPiece {
         if(board.getPiece(myPosition) != null) {
             switch (board.getPiece(myPosition).pieceType) {
                 case PAWN:
-                    throw new RuntimeException("Pawn Not implemented");
-                    //break;
-                case KNIGHT:
-                    throw new RuntimeException("Knight Not implemented");
-                    //break;
+                    pieceMovesArray = PawnMovement(board.getPiece(myPosition), myPosition, board);
+                    break;
+                case KNIGHT, KING:
+                    pieceMovesArray = SingleMove(board.getPiece(myPosition), myPosition, board);
+                    break;
                 case BISHOP:
                     pieceMovesArray = DiagonalMove(board.getPiece(myPosition), myPosition, board);
                     break;
@@ -90,9 +90,6 @@ public class ChessPiece {
                 case QUEEN:
                     pieceMovesArray = DiagonalMove(board.getPiece(myPosition), myPosition, board);
                     pieceMovesArray.addAll(StraightMove(board.getPiece(myPosition), myPosition, board));
-                    break;
-                case KING:
-                    pieceMovesArray = KingMove(board.getPiece(myPosition), myPosition, board);
                     break;
             }
         }
@@ -191,6 +188,15 @@ public class ChessPiece {
         return possibleMoves;
     }
 
+    /**
+     * Makes the repeated, straight line moves for pieces
+     * (Rook, Queen)
+     *
+     * @param piece
+     * @param position
+     * @param board
+     * @return ArrayList of ChessMove
+     */
     public ArrayList<ChessMove> StraightMove(ChessPiece piece, ChessPosition position, ChessBoard board) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
 
@@ -270,13 +276,31 @@ public class ChessPiece {
         return possibleMoves;
     }
 
-    public ArrayList<ChessMove> KingMove(ChessPiece piece, ChessPosition position, ChessBoard board) {
+    /**
+     * Makes ArrayList of possible moves for either Knight or King
+     *
+     * @param piece
+     * @param position
+     * @param board
+     * @return ArrayList of ChessMove
+     */
+    public ArrayList<ChessMove> SingleMove(ChessPiece piece, ChessPosition position, ChessBoard board) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
+        int[][] relativePositions;
 
-        int[][] relativePositions = {
-                {-1, 0}, {1, 0}, {0, -1}, {0, 1},  // Adjacent positions (up, down, left, right)
-                {-1, -1}, {-1, 1}, {1, -1}, {1, 1}  // Diagonal positions
-        };
+        if (piece.pieceType == PieceType.KING) {
+            relativePositions = new int[][]{
+                    {-1, 0}, {1, 0}, {0, -1}, {0, 1},   // Adjacent positions (up, down, left, right)
+                    {-1, -1}, {-1, 1}, {1, -1}, {1, 1}  // Diagonal positions
+            };
+        } else {
+            relativePositions = new int[][]{
+                    {1,-2}, {1,2},   // Move side then up
+                    {2,-1}, {2,1},   // Move up then side
+                    {-1,-2}, {-1,2}, // Move side then down
+                    {-2,-1}, {-2,1}  // Move down then side
+            };
+        }
 
         for (int[] relativePos : relativePositions) {
             int newRow=position.getRow() + relativePos[0];
@@ -288,6 +312,89 @@ public class ChessPiece {
                     ChessMove newMove = new ChessMove(position, new ChessPosition(position.getRow() +
                             relativePos[0], position.getCol() + relativePos[1]), null);
 
+                    possibleMoves.add(newMove);
+                }
+            }
+        }
+        return possibleMoves;
+    }
+
+    /**
+     * Gets the possible pawn moves
+     *
+     * @param piece
+     * @param position
+     * @param board
+     * @return ArrayList of ChessMove
+     */
+    public ArrayList<ChessMove> PawnMovement(ChessPiece piece, ChessPosition position, ChessBoard board) {
+        ArrayList<ChessMove> possibleMoves = new ArrayList<>();
+
+        int forward;
+        if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            forward = 1;
+        } else {
+            forward = -1;
+        }
+        int newRow = position.getRow() + forward;
+        int leftAttackCol = position.getCol() - 1;
+        int straight = position.getCol();
+        int rightAttackCol =position.getCol() + 1;
+        PieceType[] pieceTypesArray = {PieceType.QUEEN,PieceType.ROOK,PieceType.KNIGHT,PieceType.BISHOP};
+
+        if (board.pieceInPosition(newRow, straight) == null) {
+            if (newRow == 8 || newRow == 1) { // If it can promote
+
+                for (PieceType pieceType : pieceTypesArray) {
+                    ChessMove newMove=new ChessMove(position,
+                            new ChessPosition(newRow, straight), pieceType);
+                    possibleMoves.add(newMove);
+                }
+            } else { // If it cannot promote
+                ChessMove newMove=new ChessMove(position,
+                        new ChessPosition(newRow, straight), null);
+                possibleMoves.add(newMove);
+
+                //This is the double move thing
+                if (board.pieceInPosition(position.getRow() + (2 * forward), straight) == null &&
+                        (((position.getRow() == 2) && (piece.getTeamColor() == ChessGame.TeamColor.WHITE)) ||
+                                ((position.getRow() == 7) && (piece.getTeamColor() == ChessGame.TeamColor.BLACK)))){
+                    newMove=new ChessMove(position,
+                            new ChessPosition(position.getRow() + (2 * forward), straight), null);
+                    possibleMoves.add(newMove);
+                }
+            }
+        }
+        if (board.pieceInPosition(newRow, leftAttackCol) != null) {
+            if (board.pieceInPosition(newRow, leftAttackCol).getTeamColor() !=
+                    piece.teamColor) {
+                if (newRow == 8 || newRow == 1) { // If it can promote on taking
+                    for (PieceType pieceType : pieceTypesArray) {
+                        ChessMove newMove=new ChessMove(position,
+                                new ChessPosition(newRow, leftAttackCol), pieceType);
+                        possibleMoves.add(newMove);
+                    }
+
+                } else { // If it cannot promote
+                    ChessMove newMove=new ChessMove(position,
+                            new ChessPosition(newRow, leftAttackCol), null);
+                    possibleMoves.add(newMove);
+                }
+
+            }
+        }
+        if (board.pieceInPosition(newRow, rightAttackCol) != null) {
+            if (board.pieceInPosition(newRow,
+                    rightAttackCol).getTeamColor() != piece.teamColor) {
+                if (newRow == 8 || newRow == 1) { // If it can promote on taking
+                    for (PieceType pieceType : pieceTypesArray) {
+                        ChessMove newMove=new ChessMove(position,
+                                new ChessPosition(newRow, rightAttackCol), pieceType);
+                        possibleMoves.add(newMove);
+                    }
+                } else { // If it cannot promote
+                    ChessMove newMove=new ChessMove(position,
+                            new ChessPosition(newRow, rightAttackCol), null);
                     possibleMoves.add(newMove);
                 }
             }

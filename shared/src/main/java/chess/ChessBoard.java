@@ -11,7 +11,7 @@ import java.util.Arrays;
 public class ChessBoard {
 
     private ChessPosition[][] chessBoardArray = new ChessPosition[9][9];
-    private ChessPiece[][] chessPiecesArray = new ChessPiece[9][9];
+    private ChessPiece[][] chessPiecesArray = new ChessPiece[10][10];
 
     public ChessBoard() {
         for(int rows = 1; rows < 9; rows++) {
