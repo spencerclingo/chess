@@ -1,5 +1,7 @@
 package chess;
 
+import jdk.jshell.Diag;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -80,17 +82,18 @@ public class ChessPiece {
                     throw new RuntimeException("Knight Not implemented");
                     //break;
                 case BISHOP:
-                    pieceMovesArray = diagonalMove(board.getPiece(myPosition), myPosition, board);
+                    pieceMovesArray = DiagonalMove(board.getPiece(myPosition), myPosition, board);
                     break;
                 case ROOK:
-                    throw new RuntimeException("Rook Not implemented");
-                    //break;
+                    pieceMovesArray = StraightMove(board.getPiece(myPosition), myPosition, board);
+                    break;
                 case QUEEN:
-                    throw new RuntimeException("Queen Not implemented");
-                    //break;
+                    pieceMovesArray = DiagonalMove(board.getPiece(myPosition), myPosition, board);
+                    pieceMovesArray.addAll(StraightMove(board.getPiece(myPosition), myPosition, board));
+                    break;
                 case KING:
-                    throw new RuntimeException("King Not implemented");
-                    //break;
+                    pieceMovesArray = KingMove(board.getPiece(myPosition), myPosition, board);
+                    break;
             }
         }
 
@@ -107,12 +110,12 @@ public class ChessPiece {
      * @param board
      * @return ArrayList of ChessMove
      */
-    public ArrayList<ChessMove> diagonalMove(ChessPiece piece, ChessPosition position, ChessBoard board) {
+    public ArrayList<ChessMove> DiagonalMove(ChessPiece piece, ChessPosition position, ChessBoard board) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
 
         ChessPosition oldPosition = new ChessPosition(position);
 
-        //Moving down and to the left
+        //Moving up
         while(oldPosition.getRow() > 1 && oldPosition.getCol() > 1) {
             ChessPosition checkPosition = board.getPosition(oldPosition.getRow() - 1, oldPosition.getCol() - 1);
 
@@ -129,7 +132,6 @@ public class ChessPiece {
             }
         }
 
-        ArrayList<ChessMove> reverseList = new ArrayList<>();
         //Moving down and to the right
 
         oldPosition = new ChessPosition(position);
@@ -138,7 +140,7 @@ public class ChessPiece {
 
             ChessMove newMove = Movement(position, checkPosition, board, piece);
             if (newMove != null) {
-                reverseList.add(newMove);
+                possibleMoves.add(newMove);
             } else {
                 break;
             }
@@ -147,9 +149,6 @@ public class ChessPiece {
             } else {
                 break;
             }
-        }
-        for (int i = reverseList.size()-1; i >= 0; i--) {
-            possibleMoves.add(reverseList.get(i));
         }
 
         //Moving up and to the right
@@ -170,8 +169,6 @@ public class ChessPiece {
             }
         }
 
-
-        reverseList = new ArrayList<>();
         //Moving up and to the left
         oldPosition = new ChessPosition(position);
         while(oldPosition.getRow() < 8 && oldPosition.getCol() > 1) {
@@ -179,7 +176,8 @@ public class ChessPiece {
 
             ChessMove newMove = Movement(position, checkPosition, board, piece);
             if (newMove != null) {
-                reverseList.add(newMove);
+                possibleMoves.add(newMove);
+
             } else {
                 break;
             }
@@ -190,10 +188,110 @@ public class ChessPiece {
             }
         }
 
-        for (int i = reverseList.size()-1; i >= 0; i--) {
-            possibleMoves.add(reverseList.get(i));
+        return possibleMoves;
+    }
+
+    public ArrayList<ChessMove> StraightMove(ChessPiece piece, ChessPosition position, ChessBoard board) {
+        ArrayList<ChessMove> possibleMoves = new ArrayList<>();
+
+        ChessPosition oldPosition = new ChessPosition(position);
+
+        //Moving up
+        while(oldPosition.getRow() < 8) {
+            ChessPosition checkPosition = board.getPosition(oldPosition.getRow() + 1, oldPosition.getCol());
+
+            ChessMove newMove = Movement(position, checkPosition, board, piece);
+            if (newMove != null) {
+                possibleMoves.add(newMove);
+            } else {
+                break;
+            }
+            if (MoveOccupied(checkPosition, board)) {
+                oldPosition = new ChessPosition(checkPosition);
+            } else {
+                break;
+            }
         }
 
+        //Moving right
+        oldPosition = new ChessPosition(position);
+        while(oldPosition.getCol() < 8) {
+            ChessPosition checkPosition = board.getPosition(oldPosition.getRow(), oldPosition.getCol() + 1);
+
+            ChessMove newMove = Movement(position, checkPosition, board, piece);
+            if (newMove != null) {
+                possibleMoves.add(newMove);
+            } else {
+                break;
+            }
+            if (MoveOccupied(checkPosition, board)) {
+                oldPosition = new ChessPosition(checkPosition);
+            } else {
+                break;
+            }
+        }
+
+        //Moving down
+        oldPosition = new ChessPosition(position);
+        while(oldPosition.getRow() > 1) {
+            ChessPosition checkPosition = board.getPosition(oldPosition.getRow() - 1, oldPosition.getCol());
+
+            ChessMove newMove = Movement(position, checkPosition, board, piece);
+            if (newMove != null) {
+                possibleMoves.add(newMove);
+            } else {
+                break;
+            }
+            if (MoveOccupied(checkPosition, board)) {
+                oldPosition = new ChessPosition(checkPosition);
+            } else {
+                break;
+            }
+        }
+
+        //Moving left
+        oldPosition = new ChessPosition(position);
+        while(oldPosition.getCol() > 1) {
+            ChessPosition checkPosition = board.getPosition(oldPosition.getRow(), oldPosition.getCol() - 1);
+
+            ChessMove newMove = Movement(position, checkPosition, board, piece);
+            if (newMove != null) {
+                possibleMoves.add(newMove);
+            } else {
+                break;
+            }
+            if (MoveOccupied(checkPosition, board)) {
+                oldPosition = new ChessPosition(checkPosition);
+            } else {
+                break;
+            }
+        }
+
+        return possibleMoves;
+    }
+
+    public ArrayList<ChessMove> KingMove(ChessPiece piece, ChessPosition position, ChessBoard board) {
+        ArrayList<ChessMove> possibleMoves = new ArrayList<>();
+
+        int[][] relativePositions = {
+                {-1, 0}, {1, 0}, {0, -1}, {0, 1},  // Adjacent positions (up, down, left, right)
+                {-1, -1}, {-1, 1}, {1, -1}, {1, 1}  // Diagonal positions
+        };
+
+        for (int[] relativePos : relativePositions) {
+            int newRow=position.getRow() + relativePos[0];
+            int newCol=position.getCol() + relativePos[1];
+
+            if (newRow <= 8 && newCol <= 8 && newRow > 0 && newCol > 0) {
+                ChessPiece testPiece = board.pieceInPosition(newRow, newCol);
+                if (testPiece == null || testPiece.getTeamColor() != piece.getTeamColor()) {
+                    ChessMove newMove = new ChessMove(position, new ChessPosition(position.getRow() +
+                            relativePos[0], position.getCol() + relativePos[1]), null);
+
+                    possibleMoves.add(newMove);
+                }
+            }
+        }
         return possibleMoves;
     }
 
@@ -230,6 +328,7 @@ public class ChessPiece {
      * @param board
      * @return boolean
      */
+
 
     public boolean MoveOccupied(ChessPosition checkPosition, ChessBoard board) {
         return board.getPiece(checkPosition) == null;

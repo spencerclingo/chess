@@ -57,7 +57,7 @@ public class ChessMove {
         return Objects.hash(getStartPosition(), getEndPosition(), getPromotionPiece());
     }
 
-    /*
+
     @Override
     public String toString() {
         if (promotionPiece != null) {
@@ -72,6 +72,5 @@ public class ChessMove {
                 ", endPosition=" + endPosition.toString() +
                 '}';
     }
-    */
 
 }

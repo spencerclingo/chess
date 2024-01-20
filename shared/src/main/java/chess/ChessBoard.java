@@ -62,6 +62,11 @@ public class ChessBoard {
         return chessBoardArray[row][col];
     }
 
+    public ChessPiece pieceInPosition(int row, int col) {
+        return chessPiecesArray[row][col];
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
