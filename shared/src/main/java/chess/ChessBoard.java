@@ -52,8 +52,35 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+        for (int i = 1; i < 9; i++) {
+            chessPiecesArray[2][i] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
+            chessPiecesArray[7][i] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+        }
+        for (int col = 1; col <= 8; col++) {
+            chessPiecesArray[1][col] = new ChessPiece(ChessGame.TeamColor.WHITE, getPieceTypeForColumn(col));
+            chessPiecesArray[8][col] = new ChessPiece(ChessGame.TeamColor.BLACK, getPieceTypeForColumn(col));
+        }
     }
+    private ChessPiece.PieceType getPieceTypeForColumn(int col) {
+        switch (col) {
+            case 1:
+            case 8:
+                return ChessPiece.PieceType.ROOK;
+            case 2:
+            case 7:
+                return ChessPiece.PieceType.KNIGHT;
+            case 3:
+            case 6:
+                return ChessPiece.PieceType.BISHOP;
+            case 4:
+                return ChessPiece.PieceType.QUEEN;
+            case 5:
+                return ChessPiece.PieceType.KING;
+            default:
+                throw new IllegalArgumentException("Invalid column number: " + col);
+        }
+    }
+
 
     public ChessPosition getPosition(ChessPosition position) {
         return chessBoardArray[position.getRow()][position.getCol()];
@@ -72,7 +99,7 @@ public class ChessBoard {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChessBoard that=(ChessBoard) o;
-        return Arrays.equals(chessBoardArray, that.chessBoardArray) && Arrays.equals(chessPiecesArray, that.chessPiecesArray);
+        return Arrays.deepEquals(chessBoardArray, that.chessBoardArray) && Arrays.deepEquals(chessPiecesArray, that.chessPiecesArray);
     }
 
     @Override
