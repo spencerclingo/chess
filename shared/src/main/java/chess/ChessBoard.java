@@ -52,13 +52,11 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        for (int i = 1; i < 9; i++) {
-            chessPiecesArray[2][i] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
-            chessPiecesArray[7][i] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
-        }
         for (int col = 1; col <= 8; col++) {
             chessPiecesArray[1][col] = new ChessPiece(ChessGame.TeamColor.WHITE, getPieceTypeForColumn(col));
             chessPiecesArray[8][col] = new ChessPiece(ChessGame.TeamColor.BLACK, getPieceTypeForColumn(col));
+            chessPiecesArray[2][col] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
+            chessPiecesArray[7][col] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
         }
     }
     private ChessPiece.PieceType getPieceTypeForColumn(int col) {

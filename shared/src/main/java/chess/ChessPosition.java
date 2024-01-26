@@ -39,14 +39,6 @@ public class ChessPosition {
         return col;
     }
 
-    public void setRow(int row) {
-        this.row=row;
-    }
-
-    public void setCol(int col) {
-        this.col=col;
-    }
-
 
     @Override
     public boolean equals(Object o) {
