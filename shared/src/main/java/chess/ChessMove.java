@@ -13,6 +13,14 @@ public class ChessMove {
     private final ChessPosition startPosition;
     private final ChessPosition endPosition;
     private final ChessPiece.PieceType promotionPiece;
+    private ChessPiece.PieceType startPiece;
+
+    public ChessMove(ChessPosition startPosition, ChessPosition endPosition, ChessPiece.PieceType promotionPiece, ChessPiece.PieceType startPiece) {
+        this.startPosition=startPosition;
+        this.endPosition=endPosition;
+        this.promotionPiece=promotionPiece;
+        this.startPiece=startPiece;
+    }
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition, ChessPiece.PieceType promotionPiece) {
         this.startPosition=startPosition;
@@ -42,6 +50,14 @@ public class ChessMove {
      */
     public ChessPiece.PieceType getPromotionPiece() {
         return promotionPiece;
+    }
+
+    public ChessMove getReverseMove() {
+        if (promotionPiece == null) {
+            return new ChessMove(endPosition, startPosition, startPiece);
+        } else {
+            return new ChessMove(endPosition, startPosition, startPiece, promotionPiece);
+        }
     }
 
     @Override
