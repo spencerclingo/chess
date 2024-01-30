@@ -18,11 +18,6 @@ public class ChessPosition {
         this.col = col;
     }
 
-    public ChessPosition(ChessPosition positionCopy) {
-        row = positionCopy.getRow();
-        col = positionCopy.getCol();
-    }
-
     /**
      * @return which row this position is in
      * 1 codes for the bottom row
@@ -39,6 +34,26 @@ public class ChessPosition {
         return col;
     }
 
+    /**
+     * Returns a new position object with integer differences
+     * in the row and column. Used to move pieces
+     *
+     * @param rowDif
+     * @param colDif
+     * @return ChessPosition
+     */
+    public ChessPosition changedCopy(int rowDif, int colDif) {
+        return new ChessPosition(row + rowDif, col + colDif);
+    }
+
+    /**
+     * Returns a copy of a position so changes to it don't cause problems
+     *
+     * @return ChessPosition
+     */
+    public ChessPosition copy() {
+        return new ChessPosition(row, col);
+    }
 
     @Override
     public boolean equals(Object o) {
