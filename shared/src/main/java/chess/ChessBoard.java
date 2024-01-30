@@ -9,7 +9,7 @@ import java.util.Arrays;
  * signature of the existing methods.
  */
 public class ChessBoard {
-    private ChessPiece[][] chessPieceArray = new ChessPiece[10][10];
+    private final ChessPiece[][] chessPieceArray = new ChessPiece[10][10];
     public ChessBoard() {
 
     }
@@ -53,14 +53,14 @@ public class ChessBoard {
     }
 
     private ChessPiece.PieceType resetHelper(int col) {
-        switch(col) {
-            case 1, 8: return ChessPiece.PieceType.ROOK;
-            case 2, 7: return ChessPiece.PieceType.KNIGHT;
-            case 3, 6: return ChessPiece.PieceType.BISHOP;
-            case 4: return ChessPiece.PieceType.QUEEN;
-            case 5: return ChessPiece.PieceType.KING;
-            default: throw new RuntimeException("Invalid piece");
-        }
+        return switch (col) {
+            case 1, 8 -> ChessPiece.PieceType.ROOK;
+            case 2, 7 -> ChessPiece.PieceType.KNIGHT;
+            case 3, 6 -> ChessPiece.PieceType.BISHOP;
+            case 4 -> ChessPiece.PieceType.QUEEN;
+            case 5 -> ChessPiece.PieceType.KING;
+            default -> throw new RuntimeException("Invalid piece");
+        };
     }
 
     @Override

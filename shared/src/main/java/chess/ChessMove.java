@@ -10,9 +10,9 @@ import java.util.Objects;
  */
 public class ChessMove {
 
-    private ChessPosition startPosition;
-    private ChessPosition endPosition;
-    private ChessPiece.PieceType promotionPiece;
+    private final ChessPosition startPosition;
+    private final ChessPosition endPosition;
+    private final ChessPiece.PieceType promotionPiece;
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition, ChessPiece.PieceType promotionPiece) {
         this.startPosition=startPosition;
@@ -56,7 +56,6 @@ public class ChessMove {
     public int hashCode() {
         return Objects.hash(getStartPosition(), getEndPosition(), getPromotionPiece());
     }
-
 
     @Override
     public String toString() {

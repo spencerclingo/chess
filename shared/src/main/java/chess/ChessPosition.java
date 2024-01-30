@@ -10,8 +10,8 @@ import java.util.Objects;
  */
 public class ChessPosition {
 
-    private int row;
-    private int col;
+    private final int row;
+    private final int col;
 
     public ChessPosition(int row, int col) {
         this.row = row;
@@ -38,8 +38,8 @@ public class ChessPosition {
      * Returns a new position object with integer differences
      * in the row and column. Used to move pieces
      *
-     * @param rowDif
-     * @param colDif
+     * @param rowDif Positive moves up, negative moves down
+     * @param colDif Positive moves right, negative moves left
      * @return ChessPosition
      */
     public ChessPosition changedCopy(int rowDif, int colDif) {
@@ -47,7 +47,7 @@ public class ChessPosition {
     }
 
     /**
-     * Returns a copy of a position so changes to it don't cause problems
+     * Returns a copy of a position so changes to it doesn't cause problems
      *
      * @return ChessPosition
      */
