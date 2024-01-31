@@ -10,7 +10,7 @@ import java.util.Objects;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessPiece {
+public class ChessPiece implements Cloneable{
 
     private final ChessGame.TeamColor color;
     private PieceType type;
@@ -30,7 +30,7 @@ public class ChessPiece {
         BISHOP,
         KNIGHT,
         ROOK,
-        PAWN
+        PAWN;
     }
 
     /**
@@ -109,9 +109,9 @@ public class ChessPiece {
         while (position.getRow() + 1 < 9 && position.getCol() + 1 < 9) {
             ChessPosition endPosition = position.changedCopy(1,1);
             if (board.getPiece(endPosition) == null) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null, piece.getPieceType()));
+                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
             } else if (board.getPiece(endPosition).getTeamColor() != piece.getTeamColor()) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null, piece.getPieceType()));
+                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
                 break;
             } else {
                 break;
@@ -124,9 +124,9 @@ public class ChessPiece {
         while (position.getRow() + 1 < 9 && position.getCol() - 1 > 0) {
             ChessPosition endPosition = position.changedCopy(1,-1);
             if (board.getPiece(endPosition) == null) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null, piece.getPieceType()));
+                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
             } else if (board.getPiece(endPosition).getTeamColor() != piece.getTeamColor()) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null, piece.getPieceType()));
+                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
                 break;
             } else {
                 break;
@@ -139,9 +139,9 @@ public class ChessPiece {
         while (position.getRow() - 1 > 0 && position.getCol() - 1 > 0) {
             ChessPosition endPosition = position.changedCopy(-1,-1);
             if (board.getPiece(endPosition) == null) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null, piece.getPieceType()));
+                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
             } else if (board.getPiece(endPosition).getTeamColor() != piece.getTeamColor()) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null, piece.getPieceType()));
+                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
                 break;
             } else {
                 break;
@@ -154,9 +154,9 @@ public class ChessPiece {
         while (position.getRow() - 1 > 0 && position.getCol() + 1 < 9) {
             ChessPosition endPosition = position.changedCopy(-1,1);
             if (board.getPiece(endPosition) == null) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null, piece.getPieceType()));
+                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
             } else if (board.getPiece(endPosition).getTeamColor() != piece.getTeamColor()) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null, piece.getPieceType()));
+                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
                 break;
             } else {
                 break;
@@ -185,9 +185,9 @@ public class ChessPiece {
         while (position.getRow() + 1 < 9) {
             ChessPosition endPosition = position.changedCopy(1,0);
             if (board.getPiece(endPosition) == null) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null, piece.getPieceType()));
+                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
             } else if (board.getPiece(endPosition).getTeamColor() != piece.getTeamColor()) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null, piece.getPieceType()));
+                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
                 break;
             } else {
                 break;
@@ -200,9 +200,9 @@ public class ChessPiece {
         while (position.getCol() - 1 > 0) {
             ChessPosition endPosition = position.changedCopy(0,-1);
             if (board.getPiece(endPosition) == null) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null, piece.getPieceType()));
+                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
             } else if (board.getPiece(endPosition).getTeamColor() != piece.getTeamColor()) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null, piece.getPieceType()));
+                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
                 break;
             } else {
                 break;
@@ -215,9 +215,9 @@ public class ChessPiece {
         while (position.getRow() - 1 > 0) {
             ChessPosition endPosition = position.changedCopy(-1,0);
             if (board.getPiece(endPosition) == null) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null, piece.getPieceType()));
+                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
             } else if (board.getPiece(endPosition).getTeamColor() != piece.getTeamColor()) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null, piece.getPieceType()));
+                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
                 break;
             } else {
                 break;
@@ -230,9 +230,9 @@ public class ChessPiece {
         while (position.getCol() + 1 < 9) {
             ChessPosition endPosition = position.changedCopy(0,1);
             if (board.getPiece(endPosition) == null) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null, piece.getPieceType()));
+                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
             } else if (board.getPiece(endPosition).getTeamColor() != piece.getTeamColor()) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null, piece.getPieceType()));
+                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
                 break;
             } else {
                 break;
@@ -278,7 +278,7 @@ public class ChessPiece {
 
             ChessPosition newPosition = startPosition.changedCopy(options[0], options[1]);
             if (board.getPiece(newPosition) == null || board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
-                possibleMoves.add(new ChessMove(startPosition, newPosition, null, piece.getPieceType()));
+                possibleMoves.add(new ChessMove(startPosition, newPosition, null));
             }
         }
 
@@ -313,15 +313,15 @@ public class ChessPiece {
         ChessPosition moveOne = startPosition.changedCopy(forward,0);
         if (board.getPiece(moveOne) == null) {
             if (startPosition.getRow() == promotionRow) { // If the pawn is moving to where it can promote
-                possibleMoves.add(new ChessMove(startPosition, moveOne, PieceType.KNIGHT, piece.getPieceType()));
-                possibleMoves.add(new ChessMove(startPosition, moveOne, PieceType.ROOK, piece.getPieceType()));
-                possibleMoves.add(new ChessMove(startPosition, moveOne, PieceType.BISHOP, piece.getPieceType()));
-                possibleMoves.add(new ChessMove(startPosition, moveOne, PieceType.QUEEN, piece.getPieceType()));
+                possibleMoves.add(new ChessMove(startPosition, moveOne, PieceType.KNIGHT));
+                possibleMoves.add(new ChessMove(startPosition, moveOne, PieceType.ROOK));
+                possibleMoves.add(new ChessMove(startPosition, moveOne, PieceType.BISHOP));
+                possibleMoves.add(new ChessMove(startPosition, moveOne, PieceType.QUEEN));
             } else { // cannot promote from this position
                 ChessPosition moveTwo = startPosition.changedCopy(2*forward, 0);
-                possibleMoves.add(new ChessMove(startPosition, moveOne, null, piece.getPieceType()));
+                possibleMoves.add(new ChessMove(startPosition, moveOne, null));
                 if (board.getPiece(moveTwo) == null && startPosition.getRow() == startRow) {
-                    possibleMoves.add(new ChessMove(startPosition, moveTwo, null, piece.getPieceType()));
+                    possibleMoves.add(new ChessMove(startPosition, moveTwo, null));
                 }
             }
         }
@@ -330,12 +330,12 @@ public class ChessPiece {
         ChessPosition attackRight = startPosition.changedCopy(forward, 1);
         if (board.getPiece(attackRight) != null && board.getPiece(attackRight).getTeamColor() != piece.getTeamColor()) {
             if (startPosition.getRow() == promotionRow) { // If the pawn is moving to where it can promote
-                possibleMoves.add(new ChessMove(startPosition, attackRight, PieceType.KNIGHT, piece.getPieceType()));
-                possibleMoves.add(new ChessMove(startPosition, attackRight, PieceType.ROOK, piece.getPieceType()));
-                possibleMoves.add(new ChessMove(startPosition, attackRight, PieceType.BISHOP, piece.getPieceType()));
-                possibleMoves.add(new ChessMove(startPosition, attackRight, PieceType.QUEEN, piece.getPieceType()));
+                possibleMoves.add(new ChessMove(startPosition, attackRight, PieceType.KNIGHT));
+                possibleMoves.add(new ChessMove(startPosition, attackRight, PieceType.ROOK));
+                possibleMoves.add(new ChessMove(startPosition, attackRight, PieceType.BISHOP));
+                possibleMoves.add(new ChessMove(startPosition, attackRight, PieceType.QUEEN));
             } else { // cannot promote from this position
-                possibleMoves.add(new ChessMove(startPosition, attackRight, null, piece.getPieceType()));
+                possibleMoves.add(new ChessMove(startPosition, attackRight, null));
             }
         }
 
@@ -343,16 +343,21 @@ public class ChessPiece {
         ChessPosition attackLeft = startPosition.changedCopy(forward, -1);
         if (board.getPiece(attackLeft) != null && board.getPiece(attackLeft).getTeamColor() != piece.getTeamColor()) {
             if (startPosition.getRow() == promotionRow) { // If the pawn is moving to where it can promote
-                possibleMoves.add(new ChessMove(startPosition, attackLeft, PieceType.KNIGHT, piece.getPieceType()));
-                possibleMoves.add(new ChessMove(startPosition, attackLeft, PieceType.ROOK, piece.getPieceType()));
-                possibleMoves.add(new ChessMove(startPosition, attackLeft, PieceType.BISHOP, piece.getPieceType()));
-                possibleMoves.add(new ChessMove(startPosition, attackLeft, PieceType.QUEEN, piece.getPieceType()));
+                possibleMoves.add(new ChessMove(startPosition, attackLeft, PieceType.KNIGHT));
+                possibleMoves.add(new ChessMove(startPosition, attackLeft, PieceType.ROOK));
+                possibleMoves.add(new ChessMove(startPosition, attackLeft, PieceType.BISHOP));
+                possibleMoves.add(new ChessMove(startPosition, attackLeft, PieceType.QUEEN));
             } else { // cannot promote from this position
-                possibleMoves.add(new ChessMove(startPosition, attackLeft, null, piece.getPieceType()));
+                possibleMoves.add(new ChessMove(startPosition, attackLeft, null));
             }
         }
 
         return possibleMoves;
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
     @Override
