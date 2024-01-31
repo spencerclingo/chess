@@ -52,6 +52,10 @@ public class ChessMove {
         return promotionPiece;
     }
 
+    public ChessPiece.PieceType getStartPiece() {
+        return startPiece;
+    }
+
     public ChessMove getReverseMove() {
         if (promotionPiece == null) {
             return new ChessMove(endPosition, startPosition, startPiece);

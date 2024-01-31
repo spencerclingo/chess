@@ -101,7 +101,7 @@ public class ChessPiece {
      * @param piece The piece in question
      * @return ArrayList of ChessMove
      */
-    public ArrayList<ChessMove> diagonalMoves(ChessBoard board, ChessPosition startPosition, ChessPiece piece) {
+    private ArrayList<ChessMove> diagonalMoves(ChessBoard board, ChessPosition startPosition, ChessPiece piece) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
 
         // Up and to the right
@@ -177,7 +177,7 @@ public class ChessPiece {
      *
      * @return ArrayList of ChessMove
      */
-    public ArrayList<ChessMove> straightMoves(ChessBoard board, ChessPosition startPosition, ChessPiece piece) {
+    private ArrayList<ChessMove> straightMoves(ChessBoard board, ChessPosition startPosition, ChessPiece piece) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
 
         // Up
@@ -251,7 +251,7 @@ public class ChessPiece {
      * @param piece The piece in question
      * @return ArrayList of ChessMove
      */
-    public ArrayList<ChessMove> singleMove(ChessBoard board, ChessPosition startPosition, ChessPiece piece) {
+    private ArrayList<ChessMove> singleMove(ChessBoard board, ChessPosition startPosition, ChessPiece piece) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
         int[][] movementOptions;
 

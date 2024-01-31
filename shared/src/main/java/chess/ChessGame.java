@@ -13,18 +13,22 @@ public class ChessGame {
 
     private TeamColor teamTurn;
     private ChessMove previousMove;
-    private ArrayList<ChessMove> possibleMoves;
+    private ArrayList<ChessMove> allMoves;
     private ChessBoard currentBoard;
 
 
     public ChessGame() {
+        currentBoard = new ChessBoard();
+        currentBoard.resetBoard();
+        setTeamTurn(TeamColor.WHITE);
+        previousMove = null;
     }
 
     /**
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        throw new RuntimeException("Not implemented");
+        return teamTurn;
     }
 
     /**
@@ -33,7 +37,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        throw new RuntimeException("Not implemented");
+        teamTurn = team;
     }
 
     /**
@@ -52,8 +56,26 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        ArrayList<ChessMove> allValidMoves;
+        ChessPiece piece = currentBoard.getPiece(startPosition);
+
+        allValidMoves = (ArrayList<ChessMove>) piece.pieceMoves(currentBoard, startPosition);
+
+        for (int moveNum = 0; moveNum < allValidMoves.size(); moveNum++) {
+
+        }
+
+        return allValidMoves;
     }
+
+    private boolean doMove(ChessMove move) {
+        boolean validMove = true;
+
+        
+
+        return validMove;
+    }
+
 
     /**
      * Makes a move in a chess game
@@ -112,5 +134,21 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return currentBoard;
+    }
+
+    public ChessMove getPreviousMove() {
+        return previousMove;
+    }
+
+    public void setPreviousMove(ChessMove previousMove) {
+        this.previousMove=previousMove;
+    }
+
+    public ArrayList<ChessMove> getPossibleMoves() {
+        return allMoves;
+    }
+
+    public void setPossibleMoves(ArrayList<ChessMove> possibleMoves) {
+        this.allMoves=possibleMoves;
     }
 }

@@ -63,6 +63,15 @@ public class ChessBoard {
         };
     }
 
+    public void makeMove(ChessMove move) {
+        chessPieceArray[move.getEndPosition().getRow()][move.getEndPosition().getCol()] =
+                chessPieceArray[move.getStartPosition().getRow()][move.getStartPosition().getCol()];
+        if (move.getPromotionPiece() != null) {
+            chessPieceArray[move.getEndPosition().getRow()][move.getEndPosition().getCol()].changePieceType(move.getPromotionPiece());
+        }
+        chessPieceArray[move.getStartPosition().getRow()][move.getStartPosition().getCol()] = null;
+    }
+
     @Override
     public String toString() {
         return "ChessBoard{" +
