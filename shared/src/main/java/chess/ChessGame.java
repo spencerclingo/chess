@@ -62,18 +62,33 @@ public class ChessGame {
         allValidMoves = (ArrayList<ChessMove>) piece.pieceMoves(currentBoard, startPosition);
 
         for (int moveNum = 0; moveNum < allValidMoves.size(); moveNum++) {
-
+            if (!doMove(allValidMoves.get(moveNum))) {
+                allValidMoves.remove(moveNum);
+                moveNum--;
+            }
         }
 
         return allValidMoves;
     }
 
     private boolean doMove(ChessMove move) {
-        boolean validMove = true;
+        ChessPiece.PieceType pieceType = currentBoard.getPiece(move.getStartPosition()).getPieceType();
+        ChessPiece takenPiece = currentBoard.getPiece(move.getEndPosition());
 
-        
+        currentBoard.makeMove(move);
+        if (!isInCheck(getTeamTurn())) {
+            undoMove(move, pieceType, takenPiece);
+            return false;
+        }
+        undoMove(move, pieceType, takenPiece);
+        return true;
+    }
 
-        return validMove;
+    private void undoMove(ChessMove move, ChessPiece.PieceType pieceType, ChessPiece takenPiece) {
+        ChessMove moveUndo = move.getReverseMove();
+        currentBoard.makeMove(moveUndo);
+        currentBoard.getPiece(moveUndo.getEndPosition()).changePieceType(pieceType);
+        currentBoard.addPiece(moveUndo.getStartPosition(), takenPiece);
     }
 
 
@@ -85,6 +100,7 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         throw new RuntimeException("Not implemented");
+        // This is where you change the team turn
     }
 
     /**
