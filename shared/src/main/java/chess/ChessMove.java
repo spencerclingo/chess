@@ -13,6 +13,8 @@ public class ChessMove {
     private final ChessPosition startPosition;
     private final ChessPosition endPosition;
     private ChessPiece.PieceType promotionPiece;
+    private boolean isCastling = false;
+    private boolean isEnPassant = false;
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition, ChessPiece.PieceType promotionPiece) {
         this.startPosition=startPosition;
@@ -50,6 +52,22 @@ public class ChessMove {
 
     public ChessMove getReverseMove() {
         return new ChessMove(endPosition, startPosition, null);
+    }
+
+    public boolean isCastling() {
+        return isCastling;
+    }
+
+    public void setCastling(boolean castling) {
+        isCastling=castling;
+    }
+
+    public boolean isEnPassant() {
+        return isEnPassant;
+    }
+
+    public void setEnPassant(boolean enPassant) {
+        isEnPassant=enPassant;
     }
 
     @Override

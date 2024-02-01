@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
+import static java.lang.Math.abs;
+
 /**
  * For a class that can manage a chess game, making moves on a board
  * <p>
@@ -14,7 +16,6 @@ public class ChessGame {
 
     private TeamColor teamTurn;
     private ChessMove previousMove;
-    private ArrayList<ChessMove> allMoves;
     private ChessBoard currentBoard;
 
 
@@ -57,6 +58,8 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+        //System.out.println("This is the start position where I look for valid moves: " + startPosition);
+
         ArrayList<ChessMove> allValidMoves;
         ChessPiece piece = currentBoard.getPiece(startPosition);
         if (piece == null) {
@@ -65,19 +68,31 @@ public class ChessGame {
 
         allValidMoves = (ArrayList<ChessMove>) piece.pieceMoves(currentBoard, startPosition);
 
+        ChessMove enPassant = enPassant(startPosition);
+
+        if (enPassant != null) {
+            //System.out.println("Adding En Passant move : " + enPassant);
+            allValidMoves.add(enPassant);
+        }
+
         for (int moveNum = 0; moveNum < allValidMoves.size(); moveNum++) {
             if (doMove(allValidMoves.get(moveNum))) {
+                //System.out.println("Removing move: " + allValidMoves.get(moveNum));
                 allValidMoves.remove(moveNum);
                 moveNum--;
             }
         }
 
-        System.out.println("This is all validMoves that validMoves has: " + allValidMoves);
+        //System.out.println("Size of allValidMoves: " + allValidMoves.size());
 
         return allValidMoves;
     }
 
-    private boolean doMove(ChessMove move) {
+    private boolean doMove(ChessMove move){
+        if (move.isEnPassant()) {
+            return testEnPassantMove(move);
+        }
+
         ChessPiece.PieceType pieceType = currentBoard.getPiece(move.getStartPosition()).getPieceType();
         ChessPiece takenPiece = currentBoard.getPiece(move.getEndPosition());
 
@@ -97,6 +112,15 @@ public class ChessGame {
         currentBoard.addPiece(moveUndo.getStartPosition(), takenPiece);
     }
 
+    private boolean testEnPassantMove(ChessMove move) {
+        ChessBoard testBoard = currentBoard.copy();
+
+        System.out.println(move.isEnPassant());
+
+        testBoard.makeMove(move);
+        return isInCheck(testBoard.getPiece(move.getEndPosition()).getTeamColor());
+    }
+
 
     /**
      * Makes a move in a chess game
@@ -105,8 +129,45 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
-        // This is where you change the team turn
+        if (teamTurn != currentBoard.getPiece(move.getStartPosition()).getTeamColor()) {
+            //System.out.println("Wrong team's move. ");
+            throw new InvalidMoveException();
+        }
+        if (currentBoard.getPiece(move.getStartPosition()) == null) {
+            //System.out.println("No piece at position. ");
+            throw new InvalidMoveException();
+        }
+
+        ArrayList<ChessMove> allValidMoves =(ArrayList<ChessMove>) validMoves(move.getStartPosition());
+        boolean validMove = false;
+
+        //System.out.println(allValidMoves.size());
+
+        for (ChessMove testMove : allValidMoves) {
+            if (testMove.equals(move)) {
+                validMove = true;
+                move = testMove;
+                break;
+            }
+        }
+
+        if (!validMove) {
+            //System.out.println("Invalid move.");
+            throw new InvalidMoveException();
+        }
+
+        currentBoard.makeMove(move);
+        if (teamTurn == TeamColor.WHITE) {
+            teamTurn = TeamColor.BLACK;
+        } else {
+            teamTurn = TeamColor.WHITE;
+        }
+
+        if (move.isEnPassant()) {
+            currentBoard.removePiece(previousMove.getEndPosition());
+        }
+
+        previousMove = move;
     }
 
     /**
@@ -116,8 +177,6 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        System.out.println("Checking if this team is in check: " + teamColor);
-
         TeamColor oppositeColor;
 
         if (teamColor == TeamColor.WHITE) {
@@ -149,8 +208,6 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        System.out.println("Is in Check: " + isInCheck(teamColor));
-        System.out.println("Is in Stalemate: " + isInStalemate(teamColor));
         return (isInCheck(teamColor) && isInStalemate(teamColor));
     }
 
@@ -171,7 +228,6 @@ public class ChessGame {
 
         for (ChessPosition position : allPositions) {
             allValidMoves.addAll(validMoves(position));
-            //System.out.println("This is the valid moves according to isInStalemate: " + allValidMoves);
             if (!allValidMoves.isEmpty()) {
                 return false;
             }
@@ -179,6 +235,70 @@ public class ChessGame {
 
         return true;
     }
+
+    private ChessMove enPassant(ChessPosition startPosition) {
+        //System.out.println("In enPassant method. ");
+
+        ChessPiece piece = currentBoard.getPiece(startPosition);
+        ChessMove newMove=null;
+
+        if (piece == null || previousMove == null) {
+            //System.out.println("No piece at position or no previous move. ");
+            return null;
+        }
+
+
+        ChessPiece possiblePawn = currentBoard.getPiece(previousMove.getEndPosition());
+
+        //System.out.println("Previous move: " + previousMove);
+
+        if (possiblePawn == null) {
+            //System.out.println("No piece at previous move end position. ");
+            return null;
+        }
+
+        if (possiblePawn.getPieceType() == ChessPiece.PieceType.PAWN) {
+            if (abs(previousMove.getEndPosition().getRow() - previousMove.getStartPosition().getRow()) == 2) {
+                if (startPosition.getCol() + 1 == previousMove.getEndPosition().getCol()) {
+                    ChessPosition newPosition = new ChessPosition((abs(previousMove.getEndPosition().getRow() +
+                            previousMove.getStartPosition().getRow()) / 2), previousMove.getEndPosition().getCol());
+                    newMove = new ChessMove(startPosition, newPosition, null);
+                    newMove.setEnPassant(true);
+                } else if (startPosition.getCol() - 1 == previousMove.getEndPosition().getCol()) {
+                    ChessPosition newPosition = new ChessPosition((abs(previousMove.getEndPosition().getRow() +
+                            previousMove.getStartPosition().getRow()) / 2), previousMove.getEndPosition().getCol());
+                    newMove = new ChessMove(startPosition, newPosition, null);
+                    newMove.setEnPassant(true);
+                } else {
+                    return null;
+                }
+            } else {
+                return null;
+            }
+        } else {
+        return null;
+        }
+
+        //System.out.println("EnPassant move found: " + newMove);
+        return newMove;
+    }
+
+    /*
+    private ChessMove castling(ChessPosition startPosition) {
+        ChessMove castle = null;
+        ChessPiece piece = currentBoard.getPiece(startPosition);
+
+        if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+            if (!piece.hasPieceMoved()) {
+
+            }
+        } else {
+            return null;
+        }
+
+        return castle;
+    }
+     */
 
     /**
      * Sets this game's chessboard with a given board
@@ -206,25 +326,17 @@ public class ChessGame {
         this.previousMove=previousMove;
     }
 
-    public ArrayList<ChessMove> getPossibleMoves() {
-        return allMoves;
-    }
-
-    public void setPossibleMoves(ArrayList<ChessMove> possibleMoves) {
-        this.allMoves=possibleMoves;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChessGame chessGame=(ChessGame) o;
-        return getTeamTurn() == chessGame.getTeamTurn() && Objects.equals(getPreviousMove(), chessGame.getPreviousMove()) && Objects.equals(allMoves, chessGame.allMoves) && Objects.equals(currentBoard, chessGame.currentBoard);
+        return getTeamTurn() == chessGame.getTeamTurn() && Objects.equals(getPreviousMove(), chessGame.getPreviousMove()) && Objects.equals(currentBoard, chessGame.currentBoard);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getTeamTurn(), getPreviousMove(), allMoves, currentBoard);
+        return Objects.hash(getTeamTurn(), getPreviousMove(), currentBoard);
     }
 
     @Override
@@ -232,7 +344,6 @@ public class ChessGame {
         return "ChessGame{" +
                 "teamTurn=" + teamTurn +
                 ", previousMove=" + previousMove +
-                ", allMoves=" + allMoves +
                 ", currentBoard=" + currentBoard +
                 '}';
     }

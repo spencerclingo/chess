@@ -15,6 +15,16 @@ public class ChessBoard {
 
     }
 
+    public ChessBoard(ChessPiece[][] chessPieceArray) {
+        for (int row = 1; row < 9; row++) {
+            for (int col = 1; col < 9; col++) {
+                if (chessPieceArray[row][col] != null) {
+                    this.chessPieceArray[row][col]=chessPieceArray[row][col].copy();
+                }
+            }
+        }
+    }
+
     /**
      * Adds a chess piece to the chessboard
      *
@@ -38,6 +48,10 @@ public class ChessBoard {
 
     public ChessPiece getPiece(int row, int col) {
         return chessPieceArray[row][col];
+    }
+
+    public void removePiece (ChessPosition position) {
+        chessPieceArray[position.getRow()][position.getCol()] = null;
     }
 
     /**
@@ -71,6 +85,15 @@ public class ChessBoard {
             chessPieceArray[move.getEndPosition().getRow()][move.getEndPosition().getCol()].changePieceType(move.getPromotionPiece());
         }
         chessPieceArray[move.getStartPosition().getRow()][move.getStartPosition().getCol()] = null;
+        chessPieceArray[move.getEndPosition().getRow()][move.getEndPosition().getCol()].pieceMoved();
+
+        if (move.isEnPassant()) {
+            if (move.getEndPosition().getRow() == 6) {
+                chessPieceArray[move.getEndPosition().getRow() - 1][move.getEndPosition().getCol()] = null;
+            } else {
+                chessPieceArray[move.getEndPosition().getRow() + 1][move.getEndPosition().getCol()] = null;
+            }
+        }
     }
 
     public ArrayList<ChessMove> allTeamMoves(ChessGame.TeamColor teamColor) {
@@ -113,6 +136,10 @@ public class ChessBoard {
         }
 
         return allPositions;
+    }
+
+    public ChessBoard copy() {
+        return new ChessBoard(chessPieceArray);
     }
 
     @Override
