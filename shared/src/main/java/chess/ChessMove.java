@@ -58,8 +58,8 @@ public class ChessMove {
         return isCastling;
     }
 
-    public void setCastling(boolean castling) {
-        isCastling=castling;
+    public void setCastling() {
+        isCastling = true;
     }
 
     public boolean isEnPassant() {

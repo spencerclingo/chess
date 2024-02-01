@@ -78,20 +78,33 @@ public class ChessBoard {
         };
     }
 
-    public void makeMove(ChessMove move) {
+    public void makeMove(ChessMove move, boolean permanent) {
         chessPieceArray[move.getEndPosition().getRow()][move.getEndPosition().getCol()] =
                 chessPieceArray[move.getStartPosition().getRow()][move.getStartPosition().getCol()];
         if (move.getPromotionPiece() != null) {
             chessPieceArray[move.getEndPosition().getRow()][move.getEndPosition().getCol()].changePieceType(move.getPromotionPiece());
         }
         chessPieceArray[move.getStartPosition().getRow()][move.getStartPosition().getCol()] = null;
-        chessPieceArray[move.getEndPosition().getRow()][move.getEndPosition().getCol()].pieceMoved();
+        if (permanent) {
+            chessPieceArray[move.getEndPosition().getRow()][move.getEndPosition().getCol()].pieceMoved();
+        }
 
         if (move.isEnPassant()) {
             if (move.getEndPosition().getRow() == 6) {
                 chessPieceArray[move.getEndPosition().getRow() - 1][move.getEndPosition().getCol()] = null;
             } else {
                 chessPieceArray[move.getEndPosition().getRow() + 1][move.getEndPosition().getCol()] = null;
+            }
+        }
+        if (move.isCastling() && permanent) {
+            if (move.getStartPosition().getCol() > move.getEndPosition().getCol()) {
+                chessPieceArray[move.getEndPosition().getRow()][move.getEndPosition().getCol() + 1] =
+                        chessPieceArray[move.getEndPosition().getRow()][1];
+                chessPieceArray[move.getEndPosition().getRow()][1] = null;
+            } else {
+                chessPieceArray[move.getEndPosition().getRow()][move.getEndPosition().getCol() - 1] =
+                        chessPieceArray[move.getEndPosition().getRow()][8];
+                chessPieceArray[move.getEndPosition().getRow()][8] = null;
             }
         }
     }
