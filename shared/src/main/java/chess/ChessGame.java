@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -65,11 +66,13 @@ public class ChessGame {
         allValidMoves = (ArrayList<ChessMove>) piece.pieceMoves(currentBoard, startPosition);
 
         for (int moveNum = 0; moveNum < allValidMoves.size(); moveNum++) {
-            if (!doMove(allValidMoves.get(moveNum))) {
+            if (doMove(allValidMoves.get(moveNum))) {
                 allValidMoves.remove(moveNum);
                 moveNum--;
             }
         }
+
+        System.out.println("This is all validMoves that validMoves has: " + allValidMoves);
 
         return allValidMoves;
     }
@@ -79,12 +82,12 @@ public class ChessGame {
         ChessPiece takenPiece = currentBoard.getPiece(move.getEndPosition());
 
         currentBoard.makeMove(move);
-        if (!isInCheck(getTeamTurn())) {
+        if (!isInCheck(currentBoard.getPiece(move.getEndPosition()).getTeamColor())) {
             undoMove(move, pieceType, takenPiece);
-            return false;
+            return false; // They are not in check
         }
         undoMove(move, pieceType, takenPiece);
-        return true;
+        return true; // They are in check
     }
 
     private void undoMove(ChessMove move, ChessPiece.PieceType pieceType, ChessPiece takenPiece) {
@@ -113,6 +116,8 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
+        System.out.println("Checking if this team is in check: " + teamColor);
+
         TeamColor oppositeColor;
 
         if (teamColor == TeamColor.WHITE) {
@@ -144,6 +149,8 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
+        System.out.println("Is in Check: " + isInCheck(teamColor));
+        System.out.println("Is in Stalemate: " + isInStalemate(teamColor));
         return (isInCheck(teamColor) && isInStalemate(teamColor));
     }
 
@@ -155,10 +162,22 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        ArrayList<ChessMove> allMoves = currentBoard.allTeamMoves(teamColor);
+        ArrayList<ChessPosition> allPositions = currentBoard.allTeamPiecePositions(teamColor);
+        ArrayList<ChessMove> allValidMoves = new ArrayList<>();
 
+        if (teamColor != teamTurn) {
+            return false;
+        }
 
-        throw new RuntimeException("Not implemented");
+        for (ChessPosition position : allPositions) {
+            allValidMoves.addAll(validMoves(position));
+            //System.out.println("This is the valid moves according to isInStalemate: " + allValidMoves);
+            if (!allValidMoves.isEmpty()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -193,5 +212,28 @@ public class ChessGame {
 
     public void setPossibleMoves(ArrayList<ChessMove> possibleMoves) {
         this.allMoves=possibleMoves;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessGame chessGame=(ChessGame) o;
+        return getTeamTurn() == chessGame.getTeamTurn() && Objects.equals(getPreviousMove(), chessGame.getPreviousMove()) && Objects.equals(allMoves, chessGame.allMoves) && Objects.equals(currentBoard, chessGame.currentBoard);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getTeamTurn(), getPreviousMove(), allMoves, currentBoard);
+    }
+
+    @Override
+    public String toString() {
+        return "ChessGame{" +
+                "teamTurn=" + teamTurn +
+                ", previousMove=" + previousMove +
+                ", allMoves=" + allMoves +
+                ", currentBoard=" + currentBoard +
+                '}';
     }
 }
