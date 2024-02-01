@@ -12,7 +12,7 @@ public class ChessMove {
 
     private final ChessPosition startPosition;
     private final ChessPosition endPosition;
-    private ChessPiece.PieceType promotionPiece;
+    private final ChessPiece.PieceType promotionPiece;
     private boolean isCastling = false;
     private boolean isEnPassant = false;
 
@@ -44,10 +44,6 @@ public class ChessMove {
      */
     public ChessPiece.PieceType getPromotionPiece() {
         return promotionPiece;
-    }
-
-    public void setPromotionPiece(ChessPiece.PieceType pieceType) {
-        promotionPiece = pieceType;
     }
 
     public ChessMove getReverseMove() {

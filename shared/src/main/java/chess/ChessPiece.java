@@ -30,7 +30,7 @@ public class ChessPiece{
         BISHOP,
         KNIGHT,
         ROOK,
-        PAWN;
+        PAWN
     }
 
     public ChessPiece copy() {
@@ -57,8 +57,8 @@ public class ChessPiece{
         type = promotionPiece;
     }
 
-    public boolean hasPieceMoved() {
-        return hasMoved;
+    public boolean hasPieceNotMoved() {
+        return !hasMoved;
     }
 
     public void pieceMoved() {
@@ -261,6 +261,24 @@ public class ChessPiece{
      */
     private ArrayList<ChessMove> singleMove(ChessBoard board, ChessPosition startPosition, ChessPiece piece) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
+        int[][] movementOptions = getMovementOptions(piece);
+
+        for (int[] options : movementOptions) {
+            if (startPosition.getRow() + options[0] >= 9 || startPosition.getRow() + options[0] <= 0 ||
+                    startPosition.getCol() + options[1] >= 9 || startPosition.getCol() + options[1] <= 0) {
+                continue;
+            }
+
+            ChessPosition newPosition = startPosition.changedCopy(options[0], options[1]);
+            if (board.getPiece(newPosition) == null || board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
+                possibleMoves.add(new ChessMove(startPosition, newPosition, null));
+            }
+        }
+
+        return possibleMoves;
+    }
+
+    private static int[][] getMovementOptions(ChessPiece piece) {
         int[][] movementOptions;
 
         if (piece.getPieceType() == PieceType.KING) {
@@ -277,20 +295,7 @@ public class ChessPiece{
                     {-2,1}, {-2,-1}, // Move 2 down
             };
         }
-
-        for (int[] options : movementOptions) {
-            if (startPosition.getRow() + options[0] >= 9 || startPosition.getRow() + options[0] <= 0 ||
-                    startPosition.getCol() + options[1] >= 9 || startPosition.getCol() + options[1] <= 0) {
-                continue;
-            }
-
-            ChessPosition newPosition = startPosition.changedCopy(options[0], options[1]);
-            if (board.getPiece(newPosition) == null || board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
-                possibleMoves.add(new ChessMove(startPosition, newPosition, null));
-            }
-        }
-
-        return possibleMoves;
+        return movementOptions;
     }
 
     /**

@@ -1,6 +1,6 @@
 package chess;
 
-import java.lang.reflect.Array;
+//import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
@@ -171,7 +171,7 @@ public class ChessGame {
             currentBoard.removePiece(previousMove.getEndPosition());
         }
 
-        previousMove = move;
+        setPreviousMove(move);
     }
 
     /**
@@ -243,7 +243,7 @@ public class ChessGame {
     private ChessMove enPassant(ChessPosition startPosition) {
 
         ChessPiece piece = currentBoard.getPiece(startPosition);
-        ChessMove newMove = null;
+        ChessMove newMove;
 
         if (piece == null || previousMove == null) {
             return null;
@@ -287,7 +287,6 @@ public class ChessGame {
         ArrayList<ChessMove> allValidMoves = new ArrayList<>();
         ChessPiece piece = currentBoard.getPiece(startPosition);
         int startRow;
-        int kingStartCol = 5;
         int rightRookStartCol = 8;
         int rightKingEndCol = 7;
         int rightRookEndCol = 6;
@@ -306,7 +305,7 @@ public class ChessGame {
             return null;
         }
 
-        if (!piece.hasPieceMoved()) {
+        if (piece.hasPieceNotMoved()) {
             System.out.println("Piece has not moved");
             // Make sure a piece exists
             if (currentBoard.getPiece(startRow, rightRookStartCol) != null) {
@@ -314,7 +313,7 @@ public class ChessGame {
 
                 System.out.println("Piece in right rook starting position");
                 // Check for the rook to not have moved
-                if (potentialRook.getPieceType() == ChessPiece.PieceType.ROOK && !potentialRook.hasPieceMoved()) {
+                if (potentialRook.getPieceType() == ChessPiece.PieceType.ROOK && potentialRook.hasPieceNotMoved()) {
 
                     System.out.println("Right rook has not moved");
 
@@ -341,7 +340,7 @@ public class ChessGame {
                 ChessPiece potentialRook = currentBoard.getPiece(startRow, leftRookStartCol);
 
                 // Check for the rook to not have moved
-                if (potentialRook.getPieceType() == ChessPiece.PieceType.ROOK && !potentialRook.hasPieceMoved()) {
+                if (potentialRook.getPieceType() == ChessPiece.PieceType.ROOK && potentialRook.hasPieceNotMoved()) {
 
                     // Check for pieces in-between
                     if (currentBoard.getPiece(startRow, leftRookEndCol) == null &&
