@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -70,6 +71,48 @@ public class ChessBoard {
             chessPieceArray[move.getEndPosition().getRow()][move.getEndPosition().getCol()].changePieceType(move.getPromotionPiece());
         }
         chessPieceArray[move.getStartPosition().getRow()][move.getStartPosition().getCol()] = null;
+    }
+
+    public ArrayList<ChessMove> allTeamMoves(ChessGame.TeamColor teamColor) {
+        ArrayList<ChessMove> allValidMoves = new ArrayList<>();
+
+        for (int row = 1; row < 9; row++) {
+            for (int col = 1; col < 9; col++) {
+                if (chessPieceArray[row][col] != null && chessPieceArray[row][col].getTeamColor() == teamColor) {
+                    allValidMoves.addAll(chessPieceArray[row][col].pieceMoves(this, new ChessPosition(row, col)));
+                }
+            }
+        }
+
+        return allValidMoves;
+    }
+
+    public ChessPosition findKing(ChessGame.TeamColor teamColor) {
+        for (int row = 1; row < 9; row++) {
+            for (int col = 1; col < 9; col++) {
+                if (chessPieceArray[row][col] != null) {
+                    if (chessPieceArray[row][col].getPieceType() == ChessPiece.PieceType.KING &&
+                            chessPieceArray[row][col].getTeamColor() == teamColor) {
+                        return new ChessPosition(row, col);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public ArrayList<ChessPosition> allTeamPiecePositions(ChessGame.TeamColor teamColor) {
+        ArrayList<ChessPosition> allPositions = new ArrayList<>();
+
+        for (int row = 1; row < 9; row++) {
+            for (int col = 1; col < 9; col++) {
+                if (chessPieceArray[row][col] != null && chessPieceArray[row][col].getTeamColor() == teamColor) {
+                    allPositions.add(new ChessPosition(row, col));
+                }
+            }
+        }
+
+        return allPositions;
     }
 
     @Override
