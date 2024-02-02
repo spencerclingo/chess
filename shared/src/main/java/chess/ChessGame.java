@@ -59,8 +59,6 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        //System.out.println("This is the start position where I look for valid moves: " + startPosition);
-
         ArrayList<ChessMove> allValidMoves;
         ChessPiece piece = currentBoard.getPiece(startPosition);
         if (piece == null) {
@@ -79,19 +77,15 @@ public class ChessGame {
         }
 
         if (enPassant != null) {
-            //System.out.println("Adding En Passant move : " + enPassant);
             allValidMoves.add(enPassant);
         }
 
         for (int moveNum = 0; moveNum < allValidMoves.size(); moveNum++) {
             if (doMove(allValidMoves.get(moveNum))) {
-                //System.out.println("Removing move: " + allValidMoves.get(moveNum));
                 allValidMoves.remove(moveNum);
                 moveNum--;
             }
         }
-
-        //System.out.println("Size of allValidMoves: " + allValidMoves.size());
 
         return allValidMoves;
     }
@@ -122,8 +116,6 @@ public class ChessGame {
 
     private boolean testEnPassantMove(ChessMove move) {
         ChessBoard testBoard = currentBoard.copy();
-
-        System.out.println(move.isEnPassant());
 
         testBoard.makeMove(move, false);
         return isInCheck(testBoard.getPiece(move.getEndPosition()).getTeamColor());
@@ -258,15 +250,15 @@ public class ChessGame {
         }
 
         if (possiblePawn.getPieceType() == ChessPiece.PieceType.PAWN) {
-            if (abs(previousMove.getEndPosition().getRow() - previousMove.getStartPosition().getRow()) == 2) {
-                if (startPosition.getCol() + 1 == previousMove.getEndPosition().getCol()) {
-                    ChessPosition newPosition = new ChessPosition((abs(previousMove.getEndPosition().getRow() +
-                            previousMove.getStartPosition().getRow()) / 2), previousMove.getEndPosition().getCol());
+            if (abs(previousMove.getEndPosition().row() - previousMove.getStartPosition().row()) == 2) {
+                if (startPosition.col() + 1 == previousMove.getEndPosition().col()) {
+                    ChessPosition newPosition = new ChessPosition((abs(previousMove.getEndPosition().row() +
+                            previousMove.getStartPosition().row()) / 2), previousMove.getEndPosition().col());
                     newMove = new ChessMove(startPosition, newPosition, null);
                     newMove.setEnPassant(true);
-                } else if (startPosition.getCol() - 1 == previousMove.getEndPosition().getCol()) {
-                    ChessPosition newPosition = new ChessPosition((abs(previousMove.getEndPosition().getRow() +
-                            previousMove.getStartPosition().getRow()) / 2), previousMove.getEndPosition().getCol());
+                } else if (startPosition.col() - 1 == previousMove.getEndPosition().col()) {
+                    ChessPosition newPosition = new ChessPosition((abs(previousMove.getEndPosition().row() +
+                            previousMove.getStartPosition().row()) / 2), previousMove.getEndPosition().col());
                     newMove = new ChessMove(startPosition, newPosition, null);
                     newMove.setEnPassant(true);
                 } else {
@@ -301,66 +293,40 @@ public class ChessGame {
         }
 
         if (isInCheck(piece.getTeamColor())) {
-            System.out.println("King starts in check");
             return null;
         }
 
         if (piece.hasPieceNotMoved()) {
-            System.out.println("Piece has not moved");
-            // Make sure a piece exists
-            if (currentBoard.getPiece(startRow, rightRookStartCol) != null) {
-                ChessPiece potentialRook = currentBoard.getPiece(startRow, rightRookStartCol);
+            castlingHelper(startPosition, allValidMoves, startRow, rightRookStartCol, rightKingEndCol, rightRookEndCol);
+            castlingHelper(startPosition, allValidMoves, startRow, leftRookStartCol, leftKingEndCol, leftRookEndCol);
+        }
 
-                System.out.println("Piece in right rook starting position");
-                // Check for the rook to not have moved
-                if (potentialRook.getPieceType() == ChessPiece.PieceType.ROOK && potentialRook.hasPieceNotMoved()) {
+        return allValidMoves;
+    }
 
-                    System.out.println("Right rook has not moved");
+    private void castlingHelper(ChessPosition startPosition, ArrayList<ChessMove> allValidMoves, int startRow, int rightRookStartCol, int rightKingEndCol, int rightRookEndCol) {
+        // Check that piece exists
+        if (currentBoard.getPiece(startRow, rightRookStartCol) != null) {
+            ChessPiece potentialRook = currentBoard.getPiece(startRow, rightRookStartCol);
 
-                    // Check for pieces in-between
-                    if (currentBoard.getPiece(startRow, rightRookEndCol) == null &&
-                            currentBoard.getPiece(startRow, rightKingEndCol) == null) {
+            // Check for the rook to not have moved
+            if (potentialRook.getPieceType() == ChessPiece.PieceType.ROOK && potentialRook.hasPieceNotMoved()) {
 
-                        System.out.println("No pieces in-between king and right rook");
+                // Check for pieces in-between
+                if (currentBoard.getPiece(startRow, rightRookEndCol) == null &&
+                        currentBoard.getPiece(startRow, rightKingEndCol) == null) {
 
-                        // Check for checks in-between
-                        ChessMove rookEnd = new ChessMove(startPosition, new ChessPosition(startRow, rightRookEndCol), null);
-                        ChessMove kingEnd = new ChessMove(startPosition, new ChessPosition(startRow, rightKingEndCol), null);
-                        if (!doMove(rookEnd) && !doMove(kingEnd)) {
+                    // Check for checks in-between
+                    ChessMove rookEnd = new ChessMove(startPosition, new ChessPosition(startRow, rightRookEndCol), null);
+                    ChessMove kingEnd = new ChessMove(startPosition, new ChessPosition(startRow, rightKingEndCol), null);
+                    if (!doMove(rookEnd) && !doMove(kingEnd)) {
 
-                            System.out.println("King will not be in check in any place");
-
-                            kingEnd.setCastling();
-                            allValidMoves.add(kingEnd);
-                        }
-                    }
-                }
-            }
-            if (currentBoard.getPiece(startRow, leftRookStartCol) != null) {
-                ChessPiece potentialRook = currentBoard.getPiece(startRow, leftRookStartCol);
-
-                // Check for the rook to not have moved
-                if (potentialRook.getPieceType() == ChessPiece.PieceType.ROOK && potentialRook.hasPieceNotMoved()) {
-
-                    // Check for pieces in-between
-                    if (currentBoard.getPiece(startRow, leftRookEndCol) == null &&
-                            currentBoard.getPiece(startRow, leftKingEndCol) == null) {
-
-                        // Check for checks in-between
-                        ChessMove rookEnd = new ChessMove(startPosition, new ChessPosition(startRow, leftRookEndCol), null);
-                        ChessMove kingEnd = new ChessMove(startPosition, new ChessPosition(startRow, leftKingEndCol), null);
-                        if (!doMove(rookEnd) && !doMove(kingEnd)) {
-                            kingEnd.setCastling();
-                            allValidMoves.add(kingEnd);
-                        }
+                        kingEnd.setCastling();
+                        allValidMoves.add(kingEnd);
                     }
                 }
             }
         }
-
-        System.out.println(allValidMoves);
-
-        return allValidMoves;
     }
 
 
