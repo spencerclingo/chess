@@ -112,65 +112,10 @@ public class ChessPiece{
     private ArrayList<ChessMove> diagonalMoves(ChessBoard board, ChessPosition startPosition, ChessPiece piece) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
 
-        // Up and to the right
-        ChessPosition position = startPosition.copy();
-        while (position.getRow() + 1 < 9 && position.getCol() + 1 < 9) {
-            ChessPosition endPosition = position.changedCopy(1,1);
-            if (board.getPiece(endPosition) == null) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
-            } else if (board.getPiece(endPosition).getTeamColor() != piece.getTeamColor()) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
-                break;
-            } else {
-                break;
-            }
-            position = endPosition.copy();
-        }
-
-        // Up and left
-        position = startPosition.copy();
-        while (position.getRow() + 1 < 9 && position.getCol() - 1 > 0) {
-            ChessPosition endPosition = position.changedCopy(1,-1);
-            if (board.getPiece(endPosition) == null) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
-            } else if (board.getPiece(endPosition).getTeamColor() != piece.getTeamColor()) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
-                break;
-            } else {
-                break;
-            }
-            position = endPosition.copy();
-        }
-
-        // Down and left
-        position = startPosition.copy();
-        while (position.getRow() - 1 > 0 && position.getCol() - 1 > 0) {
-            ChessPosition endPosition = position.changedCopy(-1,-1);
-            if (board.getPiece(endPosition) == null) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
-            } else if (board.getPiece(endPosition).getTeamColor() != piece.getTeamColor()) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
-                break;
-            } else {
-                break;
-            }
-            position = endPosition.copy();
-        }
-
-        // Down and right
-        position = startPosition.copy();
-        while (position.getRow() - 1 > 0 && position.getCol() + 1 < 9) {
-            ChessPosition endPosition = position.changedCopy(-1,1);
-            if (board.getPiece(endPosition) == null) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
-            } else if (board.getPiece(endPosition).getTeamColor() != piece.getTeamColor()) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
-                break;
-            } else {
-                break;
-            }
-            position = endPosition.copy();
-        }
+        possibleMoves.addAll(generateMovesInDirection(board, startPosition, piece, 1, 1));  // Up and to the right
+        possibleMoves.addAll(generateMovesInDirection(board, startPosition, piece, 1, -1)); // Up and left
+        possibleMoves.addAll(generateMovesInDirection(board, startPosition, piece, -1, -1)); // Down and left
+        possibleMoves.addAll(generateMovesInDirection(board, startPosition, piece, -1, 1));  // Down and right
 
         return possibleMoves;
     }
@@ -179,64 +124,33 @@ public class ChessPiece{
      * Makes the repeated, straight line moves for pieces
      * (Rook, Queen)
      *
-     * @param board ChessBoard
+     * @param board         ChessBoard
      * @param startPosition Position the piece is on
-     * @param piece The piece in question
-     *
+     * @param piece         The piece in question
      * @return ArrayList of ChessMove
      */
     private ArrayList<ChessMove> straightMoves(ChessBoard board, ChessPosition startPosition, ChessPiece piece) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
 
-        // Up
+        possibleMoves.addAll(generateMovesInDirection(board, startPosition, piece, 1, 0));  // Up and to the right
+        possibleMoves.addAll(generateMovesInDirection(board, startPosition, piece, 0, -1)); // Up and left
+        possibleMoves.addAll(generateMovesInDirection(board, startPosition, piece, 0, 1)); // Down and left
+        possibleMoves.addAll(generateMovesInDirection(board, startPosition, piece, -1, 0));  // Down and right
+
+        return possibleMoves;
+    }
+
+    private ArrayList<ChessMove> generateMovesInDirection(
+            ChessBoard board, ChessPosition startPosition, ChessPiece piece, int rowDirection, int colDirection) {
+
+        ArrayList<ChessMove> possibleMoves = new ArrayList<>();
         ChessPosition position = startPosition.copy();
-        while (position.getRow() + 1 < 9) {
-            ChessPosition endPosition = position.changedCopy(1,0);
-            if (board.getPiece(endPosition) == null) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
-            } else if (board.getPiece(endPosition).getTeamColor() != piece.getTeamColor()) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
-                break;
-            } else {
-                break;
-            }
-            position = endPosition.copy();
-        }
 
-        // left
-        position = startPosition.copy();
-        while (position.getCol() - 1 > 0) {
-            ChessPosition endPosition = position.changedCopy(0,-1);
-            if (board.getPiece(endPosition) == null) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
-            } else if (board.getPiece(endPosition).getTeamColor() != piece.getTeamColor()) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
-                break;
-            } else {
-                break;
-            }
-            position = endPosition.copy();
-        }
+        while (position.getRow() + rowDirection >= 1 && position.getRow() + rowDirection <= 8 &&
+                position.getCol() + colDirection >= 1 && position.getCol() + colDirection <= 8) {
 
-        // Down
-        position = startPosition.copy();
-        while (position.getRow() - 1 > 0) {
-            ChessPosition endPosition = position.changedCopy(-1,0);
-            if (board.getPiece(endPosition) == null) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
-            } else if (board.getPiece(endPosition).getTeamColor() != piece.getTeamColor()) {
-                possibleMoves.add(new ChessMove(startPosition, endPosition, null));
-                break;
-            } else {
-                break;
-            }
-            position = endPosition.copy();
-        }
+            ChessPosition endPosition = position.changedCopy(rowDirection, colDirection);
 
-        // right
-        position = startPosition.copy();
-        while (position.getCol() + 1 < 9) {
-            ChessPosition endPosition = position.changedCopy(0,1);
             if (board.getPiece(endPosition) == null) {
                 possibleMoves.add(new ChessMove(startPosition, endPosition, null));
             } else if (board.getPiece(endPosition).getTeamColor() != piece.getTeamColor()) {
@@ -245,6 +159,7 @@ public class ChessPiece{
             } else {
                 break;
             }
+
             position = endPosition.copy();
         }
 
