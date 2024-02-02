@@ -130,7 +130,7 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         if (teamTurn != currentBoard.getPiece(move.getStartPosition()).getTeamColor()) {
-            throw new InvalidMoveException();
+            throw new InvalidMoveException("Not your turn!");
         }
         if (currentBoard.getPiece(move.getStartPosition()) == null) {
             throw new InvalidMoveException();
@@ -149,7 +149,7 @@ public class ChessGame {
         }
 
         if (!validMove) {
-            throw new InvalidMoveException();
+            throw new InvalidMoveException("That move is illegal!");
         }
 
         currentBoard.makeMove(move, true);
