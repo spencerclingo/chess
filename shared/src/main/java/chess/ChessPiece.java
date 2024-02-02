@@ -254,34 +254,40 @@ public class ChessPiece{
             }
         }
 
-        // Attacking right
-        ChessPosition attackRight = startPosition.changedCopy(forward, 1);
-        if (board.getPiece(attackRight) != null && board.getPiece(attackRight).getTeamColor() != piece.getTeamColor()) {
-            if (startPosition.getRow() == promotionRow) { // If the pawn is moving to where it can promote
-                possibleMoves.add(new ChessMove(startPosition, attackRight, PieceType.KNIGHT));
-                possibleMoves.add(new ChessMove(startPosition, attackRight, PieceType.ROOK));
-                possibleMoves.add(new ChessMove(startPosition, attackRight, PieceType.BISHOP));
-                possibleMoves.add(new ChessMove(startPosition, attackRight, PieceType.QUEEN));
-            } else { // cannot promote from this position
-                possibleMoves.add(new ChessMove(startPosition, attackRight, null));
-            }
-        }
-
-        // Attacking left
-        ChessPosition attackLeft = startPosition.changedCopy(forward, -1);
-        if (board.getPiece(attackLeft) != null && board.getPiece(attackLeft).getTeamColor() != piece.getTeamColor()) {
-            if (startPosition.getRow() == promotionRow) { // If the pawn is moving to where it can promote
-                possibleMoves.add(new ChessMove(startPosition, attackLeft, PieceType.KNIGHT));
-                possibleMoves.add(new ChessMove(startPosition, attackLeft, PieceType.ROOK));
-                possibleMoves.add(new ChessMove(startPosition, attackLeft, PieceType.BISHOP));
-                possibleMoves.add(new ChessMove(startPosition, attackLeft, PieceType.QUEEN));
-            } else { // cannot promote from this position
-                possibleMoves.add(new ChessMove(startPosition, attackLeft, null));
-            }
-        }
+        addPawnAttackMove(board, startPosition, piece, forward, 1, promotionRow, possibleMoves);  // Attacking right
+        addPawnAttackMove(board, startPosition, piece, forward, -1, promotionRow, possibleMoves); // Attacking left
 
         return possibleMoves;
     }
+
+    private void addPawnAttackMove(
+            ChessBoard board, ChessPosition startPosition, ChessPiece piece,
+            int forward, int colOffset, int promotionRow, ArrayList<ChessMove> possibleMoves) {
+
+        ChessPosition attackPosition = startPosition.changedCopy(forward, colOffset);
+
+        if (isValidAttackPosition(board, attackPosition, piece)) {
+            if (startPosition.getRow() == promotionRow) {
+                // If the pawn is moving to where it can promote
+                for (ChessPiece.PieceType promotionPiece : new ChessPiece.PieceType[]{
+                        ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.ROOK,
+                        ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.QUEEN}) {
+
+                    possibleMoves.add(new ChessMove(startPosition, attackPosition, promotionPiece));
+                }
+            } else {
+                // Cannot promote from this position
+                possibleMoves.add(new ChessMove(startPosition, attackPosition, null));
+            }
+        }
+    }
+
+    private boolean isValidAttackPosition(ChessBoard board, ChessPosition position, ChessPiece piece) {
+        return position.getRow() >= 1 && position.getRow() <= 8 &&
+                position.getCol() >= 1 && position.getCol() <= 8 &&
+                board.getPiece(position) != null && board.getPiece(position).getTeamColor() != piece.getTeamColor();
+    }
+
 
     @Override
     public boolean equals(Object o) {
