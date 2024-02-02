@@ -146,8 +146,8 @@ public class ChessPiece{
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
         ChessPosition position = startPosition.copy();
 
-        while (position.getRow() + rowDirection >= 1 && position.getRow() + rowDirection <= 8 &&
-                position.getCol() + colDirection >= 1 && position.getCol() + colDirection <= 8) {
+        while (position.row() + rowDirection >= 1 && position.row() + rowDirection <= 8 &&
+                position.col() + colDirection >= 1 && position.col() + colDirection <= 8) {
 
             ChessPosition endPosition = position.changedCopy(rowDirection, colDirection);
 
@@ -179,8 +179,8 @@ public class ChessPiece{
         int[][] movementOptions = getMovementOptions(piece);
 
         for (int[] options : movementOptions) {
-            if (startPosition.getRow() + options[0] >= 9 || startPosition.getRow() + options[0] <= 0 ||
-                    startPosition.getCol() + options[1] >= 9 || startPosition.getCol() + options[1] <= 0) {
+            if (startPosition.row() + options[0] >= 9 || startPosition.row() + options[0] <= 0 ||
+                    startPosition.col() + options[1] >= 9 || startPosition.col() + options[1] <= 0) {
                 continue;
             }
 
@@ -240,7 +240,7 @@ public class ChessPiece{
         // Forward moves
         ChessPosition moveOne = startPosition.changedCopy(forward,0);
         if (board.getPiece(moveOne) == null) {
-            if (startPosition.getRow() == promotionRow) { // If the pawn is moving to where it can promote
+            if (startPosition.row() == promotionRow) { // If the pawn is moving to where it can promote
                 possibleMoves.add(new ChessMove(startPosition, moveOne, PieceType.KNIGHT));
                 possibleMoves.add(new ChessMove(startPosition, moveOne, PieceType.ROOK));
                 possibleMoves.add(new ChessMove(startPosition, moveOne, PieceType.BISHOP));
@@ -248,7 +248,7 @@ public class ChessPiece{
             } else { // cannot promote from this position
                 ChessPosition moveTwo = startPosition.changedCopy(2*forward, 0);
                 possibleMoves.add(new ChessMove(startPosition, moveOne, null));
-                if (board.getPiece(moveTwo) == null && startPosition.getRow() == startRow) {
+                if (board.getPiece(moveTwo) == null && startPosition.row() == startRow) {
                     possibleMoves.add(new ChessMove(startPosition, moveTwo, null));
                 }
             }
@@ -267,7 +267,7 @@ public class ChessPiece{
         ChessPosition attackPosition = startPosition.changedCopy(forward, colOffset);
 
         if (isValidAttackPosition(board, attackPosition, piece)) {
-            if (startPosition.getRow() == promotionRow) {
+            if (startPosition.row() == promotionRow) {
                 // If the pawn is moving to where it can promote
                 for (ChessPiece.PieceType promotionPiece : new ChessPiece.PieceType[]{
                         ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.ROOK,
@@ -283,8 +283,8 @@ public class ChessPiece{
     }
 
     private boolean isValidAttackPosition(ChessBoard board, ChessPosition position, ChessPiece piece) {
-        return position.getRow() >= 1 && position.getRow() <= 8 &&
-                position.getCol() >= 1 && position.getCol() <= 8 &&
+        return position.row() >= 1 && position.row() <= 8 &&
+                position.col() >= 1 && position.col() <= 8 &&
                 board.getPiece(position) != null && board.getPiece(position).getTeamColor() != piece.getTeamColor();
     }
 
