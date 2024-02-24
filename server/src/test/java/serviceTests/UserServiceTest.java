@@ -8,7 +8,7 @@ import service.UserService;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class UserMemoryDAOTest {
+class UserServiceTest {
 
     static MemoryUserDAO userDAO = new MemoryUserDAO();
 
@@ -42,5 +42,23 @@ class UserMemoryDAOTest {
         UserData userData = new UserData("username", "password", "email@email");
 
         assertFalse(UserService.getUser(userData));
+    }
+
+    @Test
+    void createUserTest() {
+        UserData userData = new UserData("username", "password", "email@email");
+
+        UserService.createUser(userData);
+
+        assertEquals(userData, userDAO.getUser(userData));
+    }
+
+    @Test
+    void userNotCreatedTest() {
+        UserData userData = new UserData("username", "password", "email@email");
+
+        UserService.createUser(userData);
+
+        assertNotEquals(new UserData(null, null, null), userDAO.getUser(userData));
     }
 }
