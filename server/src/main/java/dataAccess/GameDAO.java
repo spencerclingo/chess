@@ -10,4 +10,5 @@ public interface GameDAO {
     public GameData getGame(int gameID);
     public ArrayList<GameData> listGames();
     public boolean updateGame(ChessGame game, int gameID);
+    public boolean clear();
 }
