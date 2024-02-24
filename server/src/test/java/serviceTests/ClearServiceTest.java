@@ -3,6 +3,8 @@ package serviceTests;
 import dataAccess.MemoryAuthDAO;
 import dataAccess.MemoryGameDAO;
 import dataAccess.MemoryUserDAO;
+import models.GameData;
+import models.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.ClearService;
@@ -24,7 +26,16 @@ class ClearServiceTest {
     }
 
     @Test
-    void clearData() {
+    void clearEmptyData() {
+        assertTrue(clearService.clearData());
+    }
+
+    @Test
+    void clearAddedData() {
+        authDAO.createAuth("username");
+        userDAO.createUser(new UserData("username", "password", "email@email"));
+        gameDAO.createGame(new GameData(123, null, null, null, null));
+
         assertTrue(clearService.clearData());
     }
 }
