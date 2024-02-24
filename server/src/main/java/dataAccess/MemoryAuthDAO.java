@@ -8,8 +8,8 @@ import java.util.UUID;
 
 public class MemoryAuthDAO implements AuthDAO{
 
-    static HashMap<String, String> authMap = new HashMap<>(); // username to authToken
-    static HashMap<String, String> reverseAuthMap = new HashMap<>(); // authToken to username
+    HashMap<String, String> authMap = new HashMap<>(); // username to authToken
+    HashMap<String, String> reverseAuthMap = new HashMap<>(); // authToken to username
 
     @Override
     public AuthData createAuth(String username) {

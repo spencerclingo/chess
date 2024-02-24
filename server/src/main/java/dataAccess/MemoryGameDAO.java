@@ -9,8 +9,8 @@ import java.util.HashMap;
 
 public class MemoryGameDAO implements GameDAO{
 
-    static int nextGameID = 0;
-    static HashMap<Integer, GameData> gameMap = new HashMap<>();
+    int nextGameID = 0;
+    HashMap<Integer, GameData> gameMap = new HashMap<>();
 
 
     @Override

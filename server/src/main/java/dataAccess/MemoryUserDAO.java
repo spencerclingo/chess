@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 public class MemoryUserDAO implements UserDAO {
 
-    static HashMap<String, UserData> userMap = new HashMap<>();
+    HashMap<String, UserData> userMap = new HashMap<>();
 
     @Override
     public boolean clear() {
