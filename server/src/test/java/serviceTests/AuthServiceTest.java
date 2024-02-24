@@ -38,4 +38,43 @@ class AuthServiceTest {
         assertFalse(authDAO.confirmAuth(new AuthData(null, "username")));
         assertNotEquals(authData, authDAO.getAuth(new AuthData("12345", null)));
     }
+
+    @Test
+    void getCorrectAuth() {
+        AuthData authData = new AuthData(null, "username");
+        AuthData newAuth  = authDAO.createAuth(authData);
+
+        assertEquals(newAuth, AuthService.getAuth(newAuth));
+    }
+
+    @Test
+    void noAuthToGet() {
+        assertNull(AuthService.getAuth(new AuthData(null, "username")));
+    }
+
+    @Test
+    void logoutValidUser() {
+        AuthData authData = new AuthData(null, "username");
+        AuthData newAuth  = authDAO.createAuth(authData);
+
+        assertTrue(AuthService.logout(newAuth));
+    }
+
+    @Test
+    void logoutInvalidUser() {
+        assertFalse(AuthService.logout(new AuthData(null, null)));
+    }
+
+    @Test
+    void clearEmptyData() {
+        assertTrue(AuthService.clearData());
+    }
+
+    @Test
+    void clearAddedData() {
+        authDAO.createAuth(new AuthData("username", "password"));
+
+        assertTrue(AuthService.clearData());
+    }
+
 }

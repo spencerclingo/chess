@@ -53,6 +53,10 @@ public class MemoryAuthDAO implements AuthDAO{
         String authToken = authData.authToken();
         // This might return false if the data doesn't exist already?
         String username = reverseAuthMap.get(authToken);
+        if (username == null) {
+            return false;
+        }
+
         authMap.remove(username);
         reverseAuthMap.remove(authToken);
         return true;
