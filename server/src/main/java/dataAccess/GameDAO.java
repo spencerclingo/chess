@@ -7,8 +7,8 @@ import java.util.ArrayList;
 
 public interface GameDAO {
     public int createGame(GameData gameData); //IDK what this one is supposed to return tbh
-    public GameData getGame(int gameID);
+    public GameData getGame(GameData gameData);
     public ArrayList<GameData> listGames();
-    public boolean updateGame(ChessGame game, int gameID);
+    public boolean updateGame(GameData gameData);
     public boolean clear();
 }

@@ -3,9 +3,9 @@ package dataAccess;
 import models.AuthData;
 
 public interface AuthDAO {
-    public AuthData createAuth(String username);
-    public AuthData getAuth(String authToken);
-    public boolean deleteAuth(String authToken); //Maybe this takes in a string type?
-    public boolean confirmAuth(String username);
+    public AuthData createAuth(AuthData authData);
+    public AuthData getAuth(AuthData authData);
+    public boolean deleteAuth(AuthData authData);
+    public boolean confirmAuth(AuthData authData);
     public boolean clear();
 }

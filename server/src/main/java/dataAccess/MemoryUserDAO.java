@@ -8,12 +8,10 @@ public class MemoryUserDAO implements UserDAO {
 
     HashMap<String, UserData> userMap = new HashMap<>();
 
-    @Override
-    public boolean clear() {
-        userMap.clear();
-        return true;
-    }
-
+    /**
+     * @param userData containing username, password, email
+     * @return bool of success
+     */
     @Override
     public boolean createUser(UserData userData) {
         String username = userData.username();
@@ -21,8 +19,20 @@ public class MemoryUserDAO implements UserDAO {
         return true;
     }
 
+    /**
+     * @param userData contains username
+     * @return full UserData object
+     */
     @Override
-    public UserData getUser(String username) {
+    public UserData getUser(UserData userData) {
+        String username = userData.username();
+
         return userMap.get(username);
+    }
+
+    @Override
+    public boolean clear() {
+        userMap.clear();
+        return true;
     }
 }

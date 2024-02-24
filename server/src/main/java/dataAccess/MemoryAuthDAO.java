@@ -11,8 +11,14 @@ public class MemoryAuthDAO implements AuthDAO{
     HashMap<String, String> authMap = new HashMap<>(); // username to authToken
     HashMap<String, String> reverseAuthMap = new HashMap<>(); // authToken to username
 
+    /**
+     * @param authData containing username
+     * @return full AuthData object
+     */
     @Override
-    public AuthData createAuth(String username) {
+    public AuthData createAuth(AuthData authData) {
+        String username = authData.username();
+
         String authToken = UUID.randomUUID().toString();
         AuthData newAuth = new AuthData(authToken, username);
         authMap.put(username, authToken);
@@ -20,8 +26,14 @@ public class MemoryAuthDAO implements AuthDAO{
         return newAuth;
     }
 
+    /**
+     * @param authData containing authToken
+     * @return full AuthData object, or null if authToken doesn't exist
+     */
     @Override
-    public AuthData getAuth(String authToken) {
+    public AuthData getAuth(AuthData authData) {
+        String authToken = authData.authToken();
+
         String username = reverseAuthMap.get(authToken);
         if (username.isEmpty()) {
             return null;
@@ -29,8 +41,13 @@ public class MemoryAuthDAO implements AuthDAO{
         return new AuthData(authToken, username);
     }
 
+    /**
+     * @param authData containing authToken
+     * @return bool of if the authToken was deleted
+     */
     @Override
-    public boolean deleteAuth(String authToken) {
+    public boolean deleteAuth(AuthData authData) {
+        String authToken = authData.authToken();
         // This might return false if the data doesn't exist already?
         String username = reverseAuthMap.get(authToken);
         authMap.remove(username);
@@ -38,8 +55,16 @@ public class MemoryAuthDAO implements AuthDAO{
         return true;
     }
 
+    /**
+     * I think this will be unused
+     *
+     * @param authData containing username
+     * @return bool of if authToken exists for that player
+     */
     @Override
-    public boolean confirmAuth(String username) {
+    public boolean confirmAuth(AuthData authData) {
+        String username = authData.username();
+
         return authMap.get(username) != null;
     }
 
