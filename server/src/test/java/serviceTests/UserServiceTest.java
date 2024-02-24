@@ -2,6 +2,7 @@ package serviceTests;
 
 import dataAccess.MemoryUserDAO;
 import models.UserData;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import service.UserService;
@@ -15,6 +16,11 @@ class UserServiceTest {
     @BeforeAll
     public static void setUp() {
         UserService.setUserDAO(userDAO);
+    }
+
+    @AfterEach
+    void tearDown() {
+        userDAO.clear();
     }
 
     @Test

@@ -20,10 +20,10 @@ public class MemoryAuthDAO implements AuthDAO{
         String username = authData.username();
 
         String authToken = UUID.randomUUID().toString();
-        AuthData newAuth = new AuthData(authToken, username);
         authMap.put(username, authToken);
         reverseAuthMap.put(authToken, username);
-        return newAuth;
+
+        return new AuthData(authToken, username);
     }
 
     /**
@@ -35,7 +35,10 @@ public class MemoryAuthDAO implements AuthDAO{
         String authToken = authData.authToken();
 
         String username = reverseAuthMap.get(authToken);
-        if (username.isEmpty()) {
+
+        System.out.println("Username: " + username);
+
+        if (username == null) {
             return null;
         }
         return new AuthData(authToken, username);
