@@ -30,10 +30,11 @@ public class MemoryAuthDAO implements AuthDAO{
     }
 
     @Override
-    public boolean deleteAuth(AuthData authData) {
+    public boolean deleteAuth(String authToken) {
         // This might return false if the data doesn't exist already?
-        authMap.remove(authData.username());
-        reverseAuthMap.remove(authData.authToken());
+        String username = reverseAuthMap.get(authToken);
+        authMap.remove(username);
+        reverseAuthMap.remove(authToken);
         return true;
     }
 
