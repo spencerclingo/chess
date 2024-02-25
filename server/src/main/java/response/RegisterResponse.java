@@ -1,4 +1,6 @@
 package response;
 
-public record RegisterResponse(String username, String authToken, int HTTPCode) {
+import models.AuthData;
+
+public record RegisterResponse(AuthData authData, int HTTPCode) {
 }

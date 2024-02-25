@@ -8,6 +8,7 @@ import models.UserData;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import response.RegisterResponse;
 import service.AuthService;
 import service.UserService;
 
@@ -79,10 +80,11 @@ class UserServiceTest {
         AuthService.setAuthDAO(authDAO);
 
         UserData userData = new UserData("username", "password", "email@email");
-        AuthData authData = UserService.createUser(userData);
+        RegisterResponse registerResponse = UserService.createUser(userData);
+        AuthData authData = registerResponse.authData();
         AuthService.logout(authData);
 
-        assertNotNull(UserService.login(userData));
+        assertEquals(200, UserService.login(userData).HTTPCode());
     }
 
     @Test
@@ -90,10 +92,11 @@ class UserServiceTest {
         AuthService.setAuthDAO(authDAO);
 
         UserData userData = new UserData("username", "password", "email@email");
-        AuthData authData = UserService.createUser(userData);
+        RegisterResponse registerResponse = UserService.createUser(userData);
+        AuthData authData = registerResponse.authData();
         AuthService.logout(authData);
 
-        assertNull(UserService.login(new UserData("username", "incorrect-password",null)));
-        assertNull(UserService.login(new UserData("null", "null", null)));
+        assertEquals(401, UserService.login(new UserData("username", "incorrect-password",null)).HTTPCode());
+        assertEquals(401, UserService.login(new UserData("null", "null", null)).HTTPCode());
     }
 }

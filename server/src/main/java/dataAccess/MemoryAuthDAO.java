@@ -43,12 +43,11 @@ public class MemoryAuthDAO implements AuthDAO{
 
     /**
      * @param authData containing authToken
-     * @return bool of if the authToken was deleted
      */
     @Override
-    public boolean deleteAuth(AuthData authData) throws DataAccessException {
+    public void deleteAuth(AuthData authData) throws DataAccessException {
         String authToken = authData.authToken();
-        // This might return false if the data doesn't exist already?
+
         String username = reverseAuthMap.get(authToken);
         if (username == null) {
             throw new DataAccessException("authToken not found");
@@ -56,7 +55,6 @@ public class MemoryAuthDAO implements AuthDAO{
 
         authMap.remove(username);
         reverseAuthMap.remove(authToken);
-        return true;
     }
 
     /**

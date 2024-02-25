@@ -36,8 +36,9 @@ class GameServiceTest {
         AuthData authData = new AuthData("12345", "username");
         authData = authDAO.createAuth(authData);
 
-        assertEquals(0, GameService.createGame(gameData, authData));
-        assertEquals(1, GameService.createGame(gameData, authData));
+        assertEquals(0, GameService.createGame(gameData, authData).gameID());
+        assertEquals(1, GameService.createGame(gameData, authData).gameID());
+        assertEquals(200, GameService.createGame(gameData, authData).HTTPCode());
     }
 
     @Test
@@ -45,8 +46,8 @@ class GameServiceTest {
         GameData gameData = new GameData(-1, "white", "black", "name", null);
         AuthData authData = new AuthData("12345", "username");
 
-        assertEquals(-1, GameService.createGame(gameData, authData));
-        assertEquals(-1, GameService.createGame(gameData, authData));
+        assertEquals(-1, GameService.createGame(gameData, authData).gameID());
+        assertEquals(401, GameService.createGame(gameData, authData).HTTPCode());
     }
 
     @Test
@@ -69,7 +70,8 @@ class GameServiceTest {
         AuthData authData = new AuthData("12345", "username");
         authData = authDAO.createAuth(authData);
 
-        assertEquals(new ArrayList<>(), GameService.listGames(authData));
+        assertEquals(new ArrayList<>(), GameService.listGames(authData).listOfGames());
+        assertEquals(200, GameService.listGames(authData).HTTPCode());
     }
 
     @Test
@@ -86,7 +88,8 @@ class GameServiceTest {
         GameService.createGame(gameData, authData);
         GameService.createGame(gameData, authData);
 
-        assertEquals(7, GameService.listGames(authData).size());
+        assertEquals(7, GameService.listGames(authData).listOfGames().size());
+        assertEquals(200, GameService.listGames(authData).HTTPCode());
     }
 
     @Test
@@ -97,7 +100,7 @@ class GameServiceTest {
         GameService.createGame(gameData, authData);
         GameService.createGame(gameData, authData);
 
-        assertNull(GameService.listGames(authData));
+        assertEquals(401, GameService.listGames(authData).HTTPCode());
     }
 
     @Test

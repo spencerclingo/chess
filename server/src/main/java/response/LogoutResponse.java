@@ -1,4 +1,4 @@
 package response;
 
-public record LogoutResponse(boolean success, int HTTPCode) {
+public record LogoutResponse(int HTTPCode) {
 }

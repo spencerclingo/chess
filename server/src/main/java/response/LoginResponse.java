@@ -1,4 +1,7 @@
 package response;
 
-public record LoginResponse(String username, String authToken, int HTTPCode) {
+import models.AuthData;
+import models.UserData;
+
+public record LoginResponse(AuthData authData, int HTTPCode) {
 }

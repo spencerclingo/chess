@@ -3,6 +3,7 @@ package service;
 import dataAccess.DataAccessException;
 import dataAccess.MemoryAuthDAO;
 import models.AuthData;
+import response.LogoutResponse;
 
 public class AuthService {
 
@@ -34,14 +35,19 @@ public class AuthService {
      * @param authData containing authToken
      * @return bool of success
      */
-    public static boolean logout(AuthData authData) {
+    public static LogoutResponse logout(AuthData authData) {
         try {
-            return authStoredDAO.deleteAuth(authData);
+            authStoredDAO.deleteAuth(authData);
+            return new LogoutResponse(200);
         } catch(DataAccessException dae) {
-            return false;
+            return new LogoutResponse(401);
         }
     }
 
+    /**
+     * @param authData containing username
+     * @return true if found, false if not found
+     */
     public static boolean confirmAuth(AuthData authData) {
         try {
             return authStoredDAO.confirmAuth(authData);

@@ -1,10 +1,14 @@
 package service;
 
+import com.mysql.cj.log.Log;
 import dataAccess.DataAccessException;
 import dataAccess.MemoryAuthDAO;
 import dataAccess.MemoryUserDAO;
 import models.AuthData;
 import models.UserData;
+import response.LoginResponse;
+import response.LogoutResponse;
+import response.RegisterResponse;
 
 public class UserService {
     static MemoryUserDAO userStoredDAO;
@@ -26,15 +30,15 @@ public class UserService {
      * @param userData contains username and password
      * @return AuthData for the authToken if information matches, null if it does not
      */
-    public static AuthData login(UserData userData) {
+    public static LoginResponse login(UserData userData) {
         try {
             userStoredDAO.getUser(userData);
             if (userStoredDAO.login(userData)) {
-                return authStoredDAO.createAuth(new AuthData(null, userData.username()));
+                return new LoginResponse(authStoredDAO.createAuth(new AuthData(null, userData.username())), 200);
             }
-            return null;
+            return new LoginResponse(null, 401);
         } catch(DataAccessException dae) {
-            return null;
+            return new LoginResponse(null, 401);
         }
     }
 
@@ -42,13 +46,16 @@ public class UserService {
      * @param userData contains username, password, email
      * @return bool of success to create
      */
-    public static AuthData createUser(UserData userData) {
+    public static RegisterResponse createUser(UserData userData) {
+        if (userData.password() == null) {
+            return new RegisterResponse(null, 400);
+        }
         try {
             userStoredDAO.getUser(userData);
-            return null;
+            return new RegisterResponse(null, 403);
         } catch(DataAccessException dae) {
             userStoredDAO.createUser(userData);
-            return authStoredDAO.createAuth(new AuthData(null, userData.username()));
+            return new RegisterResponse(authStoredDAO.createAuth(new AuthData(null, userData.username())), 200);
         }
     }
 
@@ -65,7 +72,7 @@ public class UserService {
      * @param authData contains authToken
      * @return success of logging out
      */
-    public static boolean logout(AuthData authData) {
+    public static LogoutResponse logout(AuthData authData) {
         return AuthService.logout(authData);
     }
 
