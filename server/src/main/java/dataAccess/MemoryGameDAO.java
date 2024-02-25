@@ -1,10 +1,8 @@
 package dataAccess;
 
-import chess.ChessGame;
 import models.GameData;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 
 public class MemoryGameDAO implements GameDAO{
@@ -64,6 +62,31 @@ public class MemoryGameDAO implements GameDAO{
         }
         gameMap.put(gameID, gameData);
         return 1;
+    }
+
+    /**
+     * Adds a player to a game
+     *
+     * @param gameData contains gameID and the username of the player in the color they want to join
+     * @param color 0 is white, 1 is black
+     * @return bool of success
+     * @throws DataAccessException if game is not found by gameID
+     */
+    public boolean joinGame(GameData gameData, int color) throws DataAccessException {
+        int id = gameData.gameID();
+        GameData oldData = gameMap.get(id);
+
+        if (oldData == null) {
+            throw new DataAccessException("Game with that ID cannot be joined");
+        }
+
+        if (color == 0) {
+            gameMap.put(id, new GameData(id, gameData.whiteUsername(), oldData.blackUsername(), oldData.gameName(), oldData.game()));
+        } else {
+            gameMap.put(id, new GameData(id, oldData.whiteUsername(), gameData.blackUsername(), oldData.gameName(), oldData.game()));
+        }
+
+        return true;
     }
 
     /**

@@ -4,6 +4,7 @@ import dataAccess.*;
 import models.AuthData;
 import models.GameData;
 
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 
 public class GameService {
@@ -71,6 +72,28 @@ public class GameService {
      */
     public static boolean clearGames() {
         return gameStoredDAO.clear();
+    }
+
+    public static boolean joinGame(GameData gameData, AuthData authData) {
+        try {
+            authStoredDAO.getAuth(authData);
+        } catch(DataAccessException dae) {
+            return false;
+        }
+
+        int colorVal;
+
+        if (gameData.whiteUsername() != null) {
+            colorVal = 0;
+        } else {
+            colorVal = 1;
+        }
+
+        try {
+            return gameStoredDAO.joinGame(gameData, colorVal);
+        } catch(DataAccessException dae) {
+            return false;
+        }
     }
 
     public static void setGameDAO(MemoryGameDAO gameDAO) {

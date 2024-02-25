@@ -5,7 +5,6 @@ import dataAccess.MemoryAuthDAO;
 import dataAccess.MemoryUserDAO;
 import models.AuthData;
 import models.UserData;
-import org.springframework.security.core.userdetails.User;
 
 public class UserService {
     static MemoryUserDAO userStoredDAO;
@@ -25,14 +24,17 @@ public class UserService {
 
     /**
      * @param userData contains username and password
-     * @return true if information matches, false if it does not
+     * @return AuthData for the authToken if information matches, null if it does not
      */
-    public static boolean login(UserData userData) {
+    public static AuthData login(UserData userData) {
         try {
             userStoredDAO.getUser(userData);
-            return userStoredDAO.login(userData);
+            if (userStoredDAO.login(userData)) {
+                return authStoredDAO.createAuth(new AuthData(null, userData.username()));
+            }
+            return null;
         } catch(DataAccessException dae) {
-            return false;
+            return null;
         }
     }
 
@@ -55,6 +57,16 @@ public class UserService {
      */
     public static boolean clearData() {
         return userStoredDAO.clear();
+    }
+
+    /**
+     * Logging out involves user, call UserService
+     *
+     * @param authData contains authToken
+     * @return success of logging out
+     */
+    public static boolean logout(AuthData authData) {
+        return AuthService.logout(authData);
     }
 
 

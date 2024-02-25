@@ -1,0 +1,4 @@
+Return object that has every possible data for the models, but also
+has reasons for errors. It is a record so its immutable, and it can be
+interpreted. Hmm, maybe that wouldn't work because I think the null
+variables still show up in a json string

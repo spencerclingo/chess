@@ -82,7 +82,7 @@ class UserServiceTest {
         AuthData authData = UserService.createUser(userData);
         AuthService.logout(authData);
 
-        assertTrue(UserService.login(userData));
+        assertNotNull(UserService.login(userData));
     }
 
     @Test
@@ -93,7 +93,7 @@ class UserServiceTest {
         AuthData authData = UserService.createUser(userData);
         AuthService.logout(authData);
 
-        assertFalse(UserService.login(new UserData("username", "incorrect-password",null)));
-        assertFalse(UserService.login(new UserData("null", "null", null)));
+        assertNull(UserService.login(new UserData("username", "incorrect-password",null)));
+        assertNull(UserService.login(new UserData("null", "null", null)));
     }
 }

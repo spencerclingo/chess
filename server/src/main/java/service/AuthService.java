@@ -4,8 +4,6 @@ import dataAccess.DataAccessException;
 import dataAccess.MemoryAuthDAO;
 import models.AuthData;
 
-import javax.xml.crypto.Data;
-
 public class AuthService {
 
     static MemoryAuthDAO authStoredDAO;

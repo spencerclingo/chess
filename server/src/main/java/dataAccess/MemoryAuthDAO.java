@@ -3,7 +3,6 @@ package dataAccess;
 import models.AuthData;
 
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.UUID;
 
 public class MemoryAuthDAO implements AuthDAO{
