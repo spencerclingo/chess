@@ -1,10 +1,14 @@
 package serviceTests;
 
+import dataAccess.DataAccessException;
+import dataAccess.MemoryAuthDAO;
 import dataAccess.MemoryUserDAO;
+import models.AuthData;
 import models.UserData;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import service.AuthService;
 import service.UserService;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,10 +16,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserServiceTest {
 
     static MemoryUserDAO userDAO = new MemoryUserDAO();
+    static MemoryAuthDAO authDAO = new MemoryAuthDAO();
 
     @BeforeAll
     public static void setUp() {
         UserService.setUserDAO(userDAO);
+        UserService.setAuthDAO(authDAO);
     }
 
     @AfterEach
@@ -51,7 +57,7 @@ class UserServiceTest {
     }
 
     @Test
-    void createUserTest() {
+    void createUserTest() throws DataAccessException {
         UserData userData = new UserData("username", "password", "email@email");
 
         UserService.createUser(userData);
@@ -65,6 +71,29 @@ class UserServiceTest {
 
         UserService.createUser(userData);
 
-        assertNotEquals(new UserData(null, null, null), userDAO.getUser(userData));
+        assertThrows(DataAccessException.class, () -> userDAO.getUser(new UserData(null, null, null)));
+    }
+
+    @Test
+    void loginValidUser() {
+        AuthService.setAuthDAO(authDAO);
+
+        UserData userData = new UserData("username", "password", "email@email");
+        AuthData authData = UserService.createUser(userData);
+        AuthService.logout(authData);
+
+        assertTrue(UserService.login(userData));
+    }
+
+    @Test
+    void loginInvalidUser() {
+        AuthService.setAuthDAO(authDAO);
+
+        UserData userData = new UserData("username", "password", "email@email");
+        AuthData authData = UserService.createUser(userData);
+        AuthService.logout(authData);
+
+        assertFalse(UserService.login(new UserData("username", "incorrect-password",null)));
+        assertFalse(UserService.login(new UserData("null", "null", null)));
     }
 }

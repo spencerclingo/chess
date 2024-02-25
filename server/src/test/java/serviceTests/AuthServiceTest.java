@@ -1,5 +1,6 @@
 package serviceTests;
 
+import dataAccess.DataAccessException;
 import dataAccess.MemoryAuthDAO;
 import models.AuthData;
 import org.junit.jupiter.api.AfterEach;
@@ -23,7 +24,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void authCreated() {
+    void authCreated() throws DataAccessException {
         AuthData authData = new AuthData(null, "username");
         AuthData newAuth = AuthService.createAuth(authData);
 
@@ -33,10 +34,8 @@ class AuthServiceTest {
 
     @Test
     void authNotCreated() {
-        AuthData authData = new AuthData("12345", "username");
-
-        assertFalse(authDAO.confirmAuth(new AuthData(null, "username")));
-        assertNotEquals(authData, authDAO.getAuth(new AuthData("12345", null)));
+        assertFalse(AuthService.confirmAuth(new AuthData(null, "username")));
+        assertNull(AuthService.getAuth(new AuthData("12345", null)));
     }
 
     @Test

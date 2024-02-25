@@ -33,8 +33,12 @@ public class MemoryGameDAO implements GameDAO{
      * @return full GameData object
      */
     @Override
-    public GameData getGame(GameData gameData) {
+    public GameData getGame(GameData gameData) throws DataAccessException {
         int gameID = gameData.gameID();
+
+        if (gameMap.get(gameID) == null) {
+            throw new DataAccessException("No game with that gameID exists");
+        }
 
         return gameMap.get(gameID);
     }
@@ -44,24 +48,22 @@ public class MemoryGameDAO implements GameDAO{
      */
     @Override
     public ArrayList<GameData> listGames() {
-        Collection<GameData> values = gameMap.values();
-        return new ArrayList<>(values);
+        return new ArrayList<>(gameMap.values());
     }
 
     /**
-     * @param gameData Contains ChessGame and gameID
+     * @param gameData Must contain GameID, other things can change
      * @return boolean
      */
     @Override
-    public boolean updateGame(GameData gameData) {
-        ChessGame newGame = gameData.game();
+    public short updateGame(GameData gameData) throws DataAccessException {
         int gameID = gameData.gameID();
 
         if (gameMap.get(gameID) == null) {
-            return false;
+            throw new DataAccessException("Game not found");
         }
-        gameMap.put(gameID, gameMap.get(gameID).copyChangedGame(newGame));
-        return true;
+        gameMap.put(gameID, gameData);
+        return 1;
     }
 
     /**
@@ -70,6 +72,7 @@ public class MemoryGameDAO implements GameDAO{
     @Override
     public boolean clear() {
         gameMap.clear();
+        nextGameID = 0;
         return true;
     }
 }
