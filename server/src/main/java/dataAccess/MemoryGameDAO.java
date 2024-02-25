@@ -30,7 +30,7 @@ public class MemoryGameDAO implements GameDAO{
 
     /**
      * @param gameData Contains gameID
-     * @return full GameData object
+     * @return full GameData objects
      */
     @Override
     public GameData getGame(GameData gameData) throws DataAccessException {
