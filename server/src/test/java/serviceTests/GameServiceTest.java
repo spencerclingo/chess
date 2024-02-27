@@ -36,8 +36,8 @@ class GameServiceTest {
         AuthData authData = new AuthData("12345", "username");
         authData = authDAO.createAuth(authData);
 
-        assertEquals(0, GameService.createGame(gameData, authData).gameID());
         assertEquals(1, GameService.createGame(gameData, authData).gameID());
+        assertEquals(2, GameService.createGame(gameData, authData).gameID());
         assertEquals(200, GameService.createGame(gameData, authData).httpCode());
     }
 
@@ -52,7 +52,7 @@ class GameServiceTest {
 
     @Test
     void getRealGame() {
-        GameData gameData = new GameData(0, "white", "black", "name", null);
+        GameData gameData = new GameData(1, "white", "black", "name", null);
         gameDAO.createGame(gameData);
 
         assertNotNull(GameService.getGame(gameData));
@@ -111,7 +111,7 @@ class GameServiceTest {
 
         GameService.createGame(gameData, authData);
 
-        assertEquals(1,GameService.updateGame(gameData, authData));
+        assertEquals(0,GameService.updateGame(gameData, authData));
     }
 
     @Test
