@@ -1,5 +1,6 @@
 package service;
 
+import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;
 import dataAccess.MemoryAuthDAO;
 import models.AuthData;
@@ -7,7 +8,7 @@ import response.LogoutResponse;
 
 public class AuthService {
 
-    static MemoryAuthDAO authStoredDAO;
+    static AuthDAO authStoredDAO;
 
     /**
      * @param authData containing username
@@ -60,7 +61,7 @@ public class AuthService {
         return authStoredDAO.clear();
     }
 
-    public static void setAuthDAO(MemoryAuthDAO authDAO) {
+    public static void setAuthDAO(AuthDAO authDAO) {
         authStoredDAO=authDAO;
     }
 }

@@ -12,8 +12,8 @@ import javax.xml.crypto.Data;
 import java.util.ArrayList;
 
 public class GameService {
-    static MemoryGameDAO gameStoredDAO = new MemoryGameDAO();
-    static MemoryAuthDAO authStoredDAO = AuthService.authStoredDAO;
+    static GameDAO gameStoredDAO = new MemoryGameDAO();
+    static AuthDAO authStoredDAO = AuthService.authStoredDAO;
 
     /**
      * @param gameData contains gameName. Can contain chessGame
@@ -114,11 +114,11 @@ public class GameService {
         }
     }
 
-    public static void setGameDAO(MemoryGameDAO gameDAO) {
+    public static void setGameDAO(GameDAO gameDAO) {
         gameStoredDAO = gameDAO;
     }
 
-    public static void setAuthDAO(MemoryAuthDAO authDAO) {
+    public static void setAuthDAO(AuthDAO authDAO) {
         authStoredDAO = authDAO;
     }
 }

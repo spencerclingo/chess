@@ -1,9 +1,7 @@
 package service;
 
 import com.mysql.cj.log.Log;
-import dataAccess.DataAccessException;
-import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryUserDAO;
+import dataAccess.*;
 import models.AuthData;
 import models.UserData;
 import response.LoginResponse;
@@ -11,8 +9,8 @@ import response.LogoutResponse;
 import response.RegisterResponse;
 
 public class UserService {
-    static MemoryUserDAO userStoredDAO;
-    static MemoryAuthDAO authStoredDAO = AuthService.authStoredDAO;
+    static UserDAO userStoredDAO;
+    static AuthDAO authStoredDAO = AuthService.authStoredDAO;
 
     /**
      * @param userData contains username
@@ -77,11 +75,11 @@ public class UserService {
     }
 
 
-    public static void setUserDAO(MemoryUserDAO userDAO) {
+    public static void setUserDAO(UserDAO userDAO) {
         userStoredDAO=userDAO;
     }
 
-    public static void setAuthDAO(MemoryAuthDAO authDAO) {
+    public static void setAuthDAO(AuthDAO authDAO) {
         authStoredDAO=authDAO;
     }
 }

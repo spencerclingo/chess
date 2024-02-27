@@ -9,8 +9,6 @@ import service.AuthService;
 import service.GameService;
 import service.UserService;
 
-import java.util.ArrayList;
-
 public class Handler {
     Gson gson = new Gson();
     public String registration(String userData) {
