@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 public class MemoryGameDAO implements GameDAO{
 
-    int nextGameID = 1;
+    int nextGameID = 0;
     HashMap<Integer, GameData> gameMap = new HashMap<>();
 
 
@@ -19,8 +19,8 @@ public class MemoryGameDAO implements GameDAO{
      */
     @Override
     public int createGame(GameData gameData) {
-        GameData newGameData = gameData.copyChangedID(nextGameID);
         nextGameID++;
+        GameData newGameData = gameData.copyChangedID(nextGameID);
 
         gameMap.put(newGameData.gameID(), newGameData);
         return newGameData.gameID();
