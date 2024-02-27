@@ -32,6 +32,12 @@ public class MemoryUserDAO implements UserDAO {
         return userMap.get(username);
     }
 
+    /**
+     * returns if the login information is valid
+     *
+     * @param userData containing a username and password
+     * @return true if user/pass match, false if they don't
+     */
     @Override
     public boolean login(UserData userData) {
         String username = userData.username();
@@ -41,6 +47,9 @@ public class MemoryUserDAO implements UserDAO {
         return storedData.password().equals(password);
     }
 
+    /**
+     * Clears user database
+     */
     @Override
     public void clear() {
         userMap.clear();
