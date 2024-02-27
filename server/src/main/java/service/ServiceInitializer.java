@@ -3,7 +3,7 @@ package service;
 import dataAccess.*;
 
 public class ServiceInitializer {
-    public ServiceInitializer() {
+    public static void initialize() {
         AuthDAO authDAO = new MemoryAuthDAO();
 
         AuthService.setAuthDAO(authDAO);
