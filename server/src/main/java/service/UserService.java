@@ -44,10 +44,11 @@ public class UserService {
     }
 
     /**
-     * @return bool of success
+     * Clears user database
      */
     public static boolean clearData() {
-        return userStoredDAO.clear();
+        userStoredDAO.clear();
+        return true;
     }
 
     public static void setUserDAO(UserDAO userDAO) {

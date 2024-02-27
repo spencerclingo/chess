@@ -10,13 +10,11 @@ public class MemoryUserDAO implements UserDAO {
 
     /**
      * @param userData containing username, password, email
-     * @return bool of success
      */
     @Override
-    public boolean createUser(UserData userData) {
+    public void createUser(UserData userData) {
         String username = userData.username();
         userMap.put(username, userData);
-        return true;
     }
 
     /**
@@ -44,8 +42,7 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     @Override
-    public boolean clear() {
+    public void clear() {
         userMap.clear();
-        return true;
     }
 }

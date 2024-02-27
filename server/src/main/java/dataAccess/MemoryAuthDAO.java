@@ -57,25 +57,9 @@ public class MemoryAuthDAO implements AuthDAO{
         reverseAuthMap.remove(authToken);
     }
 
-    /**
-     * I think this will be unused
-     *
-     * @param authData containing username
-     * @return bool of if authToken exists for that player
-     */
     @Override
-    public boolean confirmAuth(AuthData authData) throws DataAccessException {
-        String username = authData.username();
-        if (authMap.get(username) == null) {
-            throw new DataAccessException("Username not associated with authToken");
-        }
-        return authMap.get(username) != null;
-    }
-
-    @Override
-    public boolean clear() {
+    public void clear() {
         authMap.clear();
         reverseAuthMap.clear();
-        return true;
     }
 }

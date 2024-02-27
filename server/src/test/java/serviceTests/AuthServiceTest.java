@@ -24,15 +24,6 @@ class AuthServiceTest {
     }
 
     @Test
-    void authCreated() throws DataAccessException {
-        AuthData authData = new AuthData(null, "username");
-        AuthData newAuth = AuthService.createAuth(authData);
-
-        assertTrue(authDAO.confirmAuth(new AuthData(null, "username")));
-        assertEquals(newAuth.username(), authDAO.getAuth(new AuthData(newAuth.authToken(), null)).username());
-    }
-
-    @Test
     void getCorrectAuth() {
         AuthData authData = new AuthData(null, "username");
         AuthData newAuth  = authDAO.createAuth(authData);

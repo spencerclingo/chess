@@ -50,21 +50,6 @@ public class MemoryGameDAO implements GameDAO{
     }
 
     /**
-     * @param gameData Must contain GameID, other things can change
-     * @return boolean
-     */
-    @Override
-    public short updateGame(GameData gameData) throws DataAccessException {
-        int gameID = gameData.gameID();
-
-        if (gameMap.get(gameID) == null) {
-            throw new DataAccessException("Game not found");
-        }
-        gameMap.put(gameID, gameData);
-        return 1;
-    }
-
-    /**
      * Adds a player to a game
      *
      * @param gameData contains gameID and the username of the player in the color they want to join
@@ -90,9 +75,8 @@ public class MemoryGameDAO implements GameDAO{
      * @return Bool of if it was a successful clear
      */
     @Override
-    public boolean clear() {
+    public void clear() {
         gameMap.clear();
         nextGameID = 0;
-        return true;
     }
 }

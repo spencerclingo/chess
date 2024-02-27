@@ -46,7 +46,8 @@ public class AuthService {
     }
 
     public static boolean clearData() {
-        return authStoredDAO.clear();
+        authStoredDAO.clear();
+        return true;
     }
 
     public static void setAuthDAO(AuthDAO authDAO) {

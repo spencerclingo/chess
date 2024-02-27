@@ -36,10 +36,11 @@ public class GameService {
     }
 
     /**
-     * @return success of clear
+     * Clears game database
      */
     public static boolean clearGames() {
-        return gameStoredDAO.clear();
+        gameStoredDAO.clear();
+        return true;
     }
 
     /**
