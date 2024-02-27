@@ -250,12 +250,7 @@ public class ChessGame {
 
         if (possiblePawn.getPieceType() == ChessPiece.PieceType.PAWN) {
             if (abs(previousMove.getEndPosition().row() - previousMove.getStartPosition().row()) == 2) {
-                if (startPosition.col() + 1 == previousMove.getEndPosition().col()) {
-                    ChessPosition newPosition = new ChessPosition((abs(previousMove.getEndPosition().row() +
-                            previousMove.getStartPosition().row()) / 2), previousMove.getEndPosition().col());
-                    newMove = new ChessMove(startPosition, newPosition, null);
-                    newMove.setEnPassant(true);
-                } else if (startPosition.col() - 1 == previousMove.getEndPosition().col()) {
+                if (startPosition.col() + 1 == previousMove.getEndPosition().col() || startPosition.col() - 1 == previousMove.getEndPosition().col()) {
                     ChessPosition newPosition = new ChessPosition((abs(previousMove.getEndPosition().row() +
                             previousMove.getStartPosition().row()) / 2), previousMove.getEndPosition().col());
                     newMove = new ChessMove(startPosition, newPosition, null);
