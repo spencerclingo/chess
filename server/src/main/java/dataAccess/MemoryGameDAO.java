@@ -72,7 +72,7 @@ public class MemoryGameDAO implements GameDAO{
      * @return bool of success
      * @throws DataAccessException if game is not found by gameID
      */
-    public boolean joinGame(GameData gameData, int color) throws DataAccessException {
+    public void joinGame(GameData gameData, int color) throws DataAccessException {
         int id = gameData.gameID();
         GameData oldData = gameMap.get(id);
 
@@ -82,11 +82,9 @@ public class MemoryGameDAO implements GameDAO{
 
         if (color == 0) {
             gameMap.put(id, new GameData(id, gameData.whiteUsername(), oldData.blackUsername(), oldData.gameName(), oldData.game()));
-        } else {
+        } else if (color == 1) {
             gameMap.put(id, new GameData(id, oldData.whiteUsername(), gameData.blackUsername(), oldData.gameName(), oldData.game()));
         }
-
-        return true;
     }
 
     /**

@@ -3,10 +3,7 @@ package service;
 import dataAccess.*;
 import models.AuthData;
 import models.GameData;
-import response.CreateGameResponse;
-import response.JoinGameResponse;
-import response.ListGamesResponse;
-import response.LogoutResponse;
+import response.*;
 
 import javax.xml.crypto.Data;
 import java.util.ArrayList;
@@ -78,9 +75,10 @@ public class GameService {
         return gameStoredDAO.clear();
     }
 
-    public static JoinGameResponse joinGame(GameData gameData, AuthData authData) {
+    public static JoinGameResponse joinGame(JoinGameRequest joinGameRequest, AuthData authData) {
+        String username;
         try {
-            authStoredDAO.getAuth(authData);
+            username = authStoredDAO.getAuth(authData).username();
         } catch(DataAccessException dae) {
             return new JoinGameResponse(401);
         }
@@ -89,25 +87,35 @@ public class GameService {
         GameData data;
 
         try {
-            data = gameStoredDAO.getGame(gameData);
+            data = gameStoredDAO.getGame(new GameData(joinGameRequest.gameID(), null,null,null,null));
         } catch(DataAccessException dae) {
             return new JoinGameResponse(400);
         }
 
-        if (gameData.whiteUsername() != null) {
+        if (joinGameRequest.playerColor() == null) {
+            return new JoinGameResponse(200);
+        }
+
+        if (joinGameRequest.playerColor().equals("white") || joinGameRequest.playerColor().equals("WHITE")) {
             colorVal = 0;
             if (data.whiteUsername() != null) {
                 return new JoinGameResponse(403);
             }
-        } else {
+        } else if (joinGameRequest.playerColor().equals("black") || joinGameRequest.playerColor().equals("BLACK")) {
             colorVal = 1;
             if (data.blackUsername() != null) {
                 return new JoinGameResponse(403);
             }
+        } else {
+            colorVal = -1;
         }
 
         try {
-            gameStoredDAO.joinGame(gameData, colorVal);
+            if (colorVal >= 0) {
+                GameData newGameData = new GameData(joinGameRequest.gameID(), username, username, null,null);
+                gameStoredDAO.joinGame(newGameData, colorVal);
+                return new JoinGameResponse(200);
+            }
             return new JoinGameResponse(200);
         } catch(DataAccessException dae) {
             return new JoinGameResponse(401);

@@ -9,6 +9,6 @@ public interface GameDAO {
     public GameData getGame(GameData gameData) throws DataAccessException;
     public ArrayList<GameData> listGames();
     public short updateGame(GameData gameData) throws DataAccessException;
-    public boolean joinGame(GameData gameData, int color) throws DataAccessException;
+    public void joinGame(GameData gameData, int color) throws DataAccessException;
     public boolean clear();
 }

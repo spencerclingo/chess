@@ -74,9 +74,9 @@ public class Server {
 
     private Object joinGame(Request request, Response response) {
         AuthData authData = new AuthData(request.headers("Authorization"), null);
-        GameData gameData = gson.fromJson(request.body(), GameData.class);
+        JoinGameRequest joinGameRequest = gson.fromJson(request.body(), JoinGameRequest.class);
 
-        JoinGameResponse joinGameResponse = GameService.joinGame(gameData, authData);
+        JoinGameResponse joinGameResponse = GameService.joinGame(joinGameRequest, authData);
         return getResponseBody(response, joinGameResponse.HTTPCode());
     }
 
