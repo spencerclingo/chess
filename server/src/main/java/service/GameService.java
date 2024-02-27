@@ -93,7 +93,16 @@ public class GameService {
         }
 
         if (joinGameRequest.playerColor() == null) {
-            return new JoinGameResponse(200);
+            try {
+                GameData newGameData = new GameData(joinGameRequest.gameID(), null, null, null,null);
+                newGameData = gameStoredDAO.getGame(newGameData);
+                if ((newGameData.blackUsername() != null && newGameData.blackUsername().equals(username)) || (newGameData.whiteUsername() != null && newGameData.whiteUsername().equals(username))) {
+                    return new JoinGameResponse(400);
+                }
+                return new JoinGameResponse(200);
+            } catch(DataAccessException dae) {
+                return new JoinGameResponse(400);
+            }
         }
 
         if (joinGameRequest.playerColor().equals("white") || joinGameRequest.playerColor().equals("WHITE")) {
@@ -111,12 +120,10 @@ public class GameService {
         }
 
         try {
-            if (colorVal >= 0) {
-                GameData newGameData = new GameData(joinGameRequest.gameID(), username, username, null,null);
-                gameStoredDAO.joinGame(newGameData, colorVal);
-                return new JoinGameResponse(200);
-            }
+            GameData newGameData = new GameData(joinGameRequest.gameID(), username, username, null,null);
+            gameStoredDAO.joinGame(newGameData, colorVal);
             return new JoinGameResponse(200);
+
         } catch(DataAccessException dae) {
             return new JoinGameResponse(401);
         }
