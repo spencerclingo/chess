@@ -11,18 +11,6 @@ public class UserService {
     static AuthDAO authStoredDAO = AuthService.authStoredDAO;
 
     /**
-     * @param userData contains username
-     * @return bool if the user already exists
-     */
-    public static boolean getUser(UserData userData) {
-        try {
-            return (userStoredDAO.getUser(userData) != null);
-        } catch(DataAccessException dae) {
-            return false;
-        }
-    }
-
-    /**
      * @param userData contains username and password
      * @return AuthData for the authToken if information matches, null if it does not
      */

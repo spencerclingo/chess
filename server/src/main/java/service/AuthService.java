@@ -45,18 +45,6 @@ public class AuthService {
         }
     }
 
-    /**
-     * @param authData containing username
-     * @return true if found, false if not found
-     */
-    public static boolean confirmAuth(AuthData authData) {
-        try {
-            return authStoredDAO.confirmAuth(authData);
-        } catch(DataAccessException dae) {
-            return false;
-        }
-    }
-
     public static boolean clearData() {
         return authStoredDAO.clear();
     }

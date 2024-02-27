@@ -7,6 +7,7 @@ import models.GameData;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import response.JoinGameRequest;
 import service.GameService;
 
 import java.util.ArrayList;
@@ -51,21 +52,6 @@ class GameServiceTest {
     }
 
     @Test
-    void getRealGame() {
-        GameData gameData = new GameData(1, "white", "black", "name", null);
-        gameDAO.createGame(gameData);
-
-        assertNotNull(GameService.getGame(gameData));
-    }
-
-    @Test
-    void getFakeGame() {
-        GameData gameData = new GameData(0, "white", "black", "name", null);
-
-        assertNull(GameService.getGame(gameData));
-    }
-
-    @Test
     void listGamesEmpty() {
         AuthData authData = new AuthData("12345", "username");
         authData = authDAO.createAuth(authData);
@@ -104,35 +90,68 @@ class GameServiceTest {
     }
 
     @Test
-    void successfulGameUpdate() {
-        GameData gameData = new GameData(0, "white", "black", "name", null);
+    void joinValidGame() {
+        GameData gameData = new GameData(1, "white", null, "name", null);
         AuthData authData = new AuthData("12345", "username");
         authData = authDAO.createAuth(authData);
 
         GameService.createGame(gameData, authData);
 
-        assertEquals(0,GameService.updateGame(gameData, authData));
+        assertEquals(200, GameService.joinGame(new JoinGameRequest("black", 1), authData).httpCode());
     }
 
     @Test
-    void noGameAtIDToUpdate() {
-        GameData gameData = new GameData(10, "white", "black", "name", null);
+    void joinInvalidGameID() {
+        AuthData authData = new AuthData("12345", "username");
+        authData = authDAO.createAuth(authData);
+
+        assertEquals(400, GameService.joinGame(new JoinGameRequest("black", 1), authData).httpCode());
+    }
+
+    @Test
+    void joinColorAlreadyTaken() {
+        GameData gameData = new GameData(1, "white", "taken", "name", null);
         AuthData authData = new AuthData("12345", "username");
         authData = authDAO.createAuth(authData);
 
         GameService.createGame(gameData, authData);
 
-        assertEquals(0,GameService.updateGame(gameData, authData));
+        assertEquals(403, GameService.joinGame(new JoinGameRequest("black", 1), authData).httpCode());
     }
 
     @Test
-    void noAuthorizationToUpdateGame() {
-        GameData gameData = new GameData(0, "white", "black", "name", null);
+    void watchGameValid() {
+        GameData gameData = new GameData(1, "white", null, "name", null);
         AuthData authData = new AuthData("12345", "username");
+        authData = authDAO.createAuth(authData);
 
         GameService.createGame(gameData, authData);
 
-        assertEquals(-1,GameService.updateGame(gameData, authData));
+        assertEquals(200, GameService.joinGame(new JoinGameRequest("", 1), authData).httpCode());
+    }
+
+    @Test
+    void watchGameInvalidGameID() {
+        GameData gameData = new GameData(1, "white", null, "name", null);
+        AuthData authData = new AuthData("12345", "username");
+        authData = authDAO.createAuth(authData);
+
+        GameService.createGame(gameData, authData);
+
+        assertEquals(400, GameService.joinGame(new JoinGameRequest("", 10), authData).httpCode());
+    }
+
+    @Test
+    void watchGameMultipleTimes() {
+        GameData gameData = new GameData(1, "white", null, "name", null);
+        AuthData authData = new AuthData("12345", "username");
+        authData = authDAO.createAuth(authData);
+
+        GameService.createGame(gameData, authData);
+
+        assertEquals(200, GameService.joinGame(new JoinGameRequest("", 1), authData).httpCode());
+        assertEquals(200, GameService.joinGame(new JoinGameRequest("", 1), authData).httpCode());
+        assertEquals(200, GameService.joinGame(new JoinGameRequest("", 1), authData).httpCode());
     }
 
     @Test

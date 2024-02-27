@@ -23,18 +23,6 @@ public class GameService {
     }
 
     /**
-     * @param gameData Must contain gameID
-     * @return full GameData object of matching game or null
-     */
-    public static GameData getGame(GameData gameData) {
-        try {
-            return gameStoredDAO.getGame(gameData);
-        } catch(DataAccessException dae) {
-            return null;
-        }
-    }
-
-    /**
      * @param authData They must be a valid use to get the game info
      * @return List of games, or null if they are invalid users
      */
@@ -48,30 +36,19 @@ public class GameService {
     }
 
     /**
-     * @param gameData contains at least gameID plus current status of game
-     * @param authData authToken
-     * @return 1 if game was updated, 0 if game didn't exist, -1 if auth is invalid
-     */
-    public static short updateGame(GameData gameData, AuthData authData)  {
-        try {
-            authStoredDAO.getAuth(authData);
-            try {
-                return gameStoredDAO.updateGame(gameData);
-            } catch(DataAccessException dae) {
-                return 0;
-            }
-        } catch(DataAccessException dae) {
-            return -1;
-        }
-    }
-
-    /**
      * @return success of clear
      */
     public static boolean clearGames() {
         return gameStoredDAO.clear();
     }
 
+    /**
+     * Adds the player attached to the authCode to the color specified in the joinGameRequest to the game at the gameID
+     *
+     * @param joinGameRequest PlayerColor (can be empty) and gameID
+     * @param authData contains authToken
+     * @return JoinGameResponse with httpCode
+     */
     public static JoinGameResponse joinGame(JoinGameRequest joinGameRequest, AuthData authData) {
         String username;
         try {
@@ -80,7 +57,7 @@ public class GameService {
             return new JoinGameResponse(401);
         }
 
-        int colorVal;
+        int colorVal=-1;
         GameData data;
 
         try {
@@ -107,13 +84,12 @@ public class GameService {
             if (data.whiteUsername() != null) {
                 return new JoinGameResponse(403);
             }
-        } else if (joinGameRequest.playerColor().equals("black") || joinGameRequest.playerColor().equals("BLACK")) {
+        }
+        if (joinGameRequest.playerColor().equals("black") || joinGameRequest.playerColor().equals("BLACK")) {
             colorVal = 1;
             if (data.blackUsername() != null) {
                 return new JoinGameResponse(403);
             }
-        } else {
-            colorVal = -1;
         }
 
         try {

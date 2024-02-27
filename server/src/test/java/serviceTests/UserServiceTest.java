@@ -43,21 +43,6 @@ class UserServiceTest {
     }
 
     @Test
-    void userExists() {
-        UserData userData = new UserData("username", "password", "email@email");
-        userDAO.createUser(userData);
-
-        assertTrue(UserService.getUser(userData));
-    }
-
-    @Test
-    void userDoesNotExist() {
-        UserData userData = new UserData("username", "password", "email@email");
-
-        assertFalse(UserService.getUser(userData));
-    }
-
-    @Test
     void createUserTest() throws DataAccessException {
         UserData userData = new UserData("username", "password", "email@email");
 

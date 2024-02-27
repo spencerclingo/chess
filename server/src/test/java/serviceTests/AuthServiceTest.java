@@ -33,12 +33,6 @@ class AuthServiceTest {
     }
 
     @Test
-    void authNotCreated() {
-        assertFalse(AuthService.confirmAuth(new AuthData(null, "username")));
-        assertNull(AuthService.getAuth(new AuthData("12345", null)));
-    }
-
-    @Test
     void getCorrectAuth() {
         AuthData authData = new AuthData(null, "username");
         AuthData newAuth  = authDAO.createAuth(authData);
