@@ -2,5 +2,5 @@ package response;
 
 import models.AuthData;
 
-public record RegisterResponse(AuthData authData, int HTTPCode) {
+public record RegisterResponse(AuthData authData, int httpCode) {
 }

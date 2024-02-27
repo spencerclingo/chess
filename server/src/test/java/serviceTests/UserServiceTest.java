@@ -84,7 +84,7 @@ class UserServiceTest {
         AuthData authData = registerResponse.authData();
         AuthService.logout(authData);
 
-        assertEquals(200, UserService.login(userData).HTTPCode());
+        assertEquals(200, UserService.login(userData).httpCode());
     }
 
     @Test
@@ -96,7 +96,7 @@ class UserServiceTest {
         AuthData authData = registerResponse.authData();
         AuthService.logout(authData);
 
-        assertEquals(401, UserService.login(new UserData("username", "incorrect-password",null)).HTTPCode());
-        assertEquals(401, UserService.login(new UserData("null", "null", null)).HTTPCode());
+        assertEquals(401, UserService.login(new UserData("username", "incorrect-password",null)).httpCode());
+        assertEquals(401, UserService.login(new UserData("null", "null", null)).httpCode());
     }
 }

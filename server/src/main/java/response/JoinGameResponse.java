@@ -1,4 +1,4 @@
 package response;
 
-public record JoinGameResponse(int HTTPCode) {
+public record JoinGameResponse(int httpCode) {
 }

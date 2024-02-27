@@ -56,12 +56,12 @@ class AuthServiceTest {
         AuthData authData = new AuthData(null, "username");
         AuthData newAuth  = authDAO.createAuth(authData);
 
-        assertEquals(200, AuthService.logout(newAuth).HTTPCode());
+        assertEquals(200, AuthService.logout(newAuth).httpCode());
     }
 
     @Test
     void logoutInvalidUser() {
-        assertEquals(401, AuthService.logout(new AuthData(null, null)).HTTPCode());
+        assertEquals(401, AuthService.logout(new AuthData(null, null)).httpCode());
     }
 
     @Test

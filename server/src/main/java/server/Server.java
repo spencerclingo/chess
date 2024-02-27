@@ -34,29 +34,29 @@ public class Server {
         return Spark.port();
     }
 
-    private Object getResponseBody(Response response, int HTTPCode, AuthData authData) {
-        response.status(HTTPCode);
+    private Object getResponseBody(Response response, int httpCode, AuthData authData) {
+        response.status(httpCode);
 
-        String error = switchCases(HTTPCode);
+        String error = switchCases(httpCode);
 
         if (error.equals(emptyJson)) {
             return gson.toJson(authData);
         } else {
-            if (find500Error(HTTPCode)) {
+            if (find500Error(httpCode)) {
                 response.status(500);
             }
             return error;
         }
     }
 
-    private Object getResponseBody(Response response, int HTTPCode) {
-        response.status(HTTPCode);
-        String error = switchCases(HTTPCode);
+    private Object getResponseBody(Response response, int httpCode) {
+        response.status(httpCode);
+        String error = switchCases(httpCode);
 
         if (error.equals(emptyJson)) {
             return emptyJson;
         } else {
-            if (find500Error(HTTPCode)) {
+            if (find500Error(httpCode)) {
                 response.status(500);
             }
             return error;
@@ -69,7 +69,7 @@ public class Server {
         AuthService.clearData();
 
         ClearResponse clearResponse = new ClearResponse(200);
-        return getResponseBody(response, clearResponse.HTTPCode());
+        return getResponseBody(response, clearResponse.httpCode());
     }
 
     private Object joinGame(Request request, Response response) {
@@ -77,7 +77,7 @@ public class Server {
         JoinGameRequest joinGameRequest = gson.fromJson(request.body(), JoinGameRequest.class);
 
         JoinGameResponse joinGameResponse = GameService.joinGame(joinGameRequest, authData);
-        return getResponseBody(response, joinGameResponse.HTTPCode());
+        return getResponseBody(response, joinGameResponse.httpCode());
     }
 
     private Object createGame(Request request, Response response) {
@@ -85,16 +85,16 @@ public class Server {
         GameData gameData = gson.fromJson(request.body(), GameData.class);
 
         CreateGameResponse createGameResponse = GameService.createGame(gameData, authData);
-        int HTTPCode = createGameResponse.HTTPCode();
+        int httpCode = createGameResponse.httpCode();
 
-        response.status(HTTPCode);
-        String error = switchCases(HTTPCode);
+        response.status(httpCode);
+        String error = switchCases(httpCode);
 
         if (error.equals(emptyJson)) {
             GameIDResponse gameIDResponse = new GameIDResponse(createGameResponse.gameID());
             return gson.toJson(gameIDResponse);
         } else {
-            if (find500Error(HTTPCode)) {
+            if (find500Error(httpCode)) {
                 response.status(500);
             }
             return error;
@@ -105,16 +105,16 @@ public class Server {
         AuthData authData = new AuthData(request.headers("Authorization"), null);
         ListGamesResponse listGamesResponse = GameService.listGames(authData);
 
-        int HTTPCode = listGamesResponse.HTTPCode();
-        response.status(HTTPCode);
+        int httpCode = listGamesResponse.httpCode();
+        response.status(httpCode);
 
-        String error = switchCases(HTTPCode);
+        String error = switchCases(httpCode);
 
         if (error.equals(emptyJson)) {
             GameListResponse gameList = new GameListResponse(listGamesResponse.listOfGames());
             return gson.toJson(gameList);
         } else {
-            if (find500Error(HTTPCode)) {
+            if (find500Error(httpCode)) {
                 response.status(500);
             }
             return error;
@@ -125,25 +125,25 @@ public class Server {
         AuthData authData = new AuthData(request.headers("Authorization"), null);
         LogoutResponse logoutResponse = AuthService.logout(authData);
 
-        return getResponseBody(response, logoutResponse.HTTPCode());
+        return getResponseBody(response, logoutResponse.httpCode());
     }
 
     private Object loginUser(Request request, Response response) {
         UserData userData = gson.fromJson(request.body(), UserData.class);
         LoginResponse loginResponse = UserService.login(userData);
 
-        return getResponseBody(response, loginResponse.HTTPCode(), loginResponse.authData());
+        return getResponseBody(response, loginResponse.httpCode(), loginResponse.authData());
     }
 
     private Object registerUser(Request request, Response response) {
         UserData userData = gson.fromJson(request.body(), UserData.class);
         RegisterResponse registerResponse = UserService.createUser(userData);
 
-        return getResponseBody(response, registerResponse.HTTPCode(), registerResponse.authData());
+        return getResponseBody(response, registerResponse.httpCode(), registerResponse.authData());
     }
 
-    private String switchCases(int HTTPCode) {
-        switch (HTTPCode) {
+    private String switchCases(int httpCode) {
+        switch (httpCode) {
             case (200) -> {
                 return "{}";
             }
@@ -162,8 +162,8 @@ public class Server {
         }
     }
 
-    private boolean find500Error(int HTTPCode) {
-        return switch (HTTPCode) {
+    private boolean find500Error(int httpCode) {
+        return switch (httpCode) {
             case (200), (400), (401), (403) -> false;
             default -> true;
         };

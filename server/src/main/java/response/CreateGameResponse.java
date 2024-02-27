@@ -1,4 +1,4 @@
 package response;
 
-public record CreateGameResponse(int gameID, int HTTPCode) {
+public record CreateGameResponse(int gameID, int httpCode) {
 }

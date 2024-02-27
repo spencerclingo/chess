@@ -4,5 +4,5 @@ import models.GameData;
 
 import java.util.ArrayList;
 
-public record ListGamesResponse(ArrayList<GameData> listOfGames, int HTTPCode) {
+public record ListGamesResponse(ArrayList<GameData> listOfGames, int httpCode) {
 }

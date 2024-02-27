@@ -1,4 +1,4 @@
 package response;
 
-public record ClearResponse(int HTTPCode) {
+public record ClearResponse(int httpCode) {
 }
