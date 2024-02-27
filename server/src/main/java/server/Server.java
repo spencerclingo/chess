@@ -34,6 +34,40 @@ public class Server {
         return Spark.port();
     }
 
+    private Object getResponseBody(Response response, int HTTPCode, AuthData authData) {
+        response.status(HTTPCode);
+
+        String error = switchCases(HTTPCode);
+
+        if (error.equals(emptyJson)) {
+            response.body(gson.toJson(authData));
+        } else {
+            response.body(error);
+            if (find500Error(HTTPCode)) {
+                response.status(500);
+            }
+        }
+
+        return "";
+    }
+
+    private Object getResponseBody(Response response, int HTTPCode) {
+
+        response.status(HTTPCode);
+        String error = switchCases(HTTPCode);
+
+        if (error.equals(emptyJson)) {
+            response.body(emptyJson);
+        } else {
+            response.body(error);
+            if (find500Error(HTTPCode)) {
+                response.status(500);
+            }
+        }
+
+        return "";
+    }
+
     private Object clearDatabase(Request request, Response response) {
         GameService.clearGames();
         UserService.clearData();
@@ -51,20 +85,6 @@ public class Server {
         return getResponseBody(response, joinGameResponse.HTTPCode());
     }
 
-    private Object getResponseBody(Response response, int HTTPCode) {
-
-        response.status(HTTPCode);
-        String error = switchCases(HTTPCode);
-
-        if (error.equals(emptyJson)) {
-            response.body(emptyJson);
-        } else {
-            response.body(gson.toJson(error));
-        }
-
-        return "";
-    }
-
     private Object createGame(Request request, Response response) {
         AuthData authData = gson.fromJson(request.headers("Authorization"), AuthData.class);
         GameData gameData = gson.fromJson(request.body(), GameData.class);
@@ -78,7 +98,10 @@ public class Server {
         if (error.equals(emptyJson)) {
             response.body(gson.toJson(createGameResponse.gameID()));
         } else {
-            response.body(gson.toJson(error));
+            response.body(error);
+            if (find500Error(HTTPCode)) {
+                response.status(500);
+            }
         }
 
         return "";
@@ -96,7 +119,10 @@ public class Server {
         if (error.equals(emptyJson)) {
             response.body(gson.toJson(listGamesResponse.listOfGames()));
         } else {
-            response.body(gson.toJson(error));
+            response.body(error);
+            if (find500Error(HTTPCode)) {
+                response.status(500);
+            }
         }
 
         return "";
@@ -123,19 +149,7 @@ public class Server {
         return getResponseBody(response, registerResponse.HTTPCode(), registerResponse.authData());
     }
 
-    private Object getResponseBody(Response response, int HTTPCode, AuthData authData) {
-        response.status(HTTPCode);
 
-        String error = switchCases(HTTPCode);
-
-        if (error.equals(emptyJson)) {
-            response.body(gson.toJson(authData));
-        } else {
-            response.body(gson.toJson(error));
-        }
-
-        return "";
-    }
 
     private String switchCases(int HTTPCode) {
         switch (HTTPCode) {
@@ -155,6 +169,13 @@ public class Server {
                 return "{ \"message\": \"Error: description\" }";
             }
         }
+    }
+
+    private boolean find500Error(int HTTPCode) {
+        return switch (HTTPCode) {
+            case (200), (400), (401), (403) -> false;
+            default -> true;
+        };
     }
 
     public void stop() {
