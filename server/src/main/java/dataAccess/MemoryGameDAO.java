@@ -72,7 +72,7 @@ public class MemoryGameDAO implements GameDAO{
     }
 
     /**
-     * @return Bool of if it was a successful clear
+     * Clears game database
      */
     @Override
     public void clear() {

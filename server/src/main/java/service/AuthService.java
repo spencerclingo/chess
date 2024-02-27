@@ -2,21 +2,12 @@ package service;
 
 import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;
-import dataAccess.MemoryAuthDAO;
 import models.AuthData;
 import response.LogoutResponse;
 
 public class AuthService {
 
     static AuthDAO authStoredDAO;
-
-    /**
-     * @param authData containing username
-     * @return full AuthData object
-     */
-    public static AuthData createAuth(AuthData authData) {
-        return authStoredDAO.createAuth(authData);
-    }
 
     /**
      * @param authData containing authToken

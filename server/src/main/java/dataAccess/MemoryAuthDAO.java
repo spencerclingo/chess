@@ -57,6 +57,9 @@ public class MemoryAuthDAO implements AuthDAO{
         reverseAuthMap.remove(authToken);
     }
 
+    /**
+     * Clears auth database
+     */
     @Override
     public void clear() {
         authMap.clear();
