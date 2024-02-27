@@ -5,9 +5,6 @@ import models.AuthData;
 import models.GameData;
 import response.*;
 
-import javax.xml.crypto.Data;
-import java.util.ArrayList;
-
 public class GameService {
     static GameDAO gameStoredDAO = new MemoryGameDAO();
     static AuthDAO authStoredDAO = AuthService.authStoredDAO;
@@ -92,7 +89,7 @@ public class GameService {
             return new JoinGameResponse(400);
         }
 
-        if (joinGameRequest.playerColor() == null) {
+        if (joinGameRequest.playerColor() == null || (!joinGameRequest.playerColor().equals("WHITE") && !joinGameRequest.playerColor().equals("white") && !joinGameRequest.playerColor().equals("BLACK") && !joinGameRequest.playerColor().equals("black"))) {
             try {
                 GameData newGameData = new GameData(joinGameRequest.gameID(), null, null, null,null);
                 newGameData = gameStoredDAO.getGame(newGameData);
@@ -123,7 +120,6 @@ public class GameService {
             GameData newGameData = new GameData(joinGameRequest.gameID(), username, username, null,null);
             gameStoredDAO.joinGame(newGameData, colorVal);
             return new JoinGameResponse(200);
-
         } catch(DataAccessException dae) {
             return new JoinGameResponse(401);
         }

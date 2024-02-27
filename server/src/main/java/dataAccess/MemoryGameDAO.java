@@ -69,7 +69,6 @@ public class MemoryGameDAO implements GameDAO{
      *
      * @param gameData contains gameID and the username of the player in the color they want to join
      * @param color 0 is white, 1 is black
-     * @return bool of success
      * @throws DataAccessException if game is not found by gameID
      */
     public void joinGame(GameData gameData, int color) throws DataAccessException {

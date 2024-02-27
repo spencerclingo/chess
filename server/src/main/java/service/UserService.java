@@ -1,11 +1,9 @@
 package service;
 
-import com.mysql.cj.log.Log;
 import dataAccess.*;
 import models.AuthData;
 import models.UserData;
 import response.LoginResponse;
-import response.LogoutResponse;
 import response.RegisterResponse;
 
 public class UserService {
@@ -63,17 +61,6 @@ public class UserService {
     public static boolean clearData() {
         return userStoredDAO.clear();
     }
-
-    /**
-     * Logging out involves user, call UserService
-     *
-     * @param authData contains authToken
-     * @return success of logging out
-     */
-    public static LogoutResponse logout(AuthData authData) {
-        return AuthService.logout(authData);
-    }
-
 
     public static void setUserDAO(UserDAO userDAO) {
         userStoredDAO=userDAO;
