@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import dataAccess.DataAccessException;
 import models.AuthData;
 import models.GameData;
 import models.UserData;
@@ -16,7 +17,12 @@ public class Server {
     String emptyJson = "{}";
 
     public int run(int desiredPort) {
-        ServiceInitializer.initialize();
+        try {
+            ServiceInitializer.initialize();
+        } catch (DataAccessException dae) {
+            System.out.println("Database could not be initialized");
+            return -999;
+        }
 
         Spark.port(desiredPort);
 

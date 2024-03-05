@@ -3,7 +3,7 @@ package service;
 import dataAccess.*;
 
 public class ServiceInitializer {
-    public static void initialize() {
+    public static void initialize() throws DataAccessException {
         AuthDAO authDAO = new MemoryAuthDAO();
 
         AuthService.setAuthDAO(authDAO);
@@ -15,5 +15,7 @@ public class ServiceInitializer {
         GameService.setAuthDAO(authDAO);
         UserService.setUserDAO(userDAO);
         UserService.setAuthDAO(authDAO);
+
+        DatabaseManager.createDatabase();
     }
 }
