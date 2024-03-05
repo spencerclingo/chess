@@ -34,9 +34,22 @@ public class DatabaseManager {
     /**
      * Creates the database if it does not already exist.
      */
-    static void createDatabase() throws DataAccessException {
+    public static void createDatabase() throws DataAccessException {
         try {
-            var statement = "CREATE DATABASE IF NOT EXISTS " + databaseName;
+            var statement = "CREATE SCHEMA IF NOT EXISTS `" + databaseName + "`;";
+
+            var conn = DriverManager.getConnection(connectionUrl, user, password);
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    static void createAuthTable() throws DataAccessException {
+        try {
+            var statement = "CREATE TABLE IF NOT EXISTS `" + databaseName + "`.`authdata` (\n\t`authToken` VARCHAR(36) NOT NULL,\n\t `usernames` VARCHAR(45) NOT NULL,\n\tPRIMARY KEY (`authToken`),\n\tUNIQUE INDEX `authToken_UNIQUE` (`authToken` ASC) VISIBLE\n)";
             var conn = DriverManager.getConnection(connectionUrl, user, password);
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.executeUpdate();

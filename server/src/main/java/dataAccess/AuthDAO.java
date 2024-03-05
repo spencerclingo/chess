@@ -8,7 +8,7 @@ public interface AuthDAO {
      * @param authData containing username
      * @return full AuthData object
      */
-    AuthData createAuth(AuthData authData);
+    AuthData createAuth(AuthData authData) throws DataAccessException;
 
     /**
      * @param authData containing authToken
