@@ -47,6 +47,11 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Creates the authdata table if none exists
+     *
+     * @throws DataAccessException If the database doesn't allow it
+     */
     static void createAuthTable() throws DataAccessException {
         try {
             var statement = "CREATE TABLE IF NOT EXISTS `" + databaseName + "`.`authdata` (\n\t`authToken` VARCHAR(36) NOT NULL,\n\t `usernames` VARCHAR(45) NOT NULL,\n\tPRIMARY KEY (`authToken`),\n\tUNIQUE INDEX `authToken_UNIQUE` (`authToken` ASC) VISIBLE\n)";

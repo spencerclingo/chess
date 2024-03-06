@@ -2,6 +2,8 @@ package dataAccess;
 
 import models.AuthData;
 
+import java.sql.SQLException;
+
 public interface AuthDAO {
 
     /**
@@ -14,7 +16,7 @@ public interface AuthDAO {
      * @param authData containing authToken
      * @return full AuthData object, or null if authToken doesn't exist
      */
-    AuthData getAuth(AuthData authData) throws DataAccessException;
+    AuthData getAuth(AuthData authData) throws DataAccessException, SQLException;
 
     /**
      * @param authData containing authToken
@@ -24,5 +26,5 @@ public interface AuthDAO {
     /**
      * Clears auth database
      */
-    void clear();
+    void clear() throws DataAccessException;
 }
