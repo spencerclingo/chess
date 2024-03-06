@@ -29,8 +29,9 @@ public class UserService {
     /**
      * @param userData contains username, password, email
      * @return bool of success to create
+     * @throws DataAccessException when user creation fails in the database
      */
-    public static RegisterResponse createUser(UserData userData) {
+    public static RegisterResponse createUser(UserData userData) throws DataAccessException {
         if (userData.password() == null) {
             return new RegisterResponse(null, 400);
         }

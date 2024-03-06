@@ -143,9 +143,13 @@ public class Server {
 
     private Object registerUser(Request request, Response response) {
         UserData userData = gson.fromJson(request.body(), UserData.class);
-        RegisterResponse registerResponse = UserService.createUser(userData);
+        try {
+            RegisterResponse registerResponse = UserService.createUser(userData);
+            return getResponseBody(response, registerResponse.httpCode(), registerResponse.authData());
+        } catch(DataAccessException dae) {
+            return getResponseBody(response, 500, null);
+        }
 
-        return getResponseBody(response, registerResponse.httpCode(), registerResponse.authData());
     }
 
     private String switchCases(int httpCode) {

@@ -5,6 +5,8 @@ import models.AuthData;
 import models.GameData;
 import response.*;
 
+import java.sql.SQLException;
+
 public class GameService {
     static GameDAO gameStoredDAO = new MemoryGameDAO();
     static AuthDAO authStoredDAO = AuthService.authStoredDAO;
@@ -17,7 +19,7 @@ public class GameService {
         try {
             authStoredDAO.getAuth(authData);
             return new CreateGameResponse(gameStoredDAO.createGame(gameData), 200);
-        } catch(DataAccessException dae) {
+        } catch(DataAccessException | SQLException dae) {
             return new CreateGameResponse(-1, 401);
         }
     }
@@ -30,7 +32,7 @@ public class GameService {
         try {
             authStoredDAO.getAuth(authData);
             return new ListGamesResponse(gameStoredDAO.listGames(), 200);
-        } catch(DataAccessException dae) {
+        } catch(DataAccessException | SQLException dae) {
             return new ListGamesResponse(null, 401);
         }
     }
@@ -54,7 +56,7 @@ public class GameService {
         String username;
         try {
             username = authStoredDAO.getAuth(authData).username();
-        } catch(DataAccessException dae) {
+        } catch(DataAccessException | SQLException dae) {
             return new JoinGameResponse(401);
         }
 

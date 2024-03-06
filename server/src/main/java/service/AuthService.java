@@ -2,12 +2,15 @@ package service;
 
 import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;
+import dataAccess.SQLAuthDAO;
 import models.AuthData;
 import response.LogoutResponse;
 
+import java.sql.SQLException;
+
 public class AuthService {
 
-    static AuthDAO authStoredDAO;
+    static AuthDAO authStoredDAO = new SQLAuthDAO();
 
     /**
      * @param authData containing authToken
@@ -16,7 +19,7 @@ public class AuthService {
     public static AuthData getAuth(AuthData authData) {
         try {
             return authStoredDAO.getAuth(authData);
-        } catch(DataAccessException dae) {
+        } catch(DataAccessException | SQLException dae) {
             return null;
         }
     }
@@ -37,8 +40,12 @@ public class AuthService {
     }
 
     public static boolean clearData() {
-        authStoredDAO.clear();
-        return true;
+        try {
+            authStoredDAO.clear();
+            return true;
+        } catch(DataAccessException dae) {
+            return false;
+        }
     }
 
     public static void setAuthDAO(AuthDAO authDAO) {

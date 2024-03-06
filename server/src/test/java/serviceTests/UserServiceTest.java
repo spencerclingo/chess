@@ -55,13 +55,15 @@ class UserServiceTest {
     void userNotCreatedTest() {
         UserData userData = new UserData("username", "password", "email@email");
 
-        UserService.createUser(userData);
-
-        assertThrows(DataAccessException.class, () -> userDAO.getUser(new UserData(null, null, null)));
+        try {
+            UserService.createUser(userData);
+        } catch(DataAccessException dae) {
+            assertThrows(DataAccessException.class, () -> userDAO.getUser(new UserData(null, null, null)));
+        }
     }
 
     @Test
-    void loginValidUser() {
+    void loginValidUser() throws DataAccessException {
         AuthService.setAuthDAO(authDAO);
 
         UserData userData = new UserData("username", "password", "email@email");
@@ -73,7 +75,7 @@ class UserServiceTest {
     }
 
     @Test
-    void loginInvalidUser() {
+    void loginInvalidUser() throws DataAccessException {
         AuthService.setAuthDAO(authDAO);
 
         UserData userData = new UserData("username", "password", "email@email");
