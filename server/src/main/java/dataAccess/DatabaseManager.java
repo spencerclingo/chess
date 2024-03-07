@@ -3,6 +3,9 @@ package dataAccess;
 import java.sql.*;
 import java.util.Properties;
 
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
+import static java.sql.Types.NULL;
+
 public class DatabaseManager {
     private static final String databaseName;
     private static final String user;
@@ -52,7 +55,7 @@ public class DatabaseManager {
      *
      * @throws DataAccessException If the database doesn't allow it
      */
-    static void createAuthTable() throws DataAccessException {
+    public static void createAuthTable() throws DataAccessException {
         try {
             var statement = """
                     CREATE TABLE IF NOT EXISTS `""" + databaseName + """
@@ -76,13 +79,13 @@ public class DatabaseManager {
      *
      * @throws DataAccessException if table could not be made properly
      */
-    static void createUserTable() throws DataAccessException {
+    public static void createUserTable() throws DataAccessException {
         try {
             var statement = """
                     CREATE TABLE IF NOT EXISTS `""" + databaseName + """
-                    `.`user` (
-                      `username` VARCHAR(45) NOT NULL,
-                      `password` VARCHAR(45) NOT NULL,
+                    `.`users` (
+                      `username` VARCHAR(100) NOT NULL,
+                      `password` VARCHAR(255) NOT NULL,
                       `email` VARCHAR(90) NOT NULL,
                       PRIMARY KEY (`username`)
                     );
@@ -96,7 +99,7 @@ public class DatabaseManager {
         }
     }
 
-    static void createGameTable() throws DataAccessException {
+    public static void createGameTable() throws DataAccessException {
         try {
             var statement = """
                     CREATE TABLE IF NOT EXISTS `""" + databaseName + """
@@ -135,6 +138,79 @@ public class DatabaseManager {
             var conn = DriverManager.getConnection(connectionUrl, user, password);
             conn.setCatalog(databaseName);
             return conn;
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    /**
+     * Ideally executes a SQL string
+     *
+     * @param statement SQL query string
+     * @param params    Array list of potential objects you can pass in
+     *
+     * @throws DataAccessException database is unable to be updated
+     */
+    protected static boolean executeUpdate(String statement, Object... params) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+                preparedStatements(ps, params);
+                int rowsAffected = ps.executeUpdate();
+
+                var rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    rs.getInt(1);
+                }
+
+                return rowsAffected > 0;
+            }
+        } catch(SQLException | DataAccessException e) {
+            throw new DataAccessException("unable to update database: %s, %s");
+        }
+    }
+
+    /**
+     * Helper
+     *
+     * @param ps
+     * @param params
+     * @throws SQLException
+     */
+    private static void preparedStatements(PreparedStatement ps, Object[] params) throws SQLException {
+        for (var i = 0; i < params.length; i++) {
+            var param = params[i];
+            switch (param) {
+                case String p -> ps.setString(i + 1, p);
+                case Integer p -> ps.setInt(i + 1, p);
+                case null -> ps.setNull(i + 1, NULL);
+                default -> {
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     * @param statement SQL query
+     * @param params Array of objects that will be inserted into your query
+     * @return ResultSet of what has been selected from the database
+     * @throws DataAccessException if the database doesn't accept the SQL
+     */
+    protected static ResultSet executeQuery(String statement, Object... params) throws DataAccessException {
+        try {
+            Connection conn = DatabaseManager.getConnection();
+            PreparedStatement ps = conn.prepareStatement(statement);
+
+            // Set parameters if needed
+            for (int i = 0; i < params.length; i++) {
+                Object param = params[i];
+                if (param instanceof String) ps.setString(i + 1, (String) param);
+                else if (param instanceof Integer) ps.setInt(i + 1, (Integer) param);
+
+            }
+
+            // Execute the query
+            return ps.executeQuery();
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }

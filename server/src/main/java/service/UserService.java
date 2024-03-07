@@ -32,6 +32,7 @@ public class UserService {
             System.out.println("Username and password don't match");
             return new LoginResponse(null, 401);
         } catch(DataAccessException dae) {
+            System.out.println("Exception thrown while logging in");
             return new LoginResponse(null, 401);
         }
     }

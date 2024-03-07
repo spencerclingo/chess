@@ -17,5 +17,8 @@ public class ServiceInitializer {
         UserService.setAuthDAO(authDAO);
 
         DatabaseManager.createDatabase();
+        DatabaseManager.createAuthTable();
+        DatabaseManager.createUserTable();
+        DatabaseManager.createGameTable();
     }
 }
