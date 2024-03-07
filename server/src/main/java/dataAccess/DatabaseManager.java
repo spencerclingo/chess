@@ -99,6 +99,11 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Creates the gameTable in the Chess database
+     *
+     * @throws DataAccessException
+     */
     public static void createGameTable() throws DataAccessException {
         try {
             var statement = """
@@ -170,11 +175,11 @@ public class DatabaseManager {
     }
 
     /**
-     * Helper
+     * Helper function for SQL executions
      *
-     * @param ps
-     * @param params
-     * @throws SQLException
+     * @param ps prepared statement
+     * @param params array of parameters to be input into the statements
+     * @throws SQLException if problems
      */
     private static void preparedStatements(PreparedStatement ps, Object[] params) throws SQLException {
         for (var i = 0; i < params.length; i++) {
