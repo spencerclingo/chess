@@ -1,6 +1,5 @@
 package dataAccess;
 
-import models.AuthData;
 import models.UserData;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -121,7 +120,7 @@ public class SQLUserDAO implements UserDAO{
             while (resultSet.next()) {
                 passwordSQL = resultSet.getString("password");
             }
-            if (password == null) {
+            if (passwordSQL == null) {
                 throw new DataAccessException("No password attached to username");
             }
 
@@ -140,7 +139,20 @@ public class SQLUserDAO implements UserDAO{
     @Override
     public UserData getUser(UserData userData) throws DataAccessException {
         String username = userData.username();
+        String passwordSQL = null;
 
         String statement = "SELECT  FROM `users` WHERE `username` = ?";
+
+        try(ResultSet resultSet = executeQuery(statement, username)) {
+            while (resultSet.next()) {
+                passwordSQL = resultSet.getString("password");
+            }
+            if (passwordSQL == null) {
+                throw new DataAccessException("No password attached to username");
+            }
+            return new UserData(username, null, null);
+        } catch(SQLException | DataAccessException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 }

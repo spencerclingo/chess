@@ -8,7 +8,7 @@ public class ServiceInitializer {
 
         AuthService.setAuthDAO(authDAO);
 
-        UserDAO userDAO = new MemoryUserDAO();
+        UserDAO userDAO = new SQLUserDAO();
         GameDAO gameDAO = new MemoryGameDAO();
 
         GameService.setGameDAO(gameDAO);
