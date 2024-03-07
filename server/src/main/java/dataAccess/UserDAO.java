@@ -20,7 +20,7 @@ public interface UserDAO {
      * @param userData containing a username and password
      * @return true if user/pass match, false if they don't
      */
-    boolean login(UserData userData);
+    boolean login(UserData userData) throws DataAccessException;
 
     /**
      * @param userData contains username

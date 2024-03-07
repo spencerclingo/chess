@@ -1,6 +1,8 @@
 package dataAccess;
 
+import models.AuthData;
 import models.UserData;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -93,9 +95,12 @@ public class SQLUserDAO implements UserDAO{
         String password = userData.password();
         String email = userData.email();
 
-        String statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+        String statement = "INSERT INTO `users` (username, password, email) VALUES (?, ?, ?)";
 
-        executeUpdate(statement, username, password, email);
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String hashedPassword = encoder.encode(password);
+
+        executeUpdate(statement, username, hashedPassword, email);
     }
 
     /**
@@ -106,11 +111,25 @@ public class SQLUserDAO implements UserDAO{
      * @return true if user/pass match, false if they don't
      */
     @Override
-    public boolean login(UserData userData) {
+    public boolean login(UserData userData) throws DataAccessException {
         String username = userData.username();
         String password = userData.password();
+        String passwordSQL = null;
 
-        return false;
+        String statement = "SELECT `password` FROM `users` WHERE `username` = ?";
+        try(ResultSet resultSet = executeQuery(statement, username)) {
+            while (resultSet.next()) {
+                passwordSQL = resultSet.getString("password");
+            }
+            if (password == null) {
+                throw new DataAccessException("No password attached to username");
+            }
+
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            return encoder.matches(password, passwordSQL);
+        } catch(SQLException | DataAccessException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     /**
@@ -120,6 +139,8 @@ public class SQLUserDAO implements UserDAO{
      */
     @Override
     public UserData getUser(UserData userData) throws DataAccessException {
-        return null;
+        String username = userData.username();
+
+        String statement = "SELECT  FROM `users` WHERE `username` = ?";
     }
 }

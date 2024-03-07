@@ -88,7 +88,7 @@ public class SQLAuthDAO implements AuthDAO{
 
         DatabaseManager.createAuthTable();
 
-        String statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
+        String statement = "INSERT INTO `auth` (authToken, username) VALUES (?, ?)";
         executeUpdate(statement, authToken, username);
         return authData1;
     }
