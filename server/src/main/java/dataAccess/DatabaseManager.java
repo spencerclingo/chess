@@ -102,7 +102,7 @@ public class DatabaseManager {
     /**
      * Creates the gameTable in the Chess database
      *
-     * @throws DataAccessException
+     * @throws DataAccessException If table cannot be made
      */
     public static void createGameTable() throws DataAccessException {
         try {
@@ -170,7 +170,7 @@ public class DatabaseManager {
                 return rowsAffected > 0;
             }
         } catch(SQLException | DataAccessException e) {
-            throw new DataAccessException("unable to update database: %s, %s");
+            throw new DataAccessException(e.getMessage());
         }
     }
 
@@ -202,10 +202,10 @@ public class DatabaseManager {
      * @throws DataAccessException if the database doesn't accept the SQL
      */
     protected static ResultSet executeQuery(String statement, Object... params) throws DataAccessException {
-        try {
-            Connection conn = DatabaseManager.getConnection();
-            PreparedStatement ps = conn.prepareStatement(statement);
-
+        try (
+                Connection conn = DatabaseManager.getConnection();
+                PreparedStatement ps = conn.prepareStatement(statement);
+        ) {
             // Set parameters if needed
             for (int i = 0; i < params.length; i++) {
                 Object param = params[i];

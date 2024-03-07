@@ -5,6 +5,9 @@ import models.GameData;
 import java.util.ArrayList;
 
 public class SQLGameDAO implements GameDAO{
+
+    int nextGameID = 0;
+
     /**
      * ID is changed from null to an actual ID
      *
@@ -13,8 +16,15 @@ public class SQLGameDAO implements GameDAO{
      * @return gameID
      */
     @Override
-    public int createGame(GameData gameData) {
-        return 0;
+    public int createGame(GameData gameData) throws DataAccessException {
+        nextGameID++;
+
+        String statement = "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
+
+        DatabaseManager.executeUpdate(statement, nextGameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameData.game());
+
+        return nextGameID;
+
     }
 
     /**

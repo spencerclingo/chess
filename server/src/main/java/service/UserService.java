@@ -6,15 +6,6 @@ import models.UserData;
 import response.LoginResponse;
 import response.RegisterResponse;
 
-import javax.xml.crypto.Data;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
-
 public class UserService {
     static UserDAO userStoredDAO;
     static AuthDAO authStoredDAO = AuthService.authStoredDAO;

@@ -12,7 +12,7 @@ public interface GameDAO {
      * @param gameData Contains gameName, ID will change. Maybe contains a chessGame?
      * @return gameID
      */
-    int createGame(GameData gameData);
+    int createGame(GameData gameData) throws DataAccessException;
 
     /**
      * @param gameData Contains gameID
