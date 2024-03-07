@@ -38,8 +38,8 @@ public class DatabaseManager {
         try {
             var statement = "CREATE SCHEMA IF NOT EXISTS `" + databaseName + "`;";
 
-            var conn = DriverManager.getConnection(connectionUrl, user, password);
-            try (var preparedStatement = conn.prepareStatement(statement)) {
+            try (var conn = DriverManager.getConnection(connectionUrl, user, password);
+                var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {
@@ -48,15 +48,69 @@ public class DatabaseManager {
     }
 
     /**
-     * Creates the authdata table if none exists
+     * Creates the auth table if none exists
      *
      * @throws DataAccessException If the database doesn't allow it
      */
     static void createAuthTable() throws DataAccessException {
         try {
-            var statement = "CREATE TABLE IF NOT EXISTS `" + databaseName + "`.`authdata` (\n\t`authToken` VARCHAR(36) NOT NULL,\n\t `usernames` VARCHAR(45) NOT NULL,\n\tPRIMARY KEY (`authToken`),\n\tUNIQUE INDEX `authToken_UNIQUE` (`authToken` ASC) VISIBLE\n)";
-            var conn = DriverManager.getConnection(connectionUrl, user, password);
-            try (var preparedStatement = conn.prepareStatement(statement)) {
+            var statement = """
+                    CREATE TABLE IF NOT EXISTS `""" + databaseName + """
+                    `.`auth` (
+                    `authToken` VARCHAR(45) NOT NULL,
+                    `username` VARCHAR(45) NOT NULL,
+                    PRIMARY KEY (`authToken`)
+                    );
+                    """;
+            try (var conn = DriverManager.getConnection(connectionUrl, user, password);
+                var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    /**
+     * Creates the user table if it does not exist already
+     *
+     * @throws DataAccessException if table could not be made properly
+     */
+    static void createUserTable() throws DataAccessException {
+        try {
+            var statement = """
+                    CREATE TABLE IF NOT EXISTS `""" + databaseName + """
+                    `.`user` (
+                      `username` VARCHAR(45) NOT NULL,
+                      `password` VARCHAR(45) NOT NULL,
+                      `email` VARCHAR(90) NOT NULL,
+                      PRIMARY KEY (`username`)
+                    );
+                    """;
+            try (var conn = DriverManager.getConnection(connectionUrl, user, password);
+                var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    static void createGameTable() throws DataAccessException {
+        try {
+            var statement = """
+                    CREATE TABLE IF NOT EXISTS `""" + databaseName + """
+                    `.`game` (
+                      `gameID` INT NOT NULL,
+                      `whiteUsername` VARCHAR(45),
+                      `blackUsername` VARCHAR(45),
+                      `gameName` VARCHAR(45) NOT NULL,
+                      `game` TEXT,
+                      PRIMARY KEY (`gameID`)
+                    );
+                    """;
+            try (var conn = DriverManager.getConnection(connectionUrl, user, password);
+                 var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {

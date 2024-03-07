@@ -6,6 +6,15 @@ import models.UserData;
 import response.LoginResponse;
 import response.RegisterResponse;
 
+import javax.xml.crypto.Data;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
+import static java.sql.Types.NULL;
+
 public class UserService {
     static UserDAO userStoredDAO;
     static AuthDAO authStoredDAO = AuthService.authStoredDAO;
@@ -20,8 +29,10 @@ public class UserService {
             if (userStoredDAO.login(userData)) {
                 return new LoginResponse(authStoredDAO.createAuth(new AuthData(null, userData.username())), 200);
             }
+            System.out.println("Username and password don't match");
             return new LoginResponse(null, 401);
         } catch(DataAccessException dae) {
+            System.out.println("Username and password don't match but exception was thrown");
             return new LoginResponse(null, 401);
         }
     }
@@ -48,7 +59,11 @@ public class UserService {
      * Clears user database
      */
     public static boolean clearData() {
-        userStoredDAO.clear();
+        try {
+            userStoredDAO.clear();
+        } catch(DataAccessException dae) {
+            return false;
+        }
         return true;
     }
 

@@ -1,33 +1,28 @@
 package dataAccess;
 
-import com.google.gson.Gson;
 import models.AuthData;
 
 import java.util.UUID;
-//import exception.SQLException;
-//import exception.ResponseException;
 import java.sql.*;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 public class SQLAuthDAO implements AuthDAO{
-    
-    Gson gson = new Gson();
-
     /**
      * Ideally executes a SQL string
      *
      * @param statement SQL query string
-     * @param params Array list of potential objects you can pass in
-     * @return int
+     * @param params    Array list of potential objects you can pass in
+     *
      * @throws DataAccessException database is unable to be updated
      */
-    private int executeUpdate(String statement, Object... params) throws DataAccessException {
+    private boolean executeUpdate(String statement, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (var i = 0; i < params.length; i++) {
                     var param = params[i];
+                    System.out.println("param[" + i + "] = "+param);
                     switch (param) {
                         case String p -> ps.setString(i + 1, p);
                         case Integer p -> ps.setInt(i + 1, p);
@@ -36,16 +31,17 @@ public class SQLAuthDAO implements AuthDAO{
                         }
                     }
                 }
-                ps.executeUpdate();
+                int rowsAffected = ps.executeUpdate();
 
                 var rs = ps.getGeneratedKeys();
                 if (rs.next()) {
-                    return rs.getInt(1);
+                    rs.getInt(1);
                 }
 
-                return 0;
+                return rowsAffected > 0;
             }
         } catch(SQLException | DataAccessException e) {
+            System.out.println("Error thrown when executing update: " + e.getMessage());
             throw new DataAccessException("unable to update database: %s, %s");
         }
     }
@@ -88,11 +84,12 @@ public class SQLAuthDAO implements AuthDAO{
         String authToken = UUID.randomUUID().toString();
         AuthData authData1 = new AuthData(authToken, username);
 
+        System.out.println("creating authToken: " + authToken);
+
         DatabaseManager.createAuthTable();
-        
+
         String statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
-        //String json = gson.toJson(authData1);
-        int id = executeUpdate(statement, authToken, username); //, json); I don't know why it needs this jsonString
+        executeUpdate(statement, authToken, username);
         return authData1;
     }
 
@@ -103,6 +100,7 @@ public class SQLAuthDAO implements AuthDAO{
      */
     @Override
     public AuthData getAuth(AuthData authData) throws DataAccessException {
+        DatabaseManager.createAuthTable();
         String authToken = authData.authToken();
         String username = null;
 
@@ -125,11 +123,17 @@ public class SQLAuthDAO implements AuthDAO{
      */
     @Override
     public void deleteAuth(AuthData authData) throws DataAccessException {
+        DatabaseManager.createAuthTable();
         String authToken = authData.authToken();
 
-        String statement = "DELETE FROM `chess`.`authdata` WHERE `authToken` = ?";
+        System.out.println("Deleting auth: " + authToken);
 
-        executeUpdate(statement, authToken);
+        String statement = "DELETE FROM `chess`.`auth` WHERE `authToken` = ?";
+
+        boolean successfulDelete = executeUpdate(statement, authToken);
+        if (!successfulDelete) {
+            throw new DataAccessException("Data could not be deleted");
+        }
     }
 
     /**
@@ -137,7 +141,8 @@ public class SQLAuthDAO implements AuthDAO{
      */
     @Override
     public void clear() throws DataAccessException {
-        String statement = "DELETE FROM `chess`.`authdata`;";
+        DatabaseManager.createAuthTable();
+        String statement = "DELETE FROM `chess`.`auth`;";
 
         executeUpdate(statement);
     }

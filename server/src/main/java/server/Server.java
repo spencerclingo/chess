@@ -9,8 +9,6 @@ import spark.*;
 import service.*;
 import response.*;
 
-import java.util.ArrayList;
-
 public class Server {
 
     Gson gson = new Gson();

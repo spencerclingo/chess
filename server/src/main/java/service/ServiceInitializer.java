@@ -4,7 +4,7 @@ import dataAccess.*;
 
 public class ServiceInitializer {
     public static void initialize() throws DataAccessException {
-        AuthDAO authDAO = new MemoryAuthDAO();
+        AuthDAO authDAO = new SQLAuthDAO();
 
         AuthService.setAuthDAO(authDAO);
 

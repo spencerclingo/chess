@@ -7,12 +7,12 @@ public interface UserDAO {
     /**
      * Clears user database
      */
-    void clear();
+    void clear() throws DataAccessException;
 
     /**
      * @param userData containing username, password, email
      */
-    void createUser(UserData userData);
+    void createUser(UserData userData) throws DataAccessException;
 
     /**
      * returns if the login information is valid
