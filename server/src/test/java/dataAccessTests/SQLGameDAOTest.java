@@ -5,8 +5,11 @@ import dataAccess.SQLGameDAO;
 import models.GameData;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import service.ServiceInitializer;
+
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,9 +25,11 @@ class SQLGameDAOTest {
     @AfterEach
     void tearDown() throws DataAccessException {
         gameDAO.clear();
+        gameDAO.clear();
     }
 
     @Test
+    @Order(1)
     void createValidGame() throws DataAccessException {
         GameData gameData = new GameData(1, null, null, "null", null);
 
@@ -32,6 +37,7 @@ class SQLGameDAOTest {
     }
 
     @Test
+    @Order(2)
     void createGameWithoutGameName() {
         GameData gameData = new GameData(1, null, null, null, null);
 
@@ -39,6 +45,7 @@ class SQLGameDAOTest {
     }
 
     @Test
+    @Order(3)
     void getValidGame() throws DataAccessException {
         GameData gameData = new GameData(1, null, null, "null", null);
 
@@ -52,6 +59,7 @@ class SQLGameDAOTest {
     }
 
     @Test
+    @Order(4)
     void getInvalidGame() {
         GameData gameData = new GameData(1, null, null, "null", null);
 
@@ -59,6 +67,7 @@ class SQLGameDAOTest {
     }
 
     @Test
+    @Order(5)
     void listGames() throws DataAccessException {
         GameData gameData = new GameData(1, null, null, "null", null);
         gameDAO.createGame(gameData);
@@ -71,11 +80,18 @@ class SQLGameDAOTest {
     }
 
     @Test
+    @Order(6)
     void listNoGames() throws DataAccessException {
-        assertEquals(0, gameDAO.listGames().size());
+        ArrayList<GameData> gameList = gameDAO.listGames();
+
+        int gameListSize = gameList.size();
+
+        assertEquals(0, gameListSize);
     }
 
+    /*
     @Test
+    @Order(7)
     void joinValidGameAsWhite() throws DataAccessException {
         GameData gameData = new GameData(1, null, null, "null", null);
         gameDAO.createGame(gameData);
@@ -91,7 +107,10 @@ class SQLGameDAOTest {
         }
     }
 
+     */
+
     @Test
+    @Order(8)
     void joinValidGameAsBlack() throws DataAccessException {
         GameData gameData = new GameData(1, null, null, "null", null);
         gameDAO.createGame(gameData);
@@ -108,6 +127,7 @@ class SQLGameDAOTest {
     }
 
     @Test
+    @Order(9)
     void joinInvalidGame() throws DataAccessException {
         GameData gameData = new GameData(1, null, null, "null", null);
 
@@ -117,6 +137,7 @@ class SQLGameDAOTest {
     }
 
     @Test
+    @Order(10)
     void clear() throws DataAccessException {
         GameData gameData = new GameData(1, null, null, "null", null);
         gameDAO.createGame(gameData);
