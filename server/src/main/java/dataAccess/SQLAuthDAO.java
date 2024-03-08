@@ -33,8 +33,6 @@ public class SQLAuthDAO implements AuthDAO{
         String authToken = authData.authToken();
         String username;
 
-        System.out.println("This is called");
-
         String statement = "SELECT * FROM `auth` WHERE `authToken` = ?;";
         try(ResultSet resultSet = DatabaseManager.executeQuery(statement, authToken)) {
             if (resultSet.next()) {
@@ -44,7 +42,6 @@ public class SQLAuthDAO implements AuthDAO{
             }
             return new AuthData(authToken, username);
         } catch(SQLException e) {
-            System.out.println(e.getMessage());
             throw new DataAccessException(e.getMessage());
         }
     }

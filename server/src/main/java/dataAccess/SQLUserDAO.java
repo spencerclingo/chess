@@ -53,13 +53,11 @@ public class SQLUserDAO implements UserDAO{
             if (resultSet.next()) {
                 passwordSQL = resultSet.getString("password");
             } else {
-                System.out.println("User doesn't exist");
                 throw new DataAccessException("No password attached to username");
             }
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             return encoder.matches(password, passwordSQL);
         } catch(SQLException | DataAccessException e) {
-            System.out.println(e.getMessage());
             throw new DataAccessException(e.getMessage());
         }
     }
@@ -82,8 +80,6 @@ public class SQLUserDAO implements UserDAO{
                 throw new DataAccessException("No password attached to username");
             }
         } catch(SQLException | DataAccessException e) {
-            System.out.println("e.getMessage()");
-            System.out.println(e.getMessage());
             throw new DataAccessException(e.getMessage());
         }
     }
