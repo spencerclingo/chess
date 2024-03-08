@@ -156,7 +156,7 @@ public class DatabaseManager {
      *
      * @throws DataAccessException database is unable to be updated
      */
-    protected static boolean executeUpdate(String statement, Object... params) throws DataAccessException {
+    public static boolean executeUpdate(String statement, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 preparedStatements(ps, params);
@@ -196,7 +196,7 @@ public class DatabaseManager {
      * @return ResultSet of what has been selected from the database
      * @throws DataAccessException if the database doesn't accept the SQL
      */
-    protected static ResultSet executeQuery(String statement, Object... params) throws DataAccessException {
+    public static ResultSet executeQuery(String statement, Object... params) throws DataAccessException {
         try {
             Connection conn = DatabaseManager.getConnection();
             PreparedStatement ps = conn.prepareStatement(statement);
