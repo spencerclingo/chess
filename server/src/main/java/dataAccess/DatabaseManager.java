@@ -170,7 +170,7 @@ public class DatabaseManager {
                 return rowsAffected > 0;
             }
         } catch(SQLException | DataAccessException e) {
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException("unable to update database: %s, %s");
         }
     }
 
@@ -202,10 +202,11 @@ public class DatabaseManager {
      * @throws DataAccessException if the database doesn't accept the SQL
      */
     protected static ResultSet executeQuery(String statement, Object... params) throws DataAccessException {
-        try (
-                Connection conn = DatabaseManager.getConnection();
-                PreparedStatement ps = conn.prepareStatement(statement);
-        ) {
+        try {
+            Connection conn = DatabaseManager.getConnection();
+            PreparedStatement ps = conn.prepareStatement(statement);
+
+
             // Set parameters if needed
             for (int i = 0; i < params.length; i++) {
                 Object param = params[i];

@@ -86,6 +86,8 @@ public class SQLUserDAO implements UserDAO{
             }
             return new UserData(username, null, null);
         } catch(SQLException | DataAccessException e) {
+            System.out.println("e.getMessage()");
+            System.out.println(e.getMessage());
             throw new DataAccessException(e.getMessage());
         }
     }
