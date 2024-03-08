@@ -6,6 +6,7 @@ import dataAccess.SQLAuthDAO;
 import models.AuthData;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.ServiceInitializer;
 
@@ -20,7 +21,13 @@ class SQLAuthDAOTest {
 
     @BeforeAll
     static void setup() throws DataAccessException {
+        DatabaseManager.dropDatabase();
         ServiceInitializer.initialize();
+    }
+
+    @BeforeEach
+    void beforeEach() throws DataAccessException {
+        authDAO.clear();
     }
 
     @AfterEach

@@ -1,12 +1,10 @@
 package dataAccessTests;
 
 import dataAccess.DataAccessException;
+import dataAccess.DatabaseManager;
 import dataAccess.SQLGameDAO;
 import models.GameData;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import service.ServiceInitializer;
 
 import java.util.ArrayList;
@@ -19,12 +17,17 @@ class SQLGameDAOTest {
 
     @BeforeAll
     static void setup() throws DataAccessException {
+        DatabaseManager.dropDatabase();
         ServiceInitializer.initialize();
+    }
+
+    @BeforeEach
+    void beforeEach() throws DataAccessException {
+        gameDAO.clear();
     }
 
     @AfterEach
     void tearDown() throws DataAccessException {
-        gameDAO.clear();
         gameDAO.clear();
     }
 
@@ -89,7 +92,6 @@ class SQLGameDAOTest {
         assertEquals(0, gameListSize);
     }
 
-    /*
     @Test
     @Order(7)
     void joinValidGameAsWhite() throws DataAccessException {
@@ -106,8 +108,6 @@ class SQLGameDAOTest {
             fail();
         }
     }
-
-     */
 
     @Test
     @Order(8)

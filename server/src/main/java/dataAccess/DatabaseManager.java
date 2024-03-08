@@ -1,5 +1,6 @@
 package dataAccess;
 
+import javax.xml.crypto.Data;
 import java.sql.*;
 import java.util.Properties;
 
@@ -31,6 +32,19 @@ public class DatabaseManager {
             }
         } catch (Exception ex) {
             throw new RuntimeException("unable to process db.properties. " + ex.getMessage());
+        }
+    }
+
+    public static void dropDatabase() throws DataAccessException {
+        try {
+            var statement = "DROP SCHEMA IF EXISTS `" + databaseName + "`;";
+
+            try (var conn = DriverManager.getConnection(connectionUrl, user, password);
+                 var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
         }
     }
 
