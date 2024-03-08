@@ -1,12 +1,17 @@
 package dataAccess;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
 import models.GameData;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class SQLGameDAO implements GameDAO{
 
     int nextGameID = 0;
+    Gson gson = new Gson();
 
     /**
      * ID is changed from null to an actual ID
@@ -18,13 +23,10 @@ public class SQLGameDAO implements GameDAO{
     @Override
     public int createGame(GameData gameData) throws DataAccessException {
         nextGameID++;
-
         String statement = "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
 
         DatabaseManager.executeUpdate(statement, nextGameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameData.game());
-
         return nextGameID;
-
     }
 
     /**
@@ -33,8 +35,30 @@ public class SQLGameDAO implements GameDAO{
      * @return full GameData objects
      */
     @Override
-    public GameData getGame(GameData gameData) throws DataAccessException {
-        return null;
+    public GameData getGame(GameData gameData) throws DataAccessException, SQLException {
+        int gameID = gameData.gameID();
+        String whiteUsername = null;
+        String blackUsername = null;
+        String gameName      = null;
+        String chess         = null;
+
+        String statement = "SELECT * FROM `game` WHERE `gameID` = ?;";
+
+        try (ResultSet resultSet = DatabaseManager.executeQuery(statement, gameID)) {
+            if (resultSet.next()) {
+                whiteUsername = resultSet.getString("whiteUsername");
+                blackUsername = resultSet.getString("blackUsername");
+                gameName      = resultSet.getString("gameName");
+                chess         = resultSet.getString("chess");
+            } else {
+                throw new DataAccessException("No game matches gameID");
+            }
+            ChessGame game = null;
+            if (chess != null) {
+                game = gson.fromJson(chess, ChessGame.class);
+            }
+            return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
+        }
     }
 
     /**

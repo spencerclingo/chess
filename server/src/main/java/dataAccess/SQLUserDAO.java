@@ -73,18 +73,15 @@ public class SQLUserDAO implements UserDAO{
     @Override
     public UserData getUser(UserData userData) throws DataAccessException {
         String username = userData.username();
-        String passwordSQL = null;
 
         String statement = "SELECT * FROM `users` WHERE `username` = ?";
 
         try(ResultSet resultSet = DatabaseManager.executeQuery(statement, username)) {
-            while (resultSet.next()) {
-                passwordSQL = resultSet.getString("password");
-            }
-            if (passwordSQL == null) {
+            if (resultSet.next()) {
+                return new UserData(username, null, null);
+            } else {
                 throw new DataAccessException("No password attached to username");
             }
-            return new UserData(username, null, null);
         } catch(SQLException | DataAccessException e) {
             System.out.println("e.getMessage()");
             System.out.println(e.getMessage());

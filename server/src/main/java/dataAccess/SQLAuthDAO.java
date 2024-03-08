@@ -37,10 +37,9 @@ public class SQLAuthDAO implements AuthDAO{
 
         String statement = "SELECT * FROM `auth` WHERE `authToken` = ?;";
         try(ResultSet resultSet = DatabaseManager.executeQuery(statement, authToken)) {
-            while (resultSet.next()) {
+            if (resultSet.next()) {
                 username = resultSet.getString("username");
-            }
-            if (username == null) {
+            } else {
                 throw new DataAccessException("No username matches authToken");
             }
             return new AuthData(authToken, username);

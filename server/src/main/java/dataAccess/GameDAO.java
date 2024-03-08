@@ -2,6 +2,7 @@ package dataAccess;
 
 import models.GameData;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public interface GameDAO {
@@ -18,7 +19,7 @@ public interface GameDAO {
      * @param gameData Contains gameID
      * @return full GameData objects
      */
-    GameData getGame(GameData gameData) throws DataAccessException;
+    GameData getGame(GameData gameData) throws DataAccessException, SQLException;
 
     /**
      * @return list of All complete GameData objects, name and ID and players

@@ -162,15 +162,10 @@ public class DatabaseManager {
                 preparedStatements(ps, params);
                 int rowsAffected = ps.executeUpdate();
 
-                var rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    rs.getInt(1);
-                }
-
                 return rowsAffected > 0;
             }
         } catch(SQLException | DataAccessException e) {
-            throw new DataAccessException("unable to update database: %s, %s");
+            throw new DataAccessException("unable to update database");
         }
     }
 
