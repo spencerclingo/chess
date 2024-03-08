@@ -1,5 +1,7 @@
-package dataAccess;
+package dataAccessTests;
 
+import dataAccess.DataAccessException;
+import dataAccess.SQLGameDAO;
 import models.GameData;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
