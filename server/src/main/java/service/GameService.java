@@ -41,7 +41,11 @@ public class GameService {
      * Clears game database
      */
     public static boolean clearGames() {
-        gameStoredDAO.clear();
+        try {
+            gameStoredDAO.clear();
+        } catch (DataAccessException dae) {
+            return false;
+        }
         return true;
     }
 
@@ -67,6 +71,8 @@ public class GameService {
             data = gameStoredDAO.getGame(new GameData(joinGameRequest.gameID(), null,null,null,null));
         } catch(DataAccessException dae) {
             return new JoinGameResponse(400);
+        } catch(SQLException e) {
+            throw new RuntimeException(e);
         }
 
         if (joinGameRequest.playerColor() == null || (!joinGameRequest.playerColor().equals("WHITE") && !joinGameRequest.playerColor().equals("white") && !joinGameRequest.playerColor().equals("BLACK") && !joinGameRequest.playerColor().equals("black"))) {
@@ -77,7 +83,7 @@ public class GameService {
                     return new JoinGameResponse(400);
                 }
                 return new JoinGameResponse(200);
-            } catch(DataAccessException dae) {
+            } catch(DataAccessException | SQLException dae) {
                 return new JoinGameResponse(400);
             }
         }

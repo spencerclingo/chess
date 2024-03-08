@@ -68,11 +68,12 @@ public class Server {
     }
 
     private Object clearDatabase(Request request, Response response) {
-        GameService.clearGames();
-        UserService.clearData();
-        AuthService.clearData();
-
-        ClearResponse clearResponse = new ClearResponse(200);
+        ClearResponse clearResponse;
+        if (GameService.clearGames() && UserService.clearData() && AuthService.clearData()) {
+            clearResponse = new ClearResponse(200);
+        } else {
+            clearResponse = new ClearResponse(500);
+        }
         return getResponseBody(response, clearResponse.httpCode());
     }
 

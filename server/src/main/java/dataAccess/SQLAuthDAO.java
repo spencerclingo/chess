@@ -31,7 +31,7 @@ public class SQLAuthDAO implements AuthDAO{
     @Override
     public AuthData getAuth(AuthData authData) throws DataAccessException {
         String authToken = authData.authToken();
-        String username = null;
+        String username;
 
         System.out.println("This is called");
 

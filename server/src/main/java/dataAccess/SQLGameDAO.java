@@ -37,10 +37,10 @@ public class SQLGameDAO implements GameDAO{
     @Override
     public GameData getGame(GameData gameData) throws DataAccessException, SQLException {
         int gameID = gameData.gameID();
-        String whiteUsername = null;
-        String blackUsername = null;
-        String gameName      = null;
-        String chess         = null;
+        String whiteUsername;
+        String blackUsername;
+        String gameName;
+        String chess;
 
         String statement = "SELECT * FROM `game` WHERE `gameID` = ?;";
 
@@ -49,7 +49,7 @@ public class SQLGameDAO implements GameDAO{
                 whiteUsername = resultSet.getString("whiteUsername");
                 blackUsername = resultSet.getString("blackUsername");
                 gameName      = resultSet.getString("gameName");
-                chess         = resultSet.getString("chess");
+                chess         = resultSet.getString("game");
             } else {
                 throw new DataAccessException("No game matches gameID");
             }
@@ -66,7 +66,28 @@ public class SQLGameDAO implements GameDAO{
      */
     @Override
     public ArrayList<GameData> listGames() {
-        return null;
+        ArrayList<GameData> listOfGames = new ArrayList<>();
+
+        String statement = "SELECT * FROM `game`;";
+
+        try (ResultSet resultSet = DatabaseManager.executeQuery(statement)) {
+            while (resultSet.next()) {
+                int gameID           = resultSet.getInt("gameID");
+                String whiteUsername = resultSet.getString("whiteUsername");
+                String blackUsername = resultSet.getString("blackUsername");
+                String gameName      = resultSet.getString("gameName");
+                String chess         = resultSet.getString("game");
+
+                if (chess != null) {
+                    listOfGames.add(new GameData(gameID, whiteUsername, blackUsername, gameName, gson.fromJson(chess, ChessGame.class)));
+                } else {
+                    listOfGames.add(new GameData(gameID, whiteUsername, blackUsername, gameName, null));
+                }
+            }
+            return listOfGames;
+        } catch(SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -79,14 +100,31 @@ public class SQLGameDAO implements GameDAO{
      */
     @Override
     public void joinGame(GameData gameData, int color) throws DataAccessException {
+        int gameID = gameData.gameID();
 
+        String statement;
+        String username;
+
+        if (color == 0) {
+            username = gameData.whiteUsername();
+            statement = "UPDATE `game` SET `whiteUsername` = ? WHERE `gameID` = ?;";
+        } else if (color == 1) {
+            username = gameData.blackUsername();
+            statement = "UPDATE `game` SET `blackUsername` = ? WHERE `gameID` = ?;";
+        } else {
+            return;
+        }
+
+        DatabaseManager.executeUpdate(statement, username, gameID);
     }
 
     /**
      * Clears game database
      */
     @Override
-    public void clear() {
+    public void clear() throws DataAccessException {
+        String statement = "DELETE FROM `chess`.`game`;";
 
+        DatabaseManager.executeUpdate(statement);
     }
 }

@@ -46,14 +46,13 @@ public class SQLUserDAO implements UserDAO{
     public boolean login(UserData userData) throws DataAccessException {
         String username = userData.username();
         String password = userData.password();
-        String passwordSQL = null;
+        String passwordSQL;
 
         String statement = "SELECT `password` FROM `users` WHERE `username` = ?";
         try(ResultSet resultSet = DatabaseManager.executeQuery(statement, username)) {
-            while (resultSet.next()) {
+            if (resultSet.next()) {
                 passwordSQL = resultSet.getString("password");
-            }
-            if (passwordSQL == null) {
+            } else {
                 System.out.println("User doesn't exist");
                 throw new DataAccessException("No password attached to username");
             }

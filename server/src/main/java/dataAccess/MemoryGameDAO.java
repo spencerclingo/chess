@@ -54,15 +54,10 @@ public class MemoryGameDAO implements GameDAO{
      *
      * @param gameData contains gameID and the username of the player in the color they want to join
      * @param color 0 is white, 1 is black
-     * @throws DataAccessException if game is not found by gameID
      */
-    public void joinGame(GameData gameData, int color) throws DataAccessException {
+    public void joinGame(GameData gameData, int color) {
         int id = gameData.gameID();
         GameData oldData = gameMap.get(id);
-
-        if (oldData == null) {
-            throw new DataAccessException("Game with that ID cannot be joined");
-        }
 
         if (color == 0) {
             gameMap.put(id, new GameData(id, gameData.whiteUsername(), oldData.blackUsername(), oldData.gameName(), oldData.game()));
