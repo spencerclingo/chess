@@ -25,7 +25,7 @@ public class SQLGameDAO implements GameDAO{
         nextGameID++;
         String statement = "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
 
-        DatabaseManager.executeUpdate(statement, nextGameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameData.game());
+        DatabaseManager.executeUpdate(statement, nextGameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gson.toJson(gameData.game()));
         return nextGameID;
     }
 
@@ -65,7 +65,7 @@ public class SQLGameDAO implements GameDAO{
      * @return list of All complete GameData objects, name and ID and players
      */
     @Override
-    public ArrayList<GameData> listGames() {
+    public ArrayList<GameData> listGames() throws DataAccessException {
         ArrayList<GameData> listOfGames = new ArrayList<>();
 
         String statement = "SELECT * FROM `game`;";
@@ -86,7 +86,7 @@ public class SQLGameDAO implements GameDAO{
             }
             return listOfGames;
         } catch(SQLException | DataAccessException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException(e.getMessage());
         }
     }
 
@@ -116,6 +116,23 @@ public class SQLGameDAO implements GameDAO{
         }
 
         DatabaseManager.executeUpdate(statement, username, gameID);
+    }
+
+    //Unused
+
+    /**
+     * Updates a game with given gameID to given ChessGame
+     *
+     * @param gameData Contains gameID and new ChessGame
+     * @throws DataAccessException if game doesn't exist
+     */
+    public void updateGame(GameData gameData) throws DataAccessException {
+        int gameID = gameData.gameID();
+        ChessGame newGame = gameData.game();
+
+        String statement = "UPDATE `game` SET `game` = ? WHERE `gameID` = ?;";
+
+        DatabaseManager.executeUpdate(statement, newGame, gameID);
     }
 
     /**

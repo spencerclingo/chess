@@ -24,7 +24,7 @@ public interface GameDAO {
     /**
      * @return list of All complete GameData objects, name and ID and players
      */
-    ArrayList<GameData> listGames();
+    ArrayList<GameData> listGames() throws DataAccessException;
 
     /**
      * Adds a player to a game
