@@ -4,10 +4,7 @@ import dataAccess.DataAccessException;
 import dataAccess.DatabaseManager;
 import dataAccess.SQLAuthDAO;
 import models.AuthData;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import service.ServiceInitializer;
 
 import java.sql.ResultSet;
@@ -33,6 +30,11 @@ class SQLAuthDAOTest {
     @AfterEach
     void tearDown() throws DataAccessException {
         authDAO.clear();
+    }
+
+    @AfterAll
+    static void finalTearDown() throws DataAccessException {
+        DatabaseManager.dropDatabase();
     }
 
     @Test
@@ -91,7 +93,7 @@ class SQLAuthDAOTest {
 
         authDAO.deleteAuth(authData);
 
-        String statement = "DELETE FROM `chess`.`auth` WHERE `authToken` = ?";
+        String statement = "DELETE FROM `auth` WHERE `authToken` = ?";
         DatabaseManager.executeUpdate(statement, authData.authToken());
 
         AuthData finalAuthData = authData;

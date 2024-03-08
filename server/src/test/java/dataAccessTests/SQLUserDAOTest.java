@@ -4,10 +4,7 @@ import dataAccess.DataAccessException;
 import dataAccess.DatabaseManager;
 import dataAccess.SQLUserDAO;
 import models.UserData;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import service.ServiceInitializer;
 
@@ -34,6 +31,11 @@ class SQLUserDAOTest {
     @AfterEach
     void tearDown() throws DataAccessException {
         userDAO.clear();
+    }
+
+    @AfterAll
+    static void finalTearDown() throws DataAccessException {
+        DatabaseManager.dropDatabase();
     }
 
     @Test

@@ -55,7 +55,7 @@ public class SQLAuthDAO implements AuthDAO{
     public void deleteAuth(AuthData authData) throws DataAccessException {
         String authToken = authData.authToken();
 
-        String statement = "DELETE FROM `chess`.`auth` WHERE `authToken` = ?";
+        String statement = "DELETE FROM `auth` WHERE `authToken` = ?";
 
         boolean successfulDelete = DatabaseManager.executeUpdate(statement, authToken);
         if (!successfulDelete) {
@@ -68,7 +68,7 @@ public class SQLAuthDAO implements AuthDAO{
      */
     @Override
     public void clear() throws DataAccessException {
-        String statement = "DELETE FROM `chess`.`auth`;";
+        String statement = "DELETE FROM `auth`;";
 
         DatabaseManager.executeUpdate(statement);
     }

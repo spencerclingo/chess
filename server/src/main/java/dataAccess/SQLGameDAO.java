@@ -140,7 +140,7 @@ public class SQLGameDAO implements GameDAO{
      */
     @Override
     public void clear() throws DataAccessException {
-        String statement = "DELETE FROM `chess`.`game`;";
+        String statement = "DELETE FROM `game`;";
 
         DatabaseManager.executeUpdate(statement);
     }

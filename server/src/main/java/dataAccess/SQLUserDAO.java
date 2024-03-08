@@ -13,7 +13,7 @@ public class SQLUserDAO implements UserDAO{
      */
     @Override
     public void clear() throws DataAccessException {
-        String statement = "DELETE FROM `chess`.`users`;";
+        String statement = "DELETE FROM `users`;";
 
         DatabaseManager.executeUpdate(statement);
     }

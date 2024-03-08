@@ -30,6 +30,10 @@ class SQLGameDAOTest {
     void tearDown() throws DataAccessException {
         gameDAO.clear();
     }
+    @AfterAll
+    static void finalTearDown() throws DataAccessException {
+        DatabaseManager.dropDatabase();
+    }
 
     @Test
     @Order(1)
