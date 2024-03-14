@@ -1,13 +1,11 @@
 package server;
 
 import com.google.gson.Gson;
-import dataAccess.DataAccessException;
-import models.AuthData;
-import models.GameData;
-import models.UserData;
 import spark.*;
 import service.*;
 import response.*;
+import dataAccess.*;
+import models.*;
 
 public class Server {
 
