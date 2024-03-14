@@ -4,6 +4,7 @@
 
     <artifactId>server</artifactId>
     <version>1.0.0</version>
+    <groupId>edu.byu.cs240.server</groupId>
 
     <parent>
         <artifactId>chess</artifactId>
