@@ -13,30 +13,35 @@ public class ChessBoardPicture {
 
     private static final int FULL_GAME_SIZE_IN_SPACES = 10;
     private static final int BOARD_SIZE_IN_SQUARES = 8;
-    private static final int SQUARE_SIZE_IN_CHARS = 3;
-    private static final int BORDER_SIZE_IN_CHARS = 3;
     private static final String BORDER_COLOR = EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
     private static final String BORDER_TEXT_COLOR = EscapeSequences.SET_TEXT_COLOR_BLACK;
     private static final String LIGHT_SQUARE_COLOR = EscapeSequences.SET_BG_COLOR_LIGHT_BLUE;
     private static final String DARK_SQUARE_COLOR = EscapeSequences.SET_BG_COLOR_DARK_BLUE;
     private static final String WHITE_TEAM_TEXT_COLOR = EscapeSequences.SET_TEXT_COLOR_WHITE;
     private static final String BLACK_TEAM_TEXT_COLOR = EscapeSequences.SET_TEXT_COLOR_BLACK;
-    private static final String EMPTY = "   ";
-    private static final String[] COLUMN_LABELS = {"   "," a "," b "," c "," d "," e "," f "," g "," h ","   "};
-    private static final String[] ROW_LABELS = {" 1 "," 2 "," 3 "," 4 "," 5 "," 6 "," 7 "," 8 "};
+    private static final String EM_SPACE = "\u2003";
+    private static final String EMPTY = " " + EM_SPACE + " ";
+    private static final String[] COLUMN_LABELS = {" \u2003\u2003"," h\u2003"," g\u2003"," f\u2003"," e\u2003"," d\u2003"," c\u2003"," b\u2003"," a\u2003"," \u2003\u2003"};
+    private static final String[] ROW_LABELS = {"\u20031\u2003","\u20032\u2003","\u20033\u2003","\u20034\u2003","\u20035\u2003","\u20036\u2003","\u20037\u2003","\u20038\u2003"};
 
     public static void main(String[] args) {
-        init(new ChessGame(), true);
+        ChessGame chessGame = new ChessGame();
+        chessGame.getBoard().resetBoard();
+        init(chessGame.getBoard(), true);
+        init(chessGame.getBoard(), false);
     }
 
-    public static void init(ChessGame chessGame, boolean white) {
+    public static void init(ChessBoard chessBoard, boolean white) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
         out.print(EscapeSequences.ERASE_SCREEN);
 
         drawHeader(out, white);
+        drawChessBoard(out, white, chessBoard);
+        drawHeader(out, white);
 
-        drawChessBoard(out, white, chessGame.getBoard());
+        setBlack(out);
+        out.println();
 
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
@@ -45,7 +50,7 @@ public class ChessBoardPicture {
     private static void drawHeader(PrintStream out, boolean white) {
         setBoundary(out);
 
-        if (white) {
+        if (!white) {
             for (int colNum = 0; colNum < FULL_GAME_SIZE_IN_SPACES; colNum++) {
                 out.print(COLUMN_LABELS[colNum]);
             }
@@ -71,41 +76,53 @@ public class ChessBoardPicture {
     }
 
     private static void drawChessBoard(PrintStream out, boolean white, ChessBoard chessBoard) {
-        if (white) {
+        if (!white) {
             for (int rowNum = 1; rowNum <= BOARD_SIZE_IN_SQUARES; rowNum++) {
                 setBoundary(out);
                 out.print(ROW_LABELS[rowNum - 1]);
-                for (int colNum = 1; colNum < BOARD_SIZE_IN_SQUARES; colNum++) {
-
-                    //This lets the rows alternate
-                    if (rowNum % 2 == 1) {
-                        if (colNum % 2 == 1) {
-                            setLightSquareColor(out);
-                        } else {
-                            setDarkSquareColor(out);
-                        }
-
-                        printPiece(out, chessBoard, rowNum, colNum);
-                    } else {
-                        if (colNum % 2 == 1) {
-                            setDarkSquareColor(out);
-                        } else {
-                            setLightSquareColor(out);
-                        }
-
-                        printPiece(out, chessBoard, rowNum, colNum);
-                    }
+                for (int colNum = 1; colNum <= BOARD_SIZE_IN_SQUARES; colNum++) {
+                    alternatingLines(out, chessBoard, rowNum, colNum);
                 }
 
                 setBoundary(out);
                 out.print(ROW_LABELS[rowNum - 1]);
+                setBlack(out);
+                out.println();
             }
         } else {
-            //TODO: put all the same things here but in reverse loop order
-        }
+            for (int rowNum = BOARD_SIZE_IN_SQUARES; rowNum > 0; rowNum--) {
+                setBoundary(out);
+                out.print(ROW_LABELS[rowNum - 1]);
+                for (int colNum = BOARD_SIZE_IN_SQUARES; colNum > 0; colNum--) {
+                    alternatingLines(out, chessBoard, rowNum, colNum);
+                }
 
-        setBlack(out);
-        out.println();
+                setBoundary(out);
+                out.print(ROW_LABELS[rowNum - 1]);
+                setBlack(out);
+                out.println();
+            }
+        }
+    }
+
+    private static void alternatingLines(PrintStream out, ChessBoard chessBoard, int rowNum, int colNum) {
+        if (rowNum % 2 == 1) {
+            if (colNum % 2 == 1) {
+                setLightSquareColor(out);
+            } else {
+                setDarkSquareColor(out);
+            }
+
+            printPiece(out, chessBoard, rowNum, colNum);
+        } else {
+            if (colNum % 2 == 1) {
+                setDarkSquareColor(out);
+            } else {
+                setLightSquareColor(out);
+            }
+
+            printPiece(out, chessBoard, rowNum, colNum);
+        }
     }
 
     private static void printPiece(PrintStream out, ChessBoard chessBoard, int rowNum, int colNum) {
