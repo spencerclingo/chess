@@ -1,13 +1,16 @@
 import com.google.gson.Gson;
 import response.JoinGameRequest;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Scanner;
 
 public class ChessClient {
 
     Gson gson = new Gson();
+    URI uri = new URI("http://localhost:8080/name");
 
-    public ChessClient() {
+    public ChessClient() throws URISyntaxException {
         preLoginMenu();
     }
 
@@ -105,8 +108,7 @@ public class ChessClient {
 
         String color = scanner.nextLine();
 
-        JoinGameRequest joinGameRequest = new JoinGameRequest(color, id);
-
+        String jsonString = gson.toJson(new JoinGameRequest(color, id));
 
         //TODO: use id, color to join a game
     }
