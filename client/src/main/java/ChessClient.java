@@ -1,6 +1,12 @@
+import com.google.gson.Gson;
+import response.JoinGameRequest;
+
 import java.util.Scanner;
 
 public class ChessClient {
+
+    Gson gson = new Gson();
+
     public ChessClient() {
         preLoginMenu();
     }
@@ -82,6 +88,40 @@ public class ChessClient {
         scanner.close();
     }
 
+    private void watch() {
+        Scanner scanner = new Scanner(System.in);
+        int id = getId(scanner);
+
+        //TODO: use id, empty color to join game as watcher
+    }
+
+    private void joinGame() {
+        Scanner scanner = new Scanner(System.in);
+        int id = getId(scanner);
+
+        System.out.println("Choose color you want to join (or none if you want to observe)");
+        System.out.println("white or black: ");
+        System.out.print(">>>  ");
+
+        String color = scanner.nextLine();
+
+        JoinGameRequest joinGameRequest = new JoinGameRequest(color, id);
+
+
+        //TODO: use id, color to join a game
+    }
+
+    private int getId(Scanner scanner) {
+        System.out.println("Game ID: ");
+        System.out.print(">>>  ");
+
+        return scanner.nextInt();
+    }
+
+    private void listGames() {
+        //TODO: call the list games thing and get that printed pretty
+    }
+
     private void createGame() {
         Scanner scanner = new Scanner(System.in);
         boolean cont = true;
@@ -95,6 +135,8 @@ public class ChessClient {
                 cont = false;
             }
         }
+
+        scanner.close();
 
         //TODO: using gameName, create a game in the server
     }
@@ -163,11 +205,18 @@ public class ChessClient {
                 cont = false;
             }
         }
+
+        scanner.close();
         //TODO: use username, password, to login the user
     }
 
     private void help(int helpPage) {
         //TODO: print some useful help functionality
+        if (helpPage == 0) {
+            System.out.println("The stuff");
+        } else if (helpPage == 1) {
+            System.out.println("The stuff part 2");
+        }
     }
 
 
