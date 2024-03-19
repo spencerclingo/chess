@@ -1,6 +1,5 @@
 import chess.*;
-import clientConnection.ChessClient;
-import server.Server;
+import clientConnection.ClientMenu;
 
 import java.net.URISyntaxException;
 
@@ -11,9 +10,7 @@ public class Main {
 
         try {
             int port = 8080;
-            Server server = new Server();
-            server.run(port);
-            new ChessClient(port);
+            new ClientMenu(port);
         } catch(URISyntaxException e) {
             System.out.print("Error creating ChessClient: ");
             System.out.println(e.getMessage());
