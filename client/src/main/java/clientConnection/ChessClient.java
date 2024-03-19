@@ -13,17 +13,16 @@ import java.util.Scanner;
 public class ChessClient {
 
     Gson gson = new Gson();
-    String webAddress = "http://localhost:";
-    String port;
+    int port;
     URI uri;
     String baseUrl;
     String authToken = "";
 
-    public ChessClient(String port) throws URISyntaxException {
-        preLoginMenu();
+    public ChessClient(int port) throws URISyntaxException {
         this.port = port;
-        baseUrl = webAddress + port;
+        baseUrl = "http://localhost:" + port + "/";
         uri = new URI(baseUrl);
+        preLoginMenu();
     }
 
     private void preLoginMenu() {
@@ -42,26 +41,31 @@ public class ChessClient {
             String choice = scanner.nextLine().toLowerCase();
             switch (choice) {
                 case "register":
-                    register();
+                    register(scanner);
+                    postLoginMenu(scanner);
                     break;
                 case "login":
-                    login();
+                    login(scanner);
+                    postLoginMenu(scanner);
                     break;
                 case "quit":
                     running = false;
                     break;
                 case "help":
-                    help(0);
+                    help(scanner, 0);
+                    break;
+                case "clear":
+                    clear();
                     break;
                 default:
                     System.out.println("Please choose an option.");
             }
         }
+        System.out.println();
         scanner.close();
     }
 
-    private void postLoginMenu() {
-        Scanner scanner = new Scanner(System.in);
+    private void postLoginMenu(Scanner scanner) {
         boolean running = true;
 
         while (running) {
@@ -78,40 +82,49 @@ public class ChessClient {
             String choice = scanner.nextLine().toLowerCase();
             switch (choice) {
                 case "logout":
-                    logout();
+                    logout(scanner);
                     running = false;
                     break;
                 case "create":
-                    createGame();
+                    createGame(scanner);
                     break;
                 case "list":
-                    listGames();
+                    listGames(scanner);
                     break;
                 case "join":
-                    joinGame();
+                    joinGame(scanner);
                     break;
                 case "watch":
-                    watch();
+                    watch(scanner);
                     break;
                 case "help":
-                    help(1);
+                    help(scanner, 1);
                     break;
                 default:
                     System.out.println("Please choose an option.");
             }
         }
-        scanner.close();
     }
 
-    private void watch() {
-        Scanner scanner = new Scanner(System.in);
+    private void clear() {
+        try {
+            ResponseRequest request = HttpConnection.startConnection(baseUrl + "/db", "DELETE", "");
+
+            if (request.statusCode() != 200) {
+                System.out.println("CLEAR DATABASE FAILED");
+            }
+        } catch(IOException | URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void watch(Scanner scanner) {
         int id = getId(scanner);
 
         //TODO: use id, empty color to join game as watcher
     }
 
-    private void joinGame() {
-        Scanner scanner = new Scanner(System.in);
+    private void joinGame(Scanner scanner) {
         int id = getId(scanner);
 
         System.out.println("Choose color you want to join (or none if you want to observe)");
@@ -132,12 +145,11 @@ public class ChessClient {
         return scanner.nextInt();
     }
 
-    private void listGames() {
+    private void listGames(Scanner scanner) {
         //TODO: call the list games thing and get that printed pretty
     }
 
-    private void createGame() {
-        Scanner scanner = new Scanner(System.in);
+    private void createGame(Scanner scanner) {
         boolean cont = true;
         String gameName;
 
@@ -150,20 +162,72 @@ public class ChessClient {
             }
         }
 
-        scanner.close();
-
         //TODO: using gameName, create a game in the server
     }
 
-    private void logout() {
+    private void logout(Scanner scanner) {
         //TODO: uses the existing authToken to logout
     }
 
-    private void register() {
-        Scanner scanner = new Scanner(System.in);
+    private void register(Scanner scanner) {
+        String[] userInfo = getUserInfo(scanner);
+        String username = userInfo[0];
+        String password = userInfo[1];
+        String email = null;
+
+        while (email == null) {
+            System.out.println("Email:");
+            System.out.print(">>>  ");
+            email = scanner.nextLine();
+            if (email.isEmpty()) {
+                email = null;
+            }
+        }
+
+        UserData userData = new UserData(username, password, email);
+        String jsonData = gson.toJson(userData);
+
+        try {
+            ResponseRequest request = HttpConnection.startConnection(baseUrl + "/user", "POST", jsonData);
+
+            if (request.statusCode() == 200) {
+                authToken = gson.fromJson(request.responseBody(), AuthData.class).authToken();
+            } else {
+                System.out.println("Error code: " + request.statusCode());
+                System.out.println(request.responseBody());
+            }
+        } catch(URISyntaxException | IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void login(Scanner scanner) {
+        String[] userInfo = getUserInfo(scanner);
+        String username = userInfo[0];
+        String password = userInfo[1];
+
+        UserData userData = new UserData(username, password, null);
+        String jsonData = gson.toJson(userData);
+
+        try {
+            ResponseRequest request = HttpConnection.startConnection(baseUrl + "/session", "POST", jsonData);
+
+            if (request.statusCode() == 200) {
+                authToken = gson.fromJson(request.responseBody(), AuthData.class).authToken();
+            } else {
+                System.out.println();
+                System.out.println(request.responseBody());
+            }
+        } catch(URISyntaxException | IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private String[] getUserInfo(Scanner scanner) {
+        String[] userInfo = new String[2];
+
         String username = null;
         String password = null;
-        String email = null;
 
         while (username == null) {
             System.out.println("Username: ");
@@ -181,61 +245,13 @@ public class ChessClient {
                 password = null;
             }
         }
-        while (email == null) {
-            System.out.println("Email:");
-            System.out.print(">>>  ");
-            email = scanner.nextLine();
-            if (email.isEmpty()) {
-                email = null;
-            }
-        }
-        scanner.close();
 
-        UserData userData = new UserData(username, password, email);
-        String jsonData = gson.toJson(userData);
-
-        try {
-            ResponseRequest request = HttpConnection.startConnection(baseUrl + "/user", "POST", jsonData);
-
-            if (request.statusCode() == 200) {
-                authToken = gson.fromJson(request.responseBody(), AuthData.class).authToken();
-            } else {
-                System.out.println(request.responseBody());
-            }
-        } catch(URISyntaxException | IOException e) {
-            System.out.println("Register Error: " + e.getMessage());
-        }
+        userInfo[0] = username;
+        userInfo[1] = password;
+        return userInfo;
     }
 
-    private void login() {
-        Scanner scanner = new Scanner(System.in);
-        boolean cont = true;
-        String username;
-        String password;
-
-        while (cont) {
-            System.out.println("Username: ");
-            System.out.print(">>>  ");
-            username = scanner.nextLine();
-            if (username != null && !username.isEmpty()) {
-                cont = false;
-            }
-        }
-        cont = true;
-        while (cont) {
-            System.out.println("Password: ");
-            System.out.print(">>>  ");
-            password = scanner.nextLine();
-            if (password != null && !password.isEmpty()) {
-                cont = false;
-            }
-        }
-
-        scanner.close();
-        //TODO: use username, password, to login the user
-    }
-
-    private void help(int helpPage) {
+    private void help(Scanner scanner, int helpPage) {
         //TODO: print some useful help functionality
         if (helpPage == 0) {
             System.out.println("The stuff");
