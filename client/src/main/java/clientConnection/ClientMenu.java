@@ -17,7 +17,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class ChessClient {
+public class ClientMenu {
 
     Gson gson = new Gson();
     int port;
@@ -25,7 +25,7 @@ public class ChessClient {
     String baseUrl;
     String authToken = "";
 
-    public ChessClient(int port) throws URISyntaxException {
+    public ClientMenu(int port) throws URISyntaxException {
         this.port = port;
         baseUrl = "http://localhost:" + port + "/";
         uri = new URI(baseUrl);
@@ -115,7 +115,7 @@ public class ChessClient {
 
     private void clear() {
         try {
-            ResponseRequest request = HttpConnection.startConnection(baseUrl + "/db", "DELETE", "", authToken);
+            ResponseRequest request = ServerFacade.startConnection(baseUrl + "/db", "DELETE", "", authToken);
 
             if (request.statusCode() != 200) {
                 System.out.println("CLEAR DATABASE FAILED");
@@ -149,7 +149,7 @@ public class ChessClient {
 
     private void joinGameHttp(String jsonString, String color) {
         try {
-            ResponseRequest request = HttpConnection.startConnection(baseUrl + "/game", "PUT", jsonString, authToken);
+            ResponseRequest request = ServerFacade.startConnection(baseUrl + "/game", "PUT", jsonString, authToken);
 
             if (request.statusCode() != 200) {
                 System.out.println("Error code: " + request.statusCode());
@@ -180,7 +180,7 @@ public class ChessClient {
 
     private void listGames() {
         try {
-            ResponseRequest request = HttpConnection.startConnection(baseUrl + "/game", "GET", null, authToken);
+            ResponseRequest request = ServerFacade.startConnection(baseUrl + "/game", "GET", null, authToken);
 
             if (request.statusCode() == 200) {
                 ArrayList<GameData> games = gson.fromJson(request.responseBody(), GameListResponse.class).games();
@@ -223,7 +223,7 @@ public class ChessClient {
         String jsonData = gson.toJson(gameData);
 
         try {
-            ResponseRequest request = HttpConnection.startConnection(baseUrl + "/game", "POST", jsonData, authToken);
+            ResponseRequest request = ServerFacade.startConnection(baseUrl + "/game", "POST", jsonData, authToken);
 
             if (request.statusCode() == 200) {
                 gameID = gson.fromJson(request.responseBody(), GameIDResponse.class).gameID();
@@ -239,7 +239,7 @@ public class ChessClient {
 
     private void logout() {
         try {
-            ResponseRequest request = HttpConnection.startConnection(baseUrl + "/user", "POST", null, authToken);
+            ResponseRequest request = ServerFacade.startConnection(baseUrl + "/user", "POST", null, authToken);
 
             if (request.statusCode() != 200) {
                 System.out.println("Error code: " + request.statusCode());
@@ -271,7 +271,7 @@ public class ChessClient {
         String jsonData = gson.toJson(userData);
 
         try {
-            ResponseRequest request = HttpConnection.startConnection(baseUrl + "/user", "POST", jsonData, authToken);
+            ResponseRequest request = ServerFacade.startConnection(baseUrl + "/user", "POST", jsonData, authToken);
 
             if (request.statusCode() == 200) {
                 authToken = gson.fromJson(request.responseBody(), AuthData.class).authToken();
@@ -293,7 +293,7 @@ public class ChessClient {
         String jsonData = gson.toJson(userData);
 
         try {
-            ResponseRequest request = HttpConnection.startConnection(baseUrl + "/session", "POST", jsonData, authToken);
+            ResponseRequest request = ServerFacade.startConnection(baseUrl + "/session", "POST", jsonData, authToken);
 
             if (request.statusCode() == 200) {
                 authToken = gson.fromJson(request.responseBody(), AuthData.class).authToken();

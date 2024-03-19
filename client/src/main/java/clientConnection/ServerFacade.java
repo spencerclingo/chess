@@ -8,11 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class HttpConnection {
-    public HttpConnection(String url, String method, String body, String authToken) throws URISyntaxException, IOException {
-        HttpURLConnection http = sendRequest(url, method, body, authToken);
-        receiveResponse(http);
-    }
+public class ServerFacade {
 
     public static ResponseRequest startConnection(String url, String method, String body, String authToken) throws IOException, URISyntaxException {
         HttpURLConnection http = sendRequest(url, method, body, authToken);
