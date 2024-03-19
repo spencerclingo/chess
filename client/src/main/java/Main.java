@@ -13,7 +13,7 @@ public class Main {
             int port = 8080;
             Server server = new Server();
             server.run(port);
-            ChessClient chessClient = new ChessClient(port);
+            new ChessClient(port);
         } catch(URISyntaxException e) {
             System.out.print("Error creating ChessClient: ");
             System.out.println(e.getMessage());

@@ -2,12 +2,16 @@ package clientConnection;
 
 import com.google.gson.Gson;
 import models.AuthData;
+import models.GameData;
 import models.UserData;
+import response.GameIDResponse;
+import response.GameListResponse;
 import response.JoinGameRequest;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class ChessClient {
@@ -52,7 +56,7 @@ public class ChessClient {
                     running = false;
                     break;
                 case "help":
-                    help(scanner, 0);
+                    help(0);
                     break;
                 case "clear":
                     clear();
@@ -82,14 +86,14 @@ public class ChessClient {
             String choice = scanner.nextLine().toLowerCase();
             switch (choice) {
                 case "logout":
-                    logout(scanner);
+                    logout();
                     running = false;
                     break;
                 case "create":
                     createGame(scanner);
                     break;
                 case "list":
-                    listGames(scanner);
+                    listGames();
                     break;
                 case "join":
                     joinGame(scanner);
@@ -98,7 +102,7 @@ public class ChessClient {
                     watch(scanner);
                     break;
                 case "help":
-                    help(scanner, 1);
+                    help(1);
                     break;
                 default:
                     System.out.println("Please choose an option.");
@@ -108,7 +112,7 @@ public class ChessClient {
 
     private void clear() {
         try {
-            ResponseRequest request = HttpConnection.startConnection(baseUrl + "/db", "DELETE", "");
+            ResponseRequest request = HttpConnection.startConnection(baseUrl + "/db", "DELETE", "", authToken);
 
             if (request.statusCode() != 200) {
                 System.out.println("CLEAR DATABASE FAILED");
@@ -121,7 +125,9 @@ public class ChessClient {
     private void watch(Scanner scanner) {
         int id = getId(scanner);
 
-        //TODO: use id, empty color to join game as watcher
+        String jsonString = gson.toJson(new JoinGameRequest(null, id));
+
+        joinGameHttp(jsonString);
     }
 
     private void joinGame(Scanner scanner) {
@@ -135,7 +141,22 @@ public class ChessClient {
 
         String jsonString = gson.toJson(new JoinGameRequest(color, id));
 
-        //TODO: use id, color to join a game
+        joinGameHttp(jsonString);
+    }
+
+    private void joinGameHttp(String jsonString) {
+        try {
+            ResponseRequest request = HttpConnection.startConnection(baseUrl + "/game", "PUT", jsonString, authToken);
+
+            if (request.statusCode() != 200) {
+                System.out.println("Error code: " + request.statusCode());
+                System.out.println(request.responseBody());
+            } else {
+                System.out.println("Successfully joined game!");
+            }
+        } catch(URISyntaxException | IOException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private int getId(Scanner scanner) {
@@ -145,28 +166,76 @@ public class ChessClient {
         return scanner.nextInt();
     }
 
-    private void listGames(Scanner scanner) {
-        //TODO: call the list games thing and get that printed pretty
+    private void listGames() {
+        try {
+            ResponseRequest request = HttpConnection.startConnection(baseUrl + "/game", "GET", null, authToken);
+
+            if (request.statusCode() == 200) {
+                ArrayList<GameData> games = gson.fromJson(request.responseBody(), GameListResponse.class).games();
+
+                for (GameData gameData : games) {
+                    System.out.println("Game ID: " + gameData.gameID());
+                    System.out.println("\tGame Name: " + gameData.gameName());
+                    System.out.println("\tWhite Player username: " + gameData.whiteUsername());
+                    System.out.println("\tBlack Player username: " + gameData.blackUsername());
+                }
+
+                if (games.isEmpty()) {
+                    System.out.println("No games yet!");
+                }
+            } else {
+                System.out.println("Error code: " + request.statusCode());
+                System.out.println(request.responseBody());
+            }
+        } catch(URISyntaxException | IOException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private void createGame(Scanner scanner) {
-        boolean cont = true;
-        String gameName;
+        String gameName = null;
+        int gameID = -1;
 
-        while (cont) {
+        while (gameName == null) {
             System.out.println("Name for game: ");
             System.out.print(">>>  ");
             gameName = scanner.nextLine();
-            if (gameName != null && !gameName.isEmpty()) {
-                cont = false;
+            if (gameName == null || gameName.isEmpty()) {
+                gameName = null;
             }
         }
 
-        //TODO: using gameName, create a game in the server
+        GameData gameData = new GameData(gameID, null, null, gameName, null);
+        String jsonData = gson.toJson(gameData);
+
+        try {
+            ResponseRequest request = HttpConnection.startConnection(baseUrl + "/game", "POST", jsonData, authToken);
+
+            if (request.statusCode() == 200) {
+                gameID = gson.fromJson(request.responseBody(), GameIDResponse.class).gameID();
+                System.out.println("New game ID: " + gameID);
+            } else {
+                System.out.println("Error code: " + request.statusCode());
+                System.out.println(request.responseBody());
+            }
+        } catch(URISyntaxException | IOException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
-    private void logout(Scanner scanner) {
-        //TODO: uses the existing authToken to logout
+    private void logout() {
+        try {
+            ResponseRequest request = HttpConnection.startConnection(baseUrl + "/user", "POST", null, authToken);
+
+            if (request.statusCode() != 200) {
+                System.out.println("Error code: " + request.statusCode());
+                System.out.println(request.responseBody());
+            } else {
+                System.out.println("Successfully logged out!");
+            }
+        } catch(URISyntaxException | IOException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private void register(Scanner scanner) {
@@ -188,7 +257,7 @@ public class ChessClient {
         String jsonData = gson.toJson(userData);
 
         try {
-            ResponseRequest request = HttpConnection.startConnection(baseUrl + "/user", "POST", jsonData);
+            ResponseRequest request = HttpConnection.startConnection(baseUrl + "/user", "POST", jsonData, authToken);
 
             if (request.statusCode() == 200) {
                 authToken = gson.fromJson(request.responseBody(), AuthData.class).authToken();
@@ -210,7 +279,7 @@ public class ChessClient {
         String jsonData = gson.toJson(userData);
 
         try {
-            ResponseRequest request = HttpConnection.startConnection(baseUrl + "/session", "POST", jsonData);
+            ResponseRequest request = HttpConnection.startConnection(baseUrl + "/session", "POST", jsonData, authToken);
 
             if (request.statusCode() == 200) {
                 authToken = gson.fromJson(request.responseBody(), AuthData.class).authToken();
@@ -251,7 +320,7 @@ public class ChessClient {
         return userInfo;
     }
 
-    private void help(Scanner scanner, int helpPage) {
+    private void help(int helpPage) {
         //TODO: print some useful help functionality
         if (helpPage == 0) {
             System.out.println("The stuff");

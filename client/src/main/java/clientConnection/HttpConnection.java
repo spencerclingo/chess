@@ -12,20 +12,25 @@ import java.net.URISyntaxException;
 import java.util.Map;
 
 public class HttpConnection {
-    public HttpConnection(String url, String method, String body) throws URISyntaxException, IOException {
-        HttpURLConnection http = sendRequest(url, method, body);
+    public HttpConnection(String url, String method, String body, String authToken) throws URISyntaxException, IOException {
+        HttpURLConnection http = sendRequest(url, method, body, authToken);
         receiveResponse(http);
     }
 
-    public static ResponseRequest startConnection(String url, String method, String body) throws IOException, URISyntaxException {
-        HttpURLConnection http = sendRequest(url, method, body);
+    public static ResponseRequest startConnection(String url, String method, String body, String authToken) throws IOException, URISyntaxException {
+        HttpURLConnection http = sendRequest(url, method, body, authToken);
         return receiveResponse(http);
     }
 
-    private static HttpURLConnection sendRequest(String url, String method, String body) throws URISyntaxException, IOException {
+    private static HttpURLConnection sendRequest(String url, String method, String body, String authToken) throws URISyntaxException, IOException {
         URI uri = new URI(url);
         HttpURLConnection http = (HttpURLConnection) uri.toURL().openConnection();
         http.setRequestMethod(method);
+
+        if (authToken != null && !authToken.isEmpty()) {
+            http.setRequestProperty("Authorization", "Bearer " + authToken);
+        }
+
         writeRequestBody(body, http);
         http.connect();
         return http;
