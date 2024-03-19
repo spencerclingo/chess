@@ -1,6 +1,8 @@
 import com.google.gson.Gson;
+import models.UserData;
 import response.JoinGameRequest;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Scanner;
@@ -8,10 +10,16 @@ import java.util.Scanner;
 public class ChessClient {
 
     Gson gson = new Gson();
-    URI uri = new URI("http://localhost:8080/name");
+    String webAddress = "http://localhost:";
+    String port;
+    URI uri;
+    String baseUrl;
 
-    public ChessClient() throws URISyntaxException {
+    public ChessClient(String port) throws URISyntaxException {
         preLoginMenu();
+        this.port = port;
+        baseUrl = webAddress + port;
+        uri = new URI(baseUrl);
     }
 
     private void preLoginMenu() {
@@ -149,39 +157,46 @@ public class ChessClient {
 
     private void register() {
         Scanner scanner = new Scanner(System.in);
-        boolean cont = true;
-        String username;
-        String password;
-        String email;
+        String username = null;
+        String password = null;
+        String email = null;
 
-        while (cont) {
+        while (username == null) {
             System.out.println("Username: ");
             System.out.print(">>>  ");
             username = scanner.nextLine();
-            if (username != null && !username.isEmpty()) {
-                cont = false;
+            if (username.isEmpty()) {
+                username = null;
             }
         }
-        cont = true;
-        while (cont) {
+        while (password == null) {
             System.out.println("Password: ");
             System.out.print(">>>  ");
             password = scanner.nextLine();
-            if (password != null && !password.isEmpty()) {
-                cont = false;
+            if (password.isEmpty()) {
+                password = null;
             }
         }
-        cont = true;
-        while (cont) {
+        while (email == null) {
             System.out.println("Email:");
             System.out.print(">>>  ");
             email = scanner.nextLine();
-            if (email != null && !email.isEmpty()) {
-                cont = false;
+            if (email.isEmpty()) {
+                email = null;
             }
         }
-        //TODO: User the username, password, email, in the connection to the server
         scanner.close();
+
+        UserData userData = new UserData(username, password, email);
+        String jsonData = gson.toJson(userData);
+
+        try {
+            ResponseRequest request = HttpConnection.startConnection(baseUrl + "/user", "POST", jsonData);
+
+            //TODO: Use the request record object to get the data that should have been returned
+        } catch(URISyntaxException | IOException e) {
+            System.out.print(e.getMessage());
+        }
     }
 
     private void login() {
