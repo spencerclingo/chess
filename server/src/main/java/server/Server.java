@@ -39,7 +39,6 @@ public class Server {
 
     private Object getResponseBody(Response response, int httpCode, AuthData authData) {
         response.status(httpCode);
-
         String error = switchCases(httpCode);
 
         if (error.equals(emptyJson)) {

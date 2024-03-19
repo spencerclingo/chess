@@ -1,4 +1,4 @@
 package clientConnection;
 
-public record ResponseRequest(int statusCode, String statusMessage, Object responseBody) {
+public record ResponseRequest(int statusCode, String statusMessage, String responseBody) {
 }

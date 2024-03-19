@@ -2,6 +2,7 @@ package clientConnection;
 
 import com.google.gson.Gson;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -43,18 +44,21 @@ public class HttpConnection {
         var statusCode = http.getResponseCode();
         var statusMessage = http.getResponseMessage();
 
-        Object responseBody = readResponseBody(http);
-        System.out.printf("= Response =========\n[%d] %s\n\n%s\n\n", statusCode, statusMessage, responseBody);
+        String responseBody = readResponseBody(http);
+        //System.out.printf("= Response =========\n[%d] %s\n\n%s\n\n", statusCode, statusMessage, responseBody);
         return new ResponseRequest(statusCode, statusMessage, responseBody);
     }
 
-    private static Object readResponseBody(HttpURLConnection http) throws IOException {
-        Object responseBody = "";
+    private static String readResponseBody(HttpURLConnection http) throws IOException {
+        StringBuilder responseBody = new StringBuilder();
         try (InputStream respBody = http.getInputStream()) {
-            InputStreamReader inputStreamReader = new InputStreamReader(respBody);
-            responseBody = new Gson().fromJson(inputStreamReader, Map.class);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(respBody));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                responseBody.append(line);
+            }
         }
-        return responseBody;
+        return responseBody.toString();
     }
 
 

@@ -1,6 +1,7 @@
 package clientConnection;
 
 import com.google.gson.Gson;
+import models.AuthData;
 import models.UserData;
 import response.JoinGameRequest;
 
@@ -16,6 +17,7 @@ public class ChessClient {
     String port;
     URI uri;
     String baseUrl;
+    String authToken = "";
 
     public ChessClient(String port) throws URISyntaxException {
         preLoginMenu();
@@ -195,9 +197,13 @@ public class ChessClient {
         try {
             ResponseRequest request = HttpConnection.startConnection(baseUrl + "/user", "POST", jsonData);
 
-            //TODO: Use the request record object to get the data that should have been returned
+            if (request.statusCode() == 200) {
+                authToken = gson.fromJson(request.responseBody(), AuthData.class).authToken();
+            } else {
+                System.out.println(request.responseBody());
+            }
         } catch(URISyntaxException | IOException e) {
-            System.out.print(e.getMessage());
+            System.out.println("Register Error: " + e.getMessage());
         }
     }
 
