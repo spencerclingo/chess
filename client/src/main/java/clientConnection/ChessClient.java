@@ -1,5 +1,6 @@
 package clientConnection;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import models.AuthData;
 import models.GameData;
@@ -204,8 +205,10 @@ public class ChessClient {
                 gameName = null;
             }
         }
+        ChessGame chessGame = new ChessGame();
+        chessGame.getBoard().resetBoard();
 
-        GameData gameData = new GameData(gameID, null, null, gameName, null);
+        GameData gameData = new GameData(gameID, null, null, gameName, chessGame);
         String jsonData = gson.toJson(gameData);
 
         try {
