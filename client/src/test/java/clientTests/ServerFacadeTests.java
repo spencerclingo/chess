@@ -7,12 +7,20 @@ import server.Server;
 public class ServerFacadeTests {
 
     private static Server server;
+    private static String url = "http://localhost:";
+    private static int port = 0;
 
     @BeforeAll
     public static void init() {
         server = new Server();
-        var port = server.run(0);
+        ServerFacadeTests.port = server.run(ServerFacadeTests.port);
         System.out.println("Started test HTTP server on " + port);
+        url = url + port + "/";
+    }
+
+    @BeforeEach
+    public void startUp() {
+
     }
 
     @AfterAll

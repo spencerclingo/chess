@@ -24,6 +24,7 @@ public class ClientMenu {
     URI uri;
     String baseUrl;
     String authToken = "";
+    String clearPassword = "clear";
 
     public ClientMenu(int port) throws URISyntaxException {
         this.port = port;
@@ -62,7 +63,7 @@ public class ClientMenu {
                     help(0);
                     break;
                 case "clear":
-                    clear();
+                    clear(scanner);
                     break;
                 default:
                     System.out.println("Please choose an option.");
@@ -113,7 +114,13 @@ public class ClientMenu {
         }
     }
 
-    private void clear() {
+    private void clear(Scanner scanner) {
+        String password = scanner.nextLine().toLowerCase();
+
+        if (!password.equals(clearPassword)) {
+            return;
+        }
+
         try {
             ResponseRequest request = ServerFacade.startConnection(baseUrl + "/db", "DELETE", "", authToken);
 
