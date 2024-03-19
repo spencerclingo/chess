@@ -1,3 +1,5 @@
+package clientConnection;
+
 import com.google.gson.Gson;
 import models.UserData;
 import response.JoinGameRequest;
