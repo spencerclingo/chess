@@ -110,6 +110,33 @@ public class GameService {
         }
     }
 
+    /*
+    public static GetGameResponse getGame(GameData gameData, AuthData authData) {
+        String username;
+        try {
+            username = authStoredDAO.getAuth(authData).username();
+        } catch(DataAccessException | SQLException dae) {
+            return new GetGameResponse(null,401);
+        }
+
+        GameData data;
+
+        try {
+            data = gameStoredDAO.getGame(new GameData(gameData.gameID(), null,null,null,null));
+            if (data.whiteUsername() != null && username.equals(data.whiteUsername())) {
+                return new GetGameResponse(data.game(), 200);
+            } else if (data.blackUsername() != null && username.equals(data.blackUsername())) {
+                return new GetGameResponse(data.game(), 200);
+            } else {
+                return new GetGameResponse(null, 400);
+            }
+        } catch(DataAccessException | SQLException dae) {
+            return new GetGameResponse(null, 400);
+        }
+    }
+
+     */
+
     public static void setGameDAO(GameDAO gameDAO) {
         gameStoredDAO = gameDAO;
     }
