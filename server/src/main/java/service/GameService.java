@@ -20,6 +20,7 @@ public class GameService {
             authStoredDAO.getAuth(authData);
             return new CreateGameResponse(gameStoredDAO.createGame(gameData), 200);
         } catch(DataAccessException | SQLException dae) {
+            System.out.println(dae.getMessage());
             return new CreateGameResponse(-1, 401);
         }
     }

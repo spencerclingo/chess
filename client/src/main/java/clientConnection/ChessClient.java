@@ -1,5 +1,6 @@
 package clientConnection;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import models.AuthData;
@@ -8,6 +9,7 @@ import models.UserData;
 import response.GameIDResponse;
 import response.GameListResponse;
 import response.JoinGameRequest;
+import ui.ChessBoardPicture;
 
 import java.io.IOException;
 import java.net.URI;
@@ -128,7 +130,7 @@ public class ChessClient {
 
         String jsonString = gson.toJson(new JoinGameRequest(null, id));
 
-        joinGameHttp(jsonString);
+        joinGameHttp(jsonString, null);
     }
 
     private void joinGame(Scanner scanner) {
@@ -142,10 +144,10 @@ public class ChessClient {
 
         String jsonString = gson.toJson(new JoinGameRequest(color, id));
 
-        joinGameHttp(jsonString);
+        joinGameHttp(jsonString, color);
     }
 
-    private void joinGameHttp(String jsonString) {
+    private void joinGameHttp(String jsonString, String color) {
         try {
             ResponseRequest request = HttpConnection.startConnection(baseUrl + "/game", "PUT", jsonString, authToken);
 
@@ -154,6 +156,15 @@ public class ChessClient {
                 System.out.println(request.responseBody());
             } else {
                 System.out.println("Successfully joined game!");
+
+                ChessBoard chessBoard = new ChessBoard();
+                chessBoard.resetBoard();
+
+                if (color == null || color.equalsIgnoreCase("white")) {
+                    ChessBoardPicture.init(chessBoard, true);
+                } else {
+                    ChessBoardPicture.init(chessBoard, ! color.equalsIgnoreCase("black"));
+                }
             }
         } catch(URISyntaxException | IOException e) {
             System.out.println(e.getMessage());

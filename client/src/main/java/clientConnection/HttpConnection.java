@@ -1,7 +1,5 @@
 package clientConnection;
 
-import com.google.gson.Gson;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,7 +7,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Map;
 
 public class HttpConnection {
     public HttpConnection(String url, String method, String body, String authToken) throws URISyntaxException, IOException {
@@ -28,7 +25,7 @@ public class HttpConnection {
         http.setRequestMethod(method);
 
         if (authToken != null && !authToken.isEmpty()) {
-            http.setRequestProperty("Authorization", "Bearer " + authToken);
+            http.setRequestProperty("Authorization", authToken);
         }
 
         writeRequestBody(body, http);
@@ -50,7 +47,6 @@ public class HttpConnection {
         var statusMessage = http.getResponseMessage();
 
         String responseBody = readResponseBody(http);
-        //System.out.printf("= Response =========\n[%d] %s\n\n%s\n\n", statusCode, statusMessage, responseBody);
         return new ResponseRequest(statusCode, statusMessage, responseBody);
     }
 
