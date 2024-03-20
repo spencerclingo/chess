@@ -56,7 +56,7 @@ public class ClientMenu {
             System.out.println("\t quit     - exits the program");
             System.out.println("\t help     - print more helpful instructions");
 
-            System.out.print(">>>");
+            System.out.print(">>>  ");
 
             String choice = scanner.nextLine().toLowerCase();
             switch (choice) {
@@ -151,6 +151,9 @@ public class ClientMenu {
 
             if (request.statusCode() != 200) {
                 System.out.println("CLEAR DATABASE FAILED");
+            } else {
+                authToken = "";
+                System.out.println("Clear Database successful (good job remembering the password)");
             }
         } catch(IOException | URISyntaxException e) {
             throw new RuntimeException(e);
@@ -278,6 +281,7 @@ public class ClientMenu {
                 System.out.println(request.responseBody());
             } else {
                 System.out.println("Successfully logged out!");
+                authToken = "";
             }
         } catch(URISyntaxException | IOException e) {
             System.out.println(e.getMessage());
