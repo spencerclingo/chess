@@ -47,9 +47,8 @@ public class ClientMenu {
 
     private void preLoginMenu() {
         Scanner scanner = new Scanner(System.in);
-        boolean running = true;
 
-        while (running) {
+        while (true) {
             setCommandLine();
             System.out.println("Welcome to my Chess Server! Type help if you need help!");
             System.out.println("\t register - to create an account");
@@ -63,15 +62,32 @@ public class ClientMenu {
             switch (choice) {
                 case "register":
                     register(scanner);
-                    postLoginMenu(scanner);
+                    if (authToken != null) {
+                        if (!authToken.isEmpty()) {
+                            postLoginMenu(scanner);
+                        } else {
+                            System.out.println("Cannot register user. Username already taken.");
+                        }
+                    } else {
+                        System.out.println("Cannot register user. Username already taken.");
+                    }
                     break;
                 case "login":
                     login(scanner);
-                    postLoginMenu(scanner);
+                    if (authToken != null) {
+                        if (!authToken.isEmpty()) {
+                            postLoginMenu(scanner);
+                        } else {
+                            System.out.println("Cannot register user. Username already taken.");
+                        }
+                    } else {
+                        System.out.println("Cannot register user. Username already taken.");
+                    }
                     break;
                 case "quit":
-                    running = false;
-                    break;
+                    System.out.println();
+                    scanner.close();
+                    return;
                 case "help":
                     help(0);
                     break;
@@ -82,14 +98,10 @@ public class ClientMenu {
                     System.out.println("Please choose an option.");
             }
         }
-        System.out.println();
-        scanner.close();
     }
 
     private void postLoginMenu(Scanner scanner) {
-        boolean running = true;
-
-        while (running) {
+        while (true) {
             setCommandLine();
             System.out.println("Welcome to my Chess Server! Type help if you need help!");
             System.out.println("\t logout   - logout from the server");
@@ -105,8 +117,7 @@ public class ClientMenu {
             switch (choice) {
                 case "logout":
                     logout();
-                    running = false;
-                    break;
+                    return;
                 case "create":
                     createGame(scanner);
                     break;
