@@ -10,12 +10,18 @@ import response.GameIDResponse;
 import response.GameListResponse;
 import response.JoinGameRequest;
 import ui.ChessBoardPicture;
+import ui.EscapeSequences;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Scanner;
+
+import static ui.EscapeSequences.SET_BG_COLOR_BLACK;
+import static ui.EscapeSequences.SET_TEXT_COLOR_WHITE;
 
 public class ClientMenu {
 
@@ -25,6 +31,7 @@ public class ClientMenu {
     String baseUrl;
     String authToken = "";
     String clearPassword = "clear";
+    PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
     public ClientMenu(int port) throws URISyntaxException {
         this.port = port;
@@ -33,11 +40,17 @@ public class ClientMenu {
         preLoginMenu();
     }
 
+    private void setCommandLine() {
+        out.print(SET_BG_COLOR_BLACK);
+        out.print(SET_TEXT_COLOR_WHITE);
+    }
+
     private void preLoginMenu() {
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
 
         while (running) {
+            setCommandLine();
             System.out.println("Welcome to my Chess Server! Type help if you need help!");
             System.out.println("\t register - to create an account");
             System.out.println("\t login    - to you existing account and play");
@@ -77,6 +90,7 @@ public class ClientMenu {
         boolean running = true;
 
         while (running) {
+            setCommandLine();
             System.out.println("Welcome to my Chess Server! Type help if you need help!");
             System.out.println("\t logout   - logout from the server");
             System.out.println("\t create   - a new chess game");
