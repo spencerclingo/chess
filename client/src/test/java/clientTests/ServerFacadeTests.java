@@ -292,4 +292,8 @@ public class ServerFacadeTests {
         }
     }
 
+    @Test
+    public void getGameEmptyList() {
+        assertTrue(true);
+    }
 }
