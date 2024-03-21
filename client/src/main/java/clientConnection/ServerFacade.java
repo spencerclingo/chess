@@ -30,10 +30,12 @@ public class ServerFacade {
     }
 
     private static void writeRequestBody(String body, HttpURLConnection http) throws IOException {
-        if (!body.isEmpty()) {
-            http.setDoOutput(true);
-            try (var outputStream = http.getOutputStream()) {
-                outputStream.write(body.getBytes());
+        if (body != null) {
+            if (! body.isEmpty()) {
+                http.setDoOutput(true);
+                try (var outputStream = http.getOutputStream()) {
+                    outputStream.write(body.getBytes());
+                }
             }
         }
     }

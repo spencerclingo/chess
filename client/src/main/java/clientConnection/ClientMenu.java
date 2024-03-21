@@ -210,7 +210,7 @@ public class ClientMenu {
         System.out.println("Game ID: ");
         System.out.print(">>>  ");
 
-        return scanner.nextInt();
+        return Integer.parseInt(scanner.nextLine());
     }
 
     private void listGames() {
@@ -274,7 +274,7 @@ public class ClientMenu {
 
     private void logout() {
         try {
-            ResponseRequest request = ServerFacade.startConnection(baseUrl + "/user", "POST", null, authToken);
+            ResponseRequest request = ServerFacade.startConnection(baseUrl + "/session", "DELETE", "", authToken);
 
             if (request.statusCode() != 200) {
                 System.out.println("Error code: " + request.statusCode());
