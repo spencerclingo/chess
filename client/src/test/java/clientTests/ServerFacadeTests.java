@@ -3,16 +3,18 @@ package clientTests;
 import clientConnection.ResponseRequest;
 import clientConnection.ServerFacade;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import models.AuthData;
 import models.GameData;
 import models.UserData;
 import org.junit.jupiter.api.*;
 import response.GameIDResponse;
+import response.GameListResponse;
 import server.Server;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Scanner;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -51,6 +53,39 @@ public class ServerFacadeTests {
     @AfterAll
     static void stopServer() {
         server.stop();
+    }
+
+    private String registerUser() throws IOException, URISyntaxException {
+        String username = "username";
+        String password = "password";
+        String email = "email";
+        String authToken = null;
+
+        String jsonData = gson.toJson(new UserData(username, password, email));
+
+        ResponseRequest request = ServerFacade.startConnection(url + "/user", "POST", jsonData, "");
+
+        if (request.statusCode() == 200) {
+            return gson.fromJson(request.responseBody(), AuthData.class).authToken();
+        } else {
+            fail("Registering failed when it shouldn't");
+            return authToken;
+        }
+    }
+
+    private int createGame(String authToken) throws IOException, URISyntaxException {
+        int gameID = -1;
+        GameData gameData = new GameData(gameID, null, null, "newGame", null);
+        String jsonData = gson.toJson(gameData);
+
+        ResponseRequest responseRequest = ServerFacade.startConnection(url + "/game", "POST", jsonData, authToken);
+
+        if (responseRequest.statusCode() == 200) {
+            gameID = gson.fromJson(responseRequest.responseBody(), GameIDResponse.class).gameID();
+            return gameID;
+        } else {
+            throw new RuntimeException();
+        }
     }
 
 
@@ -220,7 +255,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void createBadNewGame() throws IOException, URISyntaxException {
+    public void createBadNewGame() {
         String authToken = null;
         String gameName = "newGame";
         int gameID = -1;
@@ -239,6 +274,7 @@ public class ServerFacadeTests {
         } catch(Exception e) {
             assertTrue(true, "Exception thrown, like it should be");
         }
+        assertEquals(-1, gameID);
     }
 
     @Test
@@ -290,6 +326,49 @@ public class ServerFacadeTests {
 
     @Test
     public void getGameEmptyList() {
-        assertTrue(true);
+        String authToken = null;
+        try {
+            authToken = registerUser();
+        } catch(IOException | URISyntaxException e) {
+            fail("Register failed");
+        }
+
+        try {
+            ResponseRequest request = ServerFacade.startConnection(url + "/game", "GET", "", authToken);
+
+            if (request.statusCode() == 200) {
+                GameListResponse gameList = gson.fromJson(request.responseBody(), GameListResponse.class);
+                assertEquals(0, gameList.games().size());
+            } else {
+                fail("Status code should be 200");
+            }
+        } catch(URISyntaxException | IOException e) {
+            fail("Error thrown when there should be none");
+        }
+    }
+
+    @Test
+    public void getGameTwoInList() {
+        String authToken = null;
+        try {
+            authToken = registerUser();
+            createGame(authToken);
+            createGame(authToken);
+        } catch(IOException | URISyntaxException e) {
+            fail("Register or game creation failed");
+        }
+
+        try {
+            ResponseRequest request = ServerFacade.startConnection(url + "/game", "GET", "", authToken);
+
+            if (request.statusCode() == 200) {
+                GameListResponse gameList = gson.fromJson(request.responseBody(), GameListResponse.class);
+                assertEquals(2, gameList.games().size());
+            } else {
+                fail("Status code should be 200");
+            }
+        } catch(URISyntaxException | IOException e) {
+            fail("Error thrown when there should be none");
+        }
     }
 }
