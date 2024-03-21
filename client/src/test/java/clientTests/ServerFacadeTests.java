@@ -348,10 +348,39 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void getGameTwoInList() {
+    public void getGameOneInList() {
         String authToken = null;
         try {
             authToken = registerUser();
+            createGame(authToken);
+        } catch(IOException | URISyntaxException e) {
+            fail("Register or game creation failed");
+        }
+
+        try {
+            ResponseRequest request = ServerFacade.startConnection(url + "/game", "GET", "", authToken);
+
+            if (request.statusCode() == 200) {
+                GameListResponse gameList = gson.fromJson(request.responseBody(), GameListResponse.class);
+                assertEquals(1, gameList.games().size());
+            } else {
+                fail("Status code should be 200");
+            }
+        } catch(URISyntaxException | IOException e) {
+            fail("Error thrown when there should be none");
+        }
+    }
+
+    @Test
+    public void getGameManyInList() {
+        String authToken = null;
+        try {
+            authToken = registerUser();
+            createGame(authToken);
+            createGame(authToken);
+            createGame(authToken);
+            createGame(authToken);
+            createGame(authToken);
             createGame(authToken);
             createGame(authToken);
         } catch(IOException | URISyntaxException e) {
@@ -363,7 +392,7 @@ public class ServerFacadeTests {
 
             if (request.statusCode() == 200) {
                 GameListResponse gameList = gson.fromJson(request.responseBody(), GameListResponse.class);
-                assertEquals(2, gameList.games().size());
+                assertEquals(7, gameList.games().size());
             } else {
                 fail("Status code should be 200");
             }
