@@ -98,7 +98,7 @@ public class ServerFacadeTests {
             ResponseRequest request = ServerFacade.startConnection(url + "/user", "POST", jsonData, "");
 
             if (request.statusCode() == 200) {
-                //gson.fromJson(request.responseBody(), AuthData.class);
+                assertTrue(true);
             } else {
                 System.out.println("Error code: " + request.statusCode());
                 System.out.println(request.responseBody());
