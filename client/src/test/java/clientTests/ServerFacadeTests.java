@@ -14,10 +14,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Scanner;
 
-import static org.mockito.Mockito.mock;
-
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 
 public class ServerFacadeTests {
@@ -25,7 +22,6 @@ public class ServerFacadeTests {
     private static Server server;
     private static String url = "http://localhost:";
     private static int port = 0;
-    Scanner scannerMock = mock(Scanner.class);
     Gson gson = new Gson();
 
     @BeforeAll

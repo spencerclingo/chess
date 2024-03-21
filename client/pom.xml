@@ -67,7 +67,6 @@
             <groupId>edu.byu.cs240.server</groupId>
             <artifactId>server</artifactId>
             <version>1.0.0</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 

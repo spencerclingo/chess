@@ -10,7 +10,6 @@ import response.GameIDResponse;
 import response.GameListResponse;
 import response.JoinGameRequest;
 import ui.ChessBoardPicture;
-import ui.EscapeSequences;
 
 import java.io.IOException;
 import java.io.PrintStream;

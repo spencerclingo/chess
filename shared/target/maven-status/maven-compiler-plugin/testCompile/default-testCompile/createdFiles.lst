@@ -1,0 +1,14 @@
+passoffTests\chessTests\ChessMoveTests.class
+passoffTests\chessTests\chessPieceTests\QueenMoveTests.class
+passoffTests\chessTests\chessPieceTests\PawnMoveTests.class
+passoffTests\chessTests\ChessGameTests.class
+passoffTests\TestFactory.class
+passoffTests\chessTests\chessPieceTests\KingMoveTests.class
+passoffTests\chessTests\chessExtraCredit\EnPassantTests.class
+passoffTests\chessTests\ChessBoardTests.class
+passoffTests\chessTests\ChessGameTests$ValidMoveTests.class
+passoffTests\chessTests\ChessPositionTests.class
+passoffTests\chessTests\chessPieceTests\BishopMoveTests.class
+passoffTests\chessTests\chessPieceTests\RookMoveTests.class
+passoffTests\chessTests\chessExtraCredit\CastlingTests.class
+passoffTests\chessTests\chessPieceTests\KnightMoveTests.class
