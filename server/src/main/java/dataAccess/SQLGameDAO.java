@@ -143,5 +143,7 @@ public class SQLGameDAO implements GameDAO{
         String statement = "DELETE FROM `game`;";
 
         DatabaseManager.executeUpdate(statement);
+
+        nextGameID = 0;
     }
 }

@@ -77,10 +77,10 @@ public class ClientMenu {
                         if (!authToken.isEmpty()) {
                             postLoginMenu(scanner);
                         } else {
-                            System.out.println("Cannot register user. Username already taken.");
+                            System.out.println("Cannot login user.");
                         }
                     } else {
-                        System.out.println("Cannot register user. Username already taken.");
+                        System.out.println("Cannot login user.");
                     }
                     break;
                 case "quit":
@@ -150,6 +150,7 @@ public class ClientMenu {
 
             if (request.statusCode() != 200) {
                 System.out.println("CLEAR DATABASE FAILED");
+                printErrorMessages(request.statusCode());
             } else {
                 authToken = "";
                 System.out.println("Clear Database successful (good job remembering the password)");
@@ -186,8 +187,7 @@ public class ClientMenu {
             ResponseRequest request = ServerFacade.startConnection(baseUrl + "/game", "PUT", jsonString, authToken);
 
             if (request.statusCode() != 200) {
-                System.out.println("Error code: " + request.statusCode());
-                System.out.println(request.responseBody());
+                printErrorMessages(request.statusCode());
             } else {
                 System.out.println("Successfully joined game!");
 
@@ -230,8 +230,7 @@ public class ClientMenu {
                     System.out.println("No games yet!");
                 }
             } else {
-                System.out.println("Error code: " + request.statusCode());
-                System.out.println(request.responseBody());
+                printErrorMessages(request.statusCode());
             }
         } catch(URISyntaxException | IOException e) {
             System.out.println(e.getMessage());
@@ -263,8 +262,7 @@ public class ClientMenu {
                 gameID = gson.fromJson(request.responseBody(), GameIDResponse.class).gameID();
                 System.out.println("New game ID: " + gameID);
             } else {
-                System.out.println("Error code: " + request.statusCode());
-                System.out.println(request.responseBody());
+                printErrorMessages(request.statusCode());
             }
         } catch(URISyntaxException | IOException e) {
             System.out.println(e.getMessage());
@@ -276,8 +274,7 @@ public class ClientMenu {
             ResponseRequest request = ServerFacade.startConnection(baseUrl + "/session", "DELETE", "", authToken);
 
             if (request.statusCode() != 200) {
-                System.out.println("Error code: " + request.statusCode());
-                System.out.println(request.responseBody());
+                printErrorMessages(request.statusCode());
             } else {
                 System.out.println("Successfully logged out!");
                 authToken = "";
@@ -311,8 +308,7 @@ public class ClientMenu {
             if (request.statusCode() == 200) {
                 authToken = gson.fromJson(request.responseBody(), AuthData.class).authToken();
             } else {
-                System.out.println("Error code: " + request.statusCode());
-                System.out.println(request.responseBody());
+                printErrorMessages(request.statusCode());
             }
         } catch(URISyntaxException | IOException e) {
             System.out.println(e.getMessage());
@@ -333,8 +329,7 @@ public class ClientMenu {
             if (request.statusCode() == 200) {
                 authToken = gson.fromJson(request.responseBody(), AuthData.class).authToken();
             } else {
-                System.out.println();
-                System.out.println(request.responseBody());
+                printErrorMessages(request.statusCode());
             }
         } catch(URISyntaxException | IOException e) {
             System.out.println(e.getMessage());
@@ -378,5 +373,25 @@ public class ClientMenu {
         }
     }
 
+    private String httpCodeMessages(int httpCode) {
+        switch (httpCode) {
+            case (400) -> {
+                return "Error: bad request, something went wrong";
+            }
+            case (401) -> {
+                return "Error: unauthorized. Please login (you may need to choose the logout menu item first, it will throw an error but you can login again from there)";
+            }
+            case (403) -> {
+                return "Error: already taken";
+            }
+            default -> {
+                return "Error: description. Something went horribly wrong. Please contact the sysadmin at (999)999-9999";
+            }
+        }
+    }
 
+    private void printErrorMessages(int httpCode) {
+        System.out.println("Error code: " + httpCode);
+        System.out.println(httpCodeMessages(httpCode));
+    }
 }

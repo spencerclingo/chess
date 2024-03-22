@@ -3,18 +3,17 @@ package clientTests;
 import clientConnection.ResponseRequest;
 import clientConnection.ServerFacade;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import models.AuthData;
 import models.GameData;
 import models.UserData;
 import org.junit.jupiter.api.*;
 import response.GameIDResponse;
 import response.GameListResponse;
+import response.JoinGameRequest;
 import server.Server;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -207,13 +206,10 @@ public class ServerFacadeTests {
                 authToken = gson.fromJson(request.responseBody(), AuthData.class).authToken();
                 fail("This means you login properly, yet no user is registered with that username");
             } else {
-                System.out.println();
-                System.out.println(request.responseBody());
-                fail("An error should have been thrown");
+                assertEquals("", request.responseBody());
             }
         } catch(URISyntaxException | IOException e) {
-            System.out.println(e.getMessage());
-            assertEquals("Server returned HTTP response code: 401 for URL: http://localhost:" + port + "//session", e.getMessage());
+            fail("Exception was thrown where none should be");
         }
 
         assertNull(authToken);
@@ -269,10 +265,10 @@ public class ServerFacadeTests {
             if (responseRequest.statusCode() == 200) {
                 gameID = gson.fromJson(responseRequest.responseBody(), GameIDResponse.class).gameID();
             } else {
-                fail("Game was not created, but error should have been thrown");
+                assertTrue(true, "Game was not created!");
             }
         } catch(Exception e) {
-            assertTrue(true, "Exception thrown, like it should be");
+            fail("Error was thrown when none should be");
         }
         assertEquals(-1, gameID);
     }
@@ -315,12 +311,12 @@ public class ServerFacadeTests {
             ResponseRequest request = ServerFacade.startConnection(url + "/session", "DELETE", "", authToken);
 
             if (request.statusCode() != 200) {
-                fail("Failed to logout, which would be good but an exception should've been thrown");
+                assertTrue(true,"Failed to logout");
             } else {
                 fail("Logged out successfully, despite there being nothing to logout");
             }
         } catch(URISyntaxException | IOException e) {
-            assertTrue(true,"Exception thrown");
+            fail("Exception was thrown where none should be");
         }
     }
 
@@ -395,6 +391,108 @@ public class ServerFacadeTests {
                 assertEquals(7, gameList.games().size());
             } else {
                 fail("Status code should be 200");
+            }
+        } catch(URISyntaxException | IOException e) {
+            fail("Error thrown when there should be none");
+        }
+    }
+
+    @Test
+    public void joinValidGame() {
+        String authToken = null;
+        int gameID = -1;
+        try {
+            authToken = registerUser();
+            gameID = createGame(authToken);
+        } catch(IOException | URISyntaxException e) {
+            fail("Register or game creation failed");
+        }
+
+        String jsonString = gson.toJson(new JoinGameRequest("white", gameID));
+
+        try {
+            ResponseRequest request = ServerFacade.startConnection(url + "/game", "PUT", jsonString, authToken);
+
+            if (request.statusCode() == 200) {
+                assertTrue(true, "Status code 200 means success!");
+            } else {
+                fail("Status code should be 200");
+            }
+        } catch(URISyntaxException | IOException e) {
+            fail("Error thrown when there should be none");
+        }
+    }
+
+    @Test
+    public void joinInvalidGame() {
+        String authToken = null;
+        int gameID = -1;
+        try {
+            authToken = registerUser();
+        } catch(IOException | URISyntaxException e) {
+            fail("Register failed");
+        }
+
+        String jsonString = gson.toJson(new JoinGameRequest("white", gameID));
+
+        try {
+            ResponseRequest request = ServerFacade.startConnection(url + "/game", "PUT", jsonString, authToken);
+
+            if (request.statusCode() == 200) {
+                fail("Game does not exist, no game should have been joined");
+            } else {
+                assertTrue(true,"Failed to join game that didn't exist");
+            }
+        } catch(URISyntaxException | IOException e) {
+            fail("Error thrown when there should be none");
+        }
+    }
+
+    @Test
+    public void watchValidGame() {
+        String authToken = null;
+        int gameID = -1;
+        try {
+            authToken = registerUser();
+            gameID = createGame(authToken);
+        } catch(IOException | URISyntaxException e) {
+            fail("Register or game creation failed");
+        }
+
+        String jsonString = gson.toJson(new JoinGameRequest("empty", gameID));
+
+        try {
+            ResponseRequest request = ServerFacade.startConnection(url + "/game", "PUT", jsonString, authToken);
+
+            if (request.statusCode() == 200) {
+                assertTrue(true, "Status code 200 means success!");
+            } else {
+                fail("Status code should be 200");
+            }
+        } catch(URISyntaxException | IOException e) {
+            fail("Error thrown when there should be none");
+        }
+    }
+
+    @Test
+    public void watchInvalidGame() {
+        String authToken = null;
+        int gameID = -1;
+        try {
+            authToken = registerUser();
+        } catch(IOException | URISyntaxException e) {
+            fail("Register failed");
+        }
+
+        String jsonString = gson.toJson(new JoinGameRequest("", gameID));
+
+        try {
+            ResponseRequest request = ServerFacade.startConnection(url + "/game", "PUT", jsonString, authToken);
+
+            if (request.statusCode() == 200) {
+                fail("Game does not exist, no game should have been joined");
+            } else {
+                assertTrue(true,"Failed to join game that didn't exist");
             }
         } catch(URISyntaxException | IOException e) {
             fail("Error thrown when there should be none");
