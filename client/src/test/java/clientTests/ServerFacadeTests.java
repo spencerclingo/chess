@@ -51,6 +51,18 @@ public class ServerFacadeTests {
 
     @AfterAll
     static void stopServer() {
+        try {
+            ResponseRequest request = ServerFacade.startConnection(url + "/db", "DELETE", "", "");
+
+            if (request.statusCode() != 200) {
+                System.out.println("CLEAR DATABASE FAILED");
+            } else {
+                System.out.println("Clear Database successful");
+            }
+        } catch(IOException | URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+
         server.stop();
     }
 
