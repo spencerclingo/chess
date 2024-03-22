@@ -19,8 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import static ui.EscapeSequences.SET_BG_COLOR_BLACK;
-import static ui.EscapeSequences.SET_TEXT_COLOR_WHITE;
+import static ui.EscapeSequences.*;
 
 public class ClientMenu {
 
@@ -40,24 +39,36 @@ public class ClientMenu {
     }
 
     private void setCommandLine() {
+        out.print(SET_TEXT_NOT_BOLD);
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
     }
 
     private void preLoginMenu() {
         Scanner scanner = new Scanner(System.in);
+        boolean help = true;
 
         while (true) {
             setCommandLine();
-            System.out.println("Welcome to my Chess Server! Type help if you need help!");
-            System.out.println("\t register - to create an account");
-            System.out.println("\t login    - to you existing account and play");
-            System.out.println("\t quit     - exits the program");
-            System.out.println("\t help     - print more helpful instructions");
+            if (help) {
+                System.out.println("Welcome to my Chess Server! Type help if you need help!");
+                System.out.println("\t register - to create an account");
+                System.out.println("\t login    - to your existing account and play");
+                System.out.println("\t quit     - exits the program");
+                System.out.println("\t help     - print more helpful instructions");
+            }
+            help = true;
 
             System.out.print(">>>  ");
 
             String choice = scanner.nextLine().toLowerCase();
+
+            if (choice.equals("help")) {
+                help(0);
+                help = false;
+                continue;
+            }
+
             switch (choice) {
                 case "register":
                     register(scanner);
@@ -87,9 +98,6 @@ public class ClientMenu {
                     System.out.println();
                     scanner.close();
                     return;
-                case "help":
-                    help(0);
-                    break;
                 case "clear":
                     clear(scanner);
                     break;
@@ -100,19 +108,31 @@ public class ClientMenu {
     }
 
     private void postLoginMenu(Scanner scanner) {
+        boolean help = true;
+
         while (true) {
             setCommandLine();
-            System.out.println("Welcome to my Chess Server! Type help if you need help!");
-            System.out.println("\t logout   - logout from the server");
-            System.out.println("\t create   - a new chess game");
-            System.out.println("\t list     - lists all games");
-            System.out.println("\t join     - join an existing game by ID");
-            System.out.println("\t watch    - watch an existing game");
-            System.out.println("\t help     - print more helpful instructions");
+            if (help) {
+                System.out.println("Welcome to my Chess Server! Type help if you need help!");
+                System.out.println("\t logout   - logout from the server");
+                System.out.println("\t create   - a new chess game");
+                System.out.println("\t list     - lists all games");
+                System.out.println("\t join     - join an existing game by ID");
+                System.out.println("\t watch    - watch an existing game");
+                System.out.println("\t help     - print more helpful instructions");
+            }
+            help = true;
 
             System.out.print(">>>  ");
 
             String choice = scanner.nextLine().toLowerCase();
+
+            if (choice.equals("help")) {
+                help(1);
+                help = false;
+                continue;
+            }
+
             switch (choice) {
                 case "logout":
                     logout();
@@ -128,9 +148,6 @@ public class ClientMenu {
                     break;
                 case "watch":
                     watch(scanner);
-                    break;
-                case "help":
-                    help(1);
                     break;
                 default:
                     System.out.println("Please choose an option.");
@@ -329,7 +346,7 @@ public class ClientMenu {
             if (request.statusCode() == 200) {
                 authToken = gson.fromJson(request.responseBody(), AuthData.class).authToken();
             } else {
-                printErrorMessages(request.statusCode());
+                printLoginErrorMessages(request.statusCode());
             }
         } catch(URISyntaxException | IOException e) {
             System.out.println(e.getMessage());
@@ -365,11 +382,16 @@ public class ClientMenu {
     }
 
     private void help(int helpPage) {
-        //TODO: print some useful help functionality
         if (helpPage == 0) {
-            System.out.println("The stuff");
+            System.out.println("\t register - make a brand new account with a new username, and whatever password/email you want! No requirements!");
+            System.out.println("\t login    - using your already existing account information, login to the chess server");
+            System.out.println("\t quit     - closes the application on your device");
         } else if (helpPage == 1) {
-            System.out.println("The stuff part 2");
+            System.out.println("\t logout   - logout from the chess server so you can access the pre-login menu again");
+            System.out.println("\t create   - creates a brand new game with a gameName you give it");
+            System.out.println("\t list     - lists all games, played or unplayed, in the database");
+            System.out.println("\t join     - join a game you or someone else created by the ID of the game");
+            System.out.println("\t watch    - watch a game as it happens");
         }
     }
 
@@ -393,5 +415,14 @@ public class ClientMenu {
     private void printErrorMessages(int httpCode) {
         System.out.println("Error code: " + httpCode);
         System.out.println(httpCodeMessages(httpCode));
+    }
+
+    private void printLoginErrorMessages(int httpCode) {
+        System.out.println("Error code: " + httpCode);
+        if (httpCode == 401) {
+            System.out.println("Username does not match password");
+        } else {
+            System.out.println("Something went wrong. Please contact sysadmin");
+        }
     }
 }
