@@ -420,7 +420,7 @@ public class ClientMenu {
     private void printLoginErrorMessages(int httpCode) {
         System.out.println("Error code: " + httpCode);
         if (httpCode == 401) {
-            System.out.println("Username does not match password");
+            System.out.println("Username does not match password in our database. Please try again or register!");
         } else {
             System.out.println("Something went wrong. Please contact sysadmin");
         }
