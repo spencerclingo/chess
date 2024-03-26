@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SQLUserDAOTest {
 
-    SQLUserDAO userDAO = new SQLUserDAO();
+    final SQLUserDAO userDAO = new SQLUserDAO();
 
     @BeforeAll
     static void setup() throws DataAccessException {

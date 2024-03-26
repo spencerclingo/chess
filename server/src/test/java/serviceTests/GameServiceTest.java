@@ -1,5 +1,6 @@
 package serviceTests;
 
+import dataAccess.DataAccessException;
 import dataAccess.MemoryAuthDAO;
 import dataAccess.MemoryGameDAO;
 import models.AuthData;
@@ -16,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class GameServiceTest {
 
-    static MemoryGameDAO gameDAO = new MemoryGameDAO();
-    static MemoryAuthDAO authDAO = new MemoryAuthDAO();
+    static final MemoryGameDAO gameDAO = new MemoryGameDAO();
+    static final MemoryAuthDAO authDAO = new MemoryAuthDAO();
 
     @BeforeAll
     static void setUp() {
@@ -90,7 +91,7 @@ class GameServiceTest {
     }
 
     @Test
-    void joinValidGame() {
+    void joinValidGame() throws DataAccessException {
         GameData gameData = new GameData(1, "white", null, "name", null);
         AuthData authData = new AuthData("12345", "username");
         authData = authDAO.createAuth(authData);
@@ -101,7 +102,7 @@ class GameServiceTest {
     }
 
     @Test
-    void joinInvalidGameID() {
+    void joinInvalidGameID() throws DataAccessException {
         AuthData authData = new AuthData("12345", "username");
         authData = authDAO.createAuth(authData);
 
@@ -109,7 +110,7 @@ class GameServiceTest {
     }
 
     @Test
-    void joinColorAlreadyTaken() {
+    void joinColorAlreadyTaken() throws DataAccessException {
         GameData gameData = new GameData(1, "white", "taken", "name", null);
         AuthData authData = new AuthData("12345", "username");
         authData = authDAO.createAuth(authData);
@@ -120,7 +121,7 @@ class GameServiceTest {
     }
 
     @Test
-    void watchGameValid() {
+    void watchGameValid() throws DataAccessException {
         GameData gameData = new GameData(1, "white", null, "name", null);
         AuthData authData = new AuthData("12345", "username");
         authData = authDAO.createAuth(authData);
@@ -131,7 +132,7 @@ class GameServiceTest {
     }
 
     @Test
-    void watchGameInvalidGameID() {
+    void watchGameInvalidGameID() throws DataAccessException {
         GameData gameData = new GameData(1, "white", null, "name", null);
         AuthData authData = new AuthData("12345", "username");
         authData = authDAO.createAuth(authData);
@@ -142,7 +143,7 @@ class GameServiceTest {
     }
 
     @Test
-    void watchGameMultipleTimes() {
+    void watchGameMultipleTimes() throws DataAccessException {
         GameData gameData = new GameData(1, "white", null, "name", null);
         AuthData authData = new AuthData("12345", "username");
         authData = authDAO.createAuth(authData);

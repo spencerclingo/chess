@@ -171,6 +171,7 @@ public class DatabaseManager {
      */
     public static boolean executeUpdate(String statement, Object... params) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
+            //noinspection SqlSourceToSinkFlow
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 preparedStatements(ps, params);
                 int rowsAffected = ps.executeUpdate();
@@ -212,7 +213,7 @@ public class DatabaseManager {
     public static ResultSet executeQuery(String statement, Object... params) throws DataAccessException {
         try {
             Connection conn = DatabaseManager.getConnection();
-            PreparedStatement ps = conn.prepareStatement(statement);
+            @SuppressWarnings("SqlSourceToSinkFlow") PreparedStatement ps = conn.prepareStatement(statement);
 
 
             // Set parameters if needed

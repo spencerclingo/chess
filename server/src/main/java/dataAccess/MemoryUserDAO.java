@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 public class MemoryUserDAO implements UserDAO {
 
-    HashMap<String, UserData> userMap = new HashMap<>();
+    final HashMap<String, UserData> userMap = new HashMap<>();
 
     /**
      * @param userData containing username, password, email

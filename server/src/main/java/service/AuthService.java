@@ -19,7 +19,7 @@ public class AuthService {
     public static AuthData getAuth(AuthData authData) {
         try {
             return authStoredDAO.getAuth(authData);
-        } catch(DataAccessException | SQLException dae) {
+        } catch(DataAccessException dae) {
             return null;
         }
     }

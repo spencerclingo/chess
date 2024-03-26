@@ -23,7 +23,7 @@ public class ServerFacadeTests {
     private static Server server;
     private static String url = "http://localhost:";
     private static int port = 0;
-    Gson gson = new Gson();
+    final Gson gson = new Gson();
 
     @BeforeAll
     public static void init() {

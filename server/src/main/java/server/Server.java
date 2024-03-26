@@ -9,8 +9,8 @@ import models.*;
 
 public class Server {
 
-    Gson gson = new Gson();
-    String emptyJson = "{}";
+    final Gson gson = new Gson();
+    final String emptyJson = "{}";
 
     public int run(int desiredPort) {
         try {
@@ -75,7 +75,7 @@ public class Server {
         return getResponseBody(response, clearResponse.httpCode());
     }
 
-    private Object joinGame(Request request, Response response) {
+    private Object joinGame(Request request, Response response) throws DataAccessException {
         AuthData authData = new AuthData(request.headers("Authorization"), null);
         JoinGameRequest joinGameRequest = gson.fromJson(request.body(), JoinGameRequest.class);
 

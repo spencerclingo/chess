@@ -12,7 +12,6 @@ import response.JoinGameRequest;
 import ui.ChessBoardPicture;
 
 import java.io.PrintStream;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -21,15 +20,13 @@ import static ui.EscapeSequences.*;
 
 public class ClientMenu {
 
-    Gson gson = new Gson();
-    int port;
-    String baseUrl;
+    final Gson gson = new Gson();
+    final String baseUrl;
     String authToken = "";
-    String clearPassword = "clear";
-    PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+    final String clearPassword = "clear";
+    final PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
-    public ClientMenu(int port) throws URISyntaxException {
-        this.port = port;
+    public ClientMenu(int port) {
         baseUrl = "http://localhost:" + port + "/";
         preLoginMenu();
     }

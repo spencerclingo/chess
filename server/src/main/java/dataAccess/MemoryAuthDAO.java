@@ -7,8 +7,8 @@ import java.util.UUID;
 
 public class MemoryAuthDAO implements AuthDAO{
 
-    HashMap<String, String> authMap = new HashMap<>(); // username to authToken
-    HashMap<String, String> reverseAuthMap = new HashMap<>(); // authToken to username
+    final HashMap<String, String> authMap = new HashMap<>(); // username to authToken
+    final HashMap<String, String> reverseAuthMap = new HashMap<>(); // authToken to username
 
     /**
      * @param authData containing username

@@ -10,6 +10,7 @@ import java.util.Set;
 /**
  * Used for testing your code
  */
+@SuppressWarnings("SameReturnValue")
 public class TestFactory {
 
     // Chess Functions

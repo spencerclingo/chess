@@ -10,7 +10,7 @@ import service.AuthService;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AuthServiceTest {
-    static MemoryAuthDAO authDAO = new MemoryAuthDAO();
+    static final MemoryAuthDAO authDAO = new MemoryAuthDAO();
 
     @BeforeAll
     static void setUp() {

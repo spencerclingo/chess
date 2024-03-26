@@ -16,7 +16,7 @@ public interface AuthDAO {
      * @param authData containing authToken
      * @return full AuthData object, or null if authToken doesn't exist
      */
-    AuthData getAuth(AuthData authData) throws DataAccessException, SQLException;
+    AuthData getAuth(AuthData authData) throws DataAccessException;
 
     /**
      * @param authData containing authToken

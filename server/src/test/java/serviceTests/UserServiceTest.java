@@ -16,8 +16,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceTest {
 
-    static MemoryUserDAO userDAO = new MemoryUserDAO();
-    static MemoryAuthDAO authDAO = new MemoryAuthDAO();
+    static final MemoryUserDAO userDAO = new MemoryUserDAO();
+    static final MemoryAuthDAO authDAO = new MemoryAuthDAO();
 
     @BeforeAll
     public static void setUp() {

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class SQLGameDAO implements GameDAO{
 
     int nextGameID = 0;
-    Gson gson = new Gson();
+    final Gson gson = new Gson();
 
     /**
      * ID is changed from null to an actual ID

@@ -19,7 +19,7 @@ public class GameService {
         try {
             authStoredDAO.getAuth(authData);
             return new CreateGameResponse(gameStoredDAO.createGame(gameData), 200);
-        } catch(DataAccessException | SQLException dae) {
+        } catch(DataAccessException dae) {
             System.out.println(dae.getMessage());
             return new CreateGameResponse(-1, 401);
         }
@@ -33,7 +33,7 @@ public class GameService {
         try {
             authStoredDAO.getAuth(authData);
             return new ListGamesResponse(gameStoredDAO.listGames(), 200);
-        } catch(DataAccessException | SQLException dae) {
+        } catch(DataAccessException dae) {
             return new ListGamesResponse(null, 401);
         }
     }
@@ -57,13 +57,9 @@ public class GameService {
      * @param authData contains authToken
      * @return JoinGameResponse with httpCode
      */
-    public static JoinGameResponse joinGame(JoinGameRequest joinGameRequest, AuthData authData) {
+    public static JoinGameResponse joinGame(JoinGameRequest joinGameRequest, AuthData authData) throws DataAccessException {
         String username;
-        try {
-            username = authStoredDAO.getAuth(authData).username();
-        } catch(DataAccessException | SQLException dae) {
-            return new JoinGameResponse(401);
-        }
+        username = authStoredDAO.getAuth(authData).username();
 
         int colorVal=-1;
         GameData data;
@@ -110,34 +106,6 @@ public class GameService {
             return new JoinGameResponse(401);
         }
     }
-
-    /*
-    public static GetGameResponse getGame(GameData gameData, AuthData authData) {
-        String username;
-        try {
-            username = authStoredDAO.getAuth(authData).username();
-        } catch(DataAccessException | SQLException dae) {
-            return new GetGameResponse(null,401);
-        }
-
-        GameData data;
-
-        try {
-            data = gameStoredDAO.getGame(new GameData(gameData.gameID(), null,null,null,null));
-            if (data.whiteUsername() != null && username.equals(data.whiteUsername())) {
-                return new GetGameResponse(data.game(), 200);
-            } else if (data.blackUsername() != null && username.equals(data.blackUsername())) {
-                return new GetGameResponse(data.game(), 200);
-            } else {
-                return new GetGameResponse(null, 400);
-            }
-        } catch(DataAccessException | SQLException dae) {
-            return new GetGameResponse(null, 400);
-        }
-    }
-
-     */
-
     public static void setGameDAO(GameDAO gameDAO) {
         gameStoredDAO = gameDAO;
     }

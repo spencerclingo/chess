@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SQLGameDAOTest {
 
-    SQLGameDAO gameDAO = new SQLGameDAO();
+    final SQLGameDAO gameDAO = new SQLGameDAO();
 
     @BeforeAll
     static void setup() throws DataAccessException {

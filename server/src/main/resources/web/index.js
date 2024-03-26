@@ -39,8 +39,7 @@ function send(path, params, method, authToken) {
 function displayRequest(method, endpoint, request) {
   document.getElementById('method').value = method;
   document.getElementById('handleBox').value = endpoint;
-  const body = request ? JSON.stringify(request, null, 2) : '';
-  document.getElementById('requestBox').value = body;
+  document.getElementById('requestBox').value = request ? JSON.stringify(request, null, 2) : '';
 }
 
 function clearAll() {

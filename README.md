@@ -17,7 +17,7 @@ Open the project directory in IntelliJ in order to develop, run, and debug your 
 You can use the following commands to build, test, package, and run your code.
 
 | Command                    | Description                                     |
-| -------------------------- | ----------------------------------------------- |
+|----------------------------|-------------------------------------------------|
 | `mvn compile`              | Builds the code                                 |
 | `mvn package`              | Run the tests and build an Uber jar file        |
 | `mvn package -DskipTests`  | Build an Uber jar file                          |

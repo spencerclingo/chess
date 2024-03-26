@@ -1,2 +1,2 @@
 # My Notes
-0. Opened in IntelliJ IDEA
+1. Opened in IntelliJ IDEA
