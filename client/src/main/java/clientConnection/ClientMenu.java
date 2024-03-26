@@ -11,9 +11,7 @@ import response.GameListResponse;
 import response.JoinGameRequest;
 import ui.ChessBoardPicture;
 
-import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -25,7 +23,6 @@ public class ClientMenu {
 
     Gson gson = new Gson();
     int port;
-    URI uri;
     String baseUrl;
     String authToken = "";
     String clearPassword = "clear";
@@ -34,7 +31,6 @@ public class ClientMenu {
     public ClientMenu(int port) throws URISyntaxException {
         this.port = port;
         baseUrl = "http://localhost:" + port + "/";
-        uri = new URI(baseUrl);
         preLoginMenu();
     }
 
@@ -47,6 +43,7 @@ public class ClientMenu {
     private void preLoginMenu() {
         Scanner scanner = new Scanner(System.in);
         boolean help = true;
+        HttpConnection.setBaseUrl(baseUrl);
 
         while (true) {
             setCommandLine();
@@ -162,18 +159,14 @@ public class ClientMenu {
             return;
         }
 
-        try {
-            ResponseRequest request = ServerFacade.startConnection(baseUrl + "/db", "DELETE", "", authToken);
+        ResponseRequest request = HttpConnection.getRequest("/db", "DELETE", "", authToken);
 
-            if (request.statusCode() != 200) {
-                System.out.println("CLEAR DATABASE FAILED");
-                printErrorMessages(request.statusCode());
-            } else {
-                authToken = "";
-                System.out.println("Clear Database successful (good job remembering the password)");
-            }
-        } catch(IOException | URISyntaxException e) {
-            throw new RuntimeException(e);
+        if (request.statusCode() != 200) {
+            System.out.println("CLEAR DATABASE FAILED");
+            printErrorMessages(request.statusCode());
+        } else {
+            authToken = "";
+            System.out.println("Clear Database successful (good job remembering the password)");
         }
     }
 
@@ -200,25 +193,21 @@ public class ClientMenu {
     }
 
     private void joinGameHttp(String jsonString, String color) {
-        try {
-            ResponseRequest request = ServerFacade.startConnection(baseUrl + "/game", "PUT", jsonString, authToken);
+        ResponseRequest request = HttpConnection.getRequest("/game", "PUT", jsonString, authToken);
 
-            if (request.statusCode() != 200) {
-                printErrorMessages(request.statusCode());
+        if (request.statusCode() != 200) {
+            printErrorMessages(request.statusCode());
+        } else {
+            System.out.println("Successfully joined game!");
+
+            ChessBoard chessBoard = new ChessBoard();
+            chessBoard.resetBoard();
+
+            if (color == null || color.equalsIgnoreCase("white")) {
+                ChessBoardPicture.init(chessBoard, true);
             } else {
-                System.out.println("Successfully joined game!");
-
-                ChessBoard chessBoard = new ChessBoard();
-                chessBoard.resetBoard();
-
-                if (color == null || color.equalsIgnoreCase("white")) {
-                    ChessBoardPicture.init(chessBoard, true);
-                } else {
-                    ChessBoardPicture.init(chessBoard, ! color.equalsIgnoreCase("black"));
-                }
+                ChessBoardPicture.init(chessBoard, ! color.equalsIgnoreCase("black"));
             }
-        } catch(URISyntaxException | IOException e) {
-            System.out.println(e.getMessage());
         }
     }
 
@@ -230,27 +219,23 @@ public class ClientMenu {
     }
 
     private void listGames() {
-        try {
-            ResponseRequest request = ServerFacade.startConnection(baseUrl + "/game", "GET", null, authToken);
+        ResponseRequest request = HttpConnection.getRequest("/game", "GET", null, authToken);
 
-            if (request.statusCode() == 200) {
-                ArrayList<GameData> games = gson.fromJson(request.responseBody(), GameListResponse.class).games();
+        if (request.statusCode() == 200) {
+            ArrayList<GameData> games = gson.fromJson(request.responseBody(), GameListResponse.class).games();
 
-                for (GameData gameData : games) {
-                    System.out.println("Game ID: " + gameData.gameID());
-                    System.out.println("\tGame Name: " + gameData.gameName());
-                    System.out.println("\tWhite Player username: " + gameData.whiteUsername());
-                    System.out.println("\tBlack Player username: " + gameData.blackUsername());
-                }
-
-                if (games.isEmpty()) {
-                    System.out.println("No games yet!");
-                }
-            } else {
-                printErrorMessages(request.statusCode());
+            for (GameData gameData : games) {
+                System.out.println("Game ID: " + gameData.gameID());
+                System.out.println("\tGame Name: " + gameData.gameName());
+                System.out.println("\tWhite Player username: " + gameData.whiteUsername());
+                System.out.println("\tBlack Player username: " + gameData.blackUsername());
             }
-        } catch(URISyntaxException | IOException e) {
-            System.out.println(e.getMessage());
+
+            if (games.isEmpty()) {
+                System.out.println("No games yet!");
+            }
+        } else {
+            printErrorMessages(request.statusCode());
         }
     }
 
@@ -272,32 +257,24 @@ public class ClientMenu {
         GameData gameData = new GameData(gameID, null, null, gameName, chessGame);
         String jsonData = gson.toJson(gameData);
 
-        try {
-            ResponseRequest request = ServerFacade.startConnection(baseUrl + "/game", "POST", jsonData, authToken);
+        ResponseRequest request = HttpConnection.getRequest("/game", "POST", jsonData, authToken);
 
-            if (request.statusCode() == 200) {
-                gameID = gson.fromJson(request.responseBody(), GameIDResponse.class).gameID();
-                System.out.println("New game ID: " + gameID);
-            } else {
-                printErrorMessages(request.statusCode());
-            }
-        } catch(URISyntaxException | IOException e) {
-            System.out.println(e.getMessage());
+        if (request.statusCode() == 200) {
+            gameID = gson.fromJson(request.responseBody(), GameIDResponse.class).gameID();
+            System.out.println("New game ID: " + gameID);
+        } else {
+            printErrorMessages(request.statusCode());
         }
     }
 
     private void logout() {
-        try {
-            ResponseRequest request = ServerFacade.startConnection(baseUrl + "/session", "DELETE", "", authToken);
+        ResponseRequest request = HttpConnection.getRequest("/session", "DELETE", "", authToken);
 
-            if (request.statusCode() != 200) {
-                printErrorMessages(request.statusCode());
-            } else {
-                System.out.println("Successfully logged out!");
-                authToken = "";
-            }
-        } catch(URISyntaxException | IOException e) {
-            System.out.println(e.getMessage());
+        if (request.statusCode() != 200) {
+            printErrorMessages(request.statusCode());
+        } else {
+            System.out.println("Successfully logged out!");
+            authToken = "";
         }
     }
 
@@ -319,16 +296,12 @@ public class ClientMenu {
         UserData userData = new UserData(username, password, email);
         String jsonData = gson.toJson(userData);
 
-        try {
-            ResponseRequest request = ServerFacade.startConnection(baseUrl + "/user", "POST", jsonData, authToken);
+        ResponseRequest request = HttpConnection.getRequest("/user", "POST", jsonData, authToken);
 
-            if (request.statusCode() == 200) {
-                authToken = gson.fromJson(request.responseBody(), AuthData.class).authToken();
-            } else {
-                printErrorMessages(request.statusCode());
-            }
-        } catch(URISyntaxException | IOException e) {
-            System.out.println(e.getMessage());
+        if (request.statusCode() == 200) {
+            authToken = gson.fromJson(request.responseBody(), AuthData.class).authToken();
+        } else {
+            printErrorMessages(request.statusCode());
         }
     }
 
@@ -340,16 +313,12 @@ public class ClientMenu {
         UserData userData = new UserData(username, password, null);
         String jsonData = gson.toJson(userData);
 
-        try {
-            ResponseRequest request = ServerFacade.startConnection(baseUrl + "/session", "POST", jsonData, authToken);
+        ResponseRequest request = HttpConnection.getRequest("/session", "POST", jsonData, authToken);
 
-            if (request.statusCode() == 200) {
-                authToken = gson.fromJson(request.responseBody(), AuthData.class).authToken();
-            } else {
-                printLoginErrorMessages(request.statusCode());
-            }
-        } catch(URISyntaxException | IOException e) {
-            System.out.println(e.getMessage());
+        if (request.statusCode() == 200) {
+            authToken = gson.fromJson(request.responseBody(), AuthData.class).authToken();
+        } else {
+            printLoginErrorMessages(request.statusCode());
         }
     }
 
