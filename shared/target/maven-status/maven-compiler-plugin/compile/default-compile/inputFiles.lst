@@ -3,6 +3,8 @@ C:\Users\spenc\OneDrive\Desktop\CS 240\chess\shared\src\main\java\models\GameDat
 C:\Users\spenc\OneDrive\Desktop\CS 240\chess\shared\src\main\java\response\CreateGameResponse.java
 C:\Users\spenc\OneDrive\Desktop\CS 240\chess\shared\src\main\java\chess\ChessPosition.java
 C:\Users\spenc\OneDrive\Desktop\CS 240\chess\shared\src\main\java\models\AuthData.java
+C:\Users\spenc\OneDrive\Desktop\CS 240\chess\shared\src\main\java\webSocketMessages\userCommands\UserGameCommand.java
+C:\Users\spenc\OneDrive\Desktop\CS 240\chess\shared\src\main\java\webSocketMessages\serverMessages\ServerMessage.java
 C:\Users\spenc\OneDrive\Desktop\CS 240\chess\shared\src\main\java\response\GameListResponse.java
 C:\Users\spenc\OneDrive\Desktop\CS 240\chess\shared\src\main\java\response\JoinGameResponse.java
 C:\Users\spenc\OneDrive\Desktop\CS 240\chess\shared\src\main\java\chess\ChessBoard.java

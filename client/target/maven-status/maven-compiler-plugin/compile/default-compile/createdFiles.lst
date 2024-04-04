@@ -1,6 +1,0 @@
-Main.class
-clientConnection\ServerFacade.class
-clientConnection\ClientMenu.class
-clientConnection\ResponseRequest.class
-ui\EscapeSequences.class
-ui\ChessBoardPicture.class

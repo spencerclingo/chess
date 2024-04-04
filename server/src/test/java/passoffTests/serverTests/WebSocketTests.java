@@ -4,7 +4,6 @@ import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
 import org.junit.jupiter.api.*;
-import passoffTests.TestFactory;
 import passoffTests.obfuscatedTestClasses.TestServerFacade;
 import passoffTests.testClasses.TestException;
 import passoffTests.testClasses.TestModels;
@@ -49,7 +48,7 @@ public class WebSocketTests {
 
         environment = new WebsocketTestingEnvironment("localhost", port, "/connect");
 
-        waitTime = TestFactory.getMessageTime();
+        waitTime = TestFactoryServer.getMessageTime();
     }
 
 
@@ -211,9 +210,9 @@ public class WebSocketTests {
         setupNormalGame();
 
         //create pawn move
-        ChessPosition startingPosition = TestFactory.getNewPosition(2, 5);
-        ChessPosition endingPosition = TestFactory.getNewPosition(3, 5);
-        ChessMove move = TestFactory.getNewMove(startingPosition, endingPosition, null);
+        ChessPosition startingPosition = TestFactoryServer.getNewPosition(2, 5);
+        ChessPosition endingPosition = TestFactoryServer.getNewPosition(3, 5);
+        ChessMove move = TestFactoryServer.getNewMove(startingPosition, endingPosition, null);
 
         //send command
         Map<String, List<TestModels.TestMessage>> messages =
@@ -233,9 +232,9 @@ public class WebSocketTests {
         setupNormalGame();
 
         //try to move rook - invalid move
-        ChessPosition startingPosition = TestFactory.getNewPosition(1, 1);
-        ChessPosition endingPosition = TestFactory.getNewPosition(1, 5);
-        ChessMove move = TestFactory.getNewMove(startingPosition, endingPosition, null);
+        ChessPosition startingPosition = TestFactoryServer.getNewPosition(1, 1);
+        ChessPosition endingPosition = TestFactoryServer.getNewPosition(1, 5);
+        ChessMove move = TestFactoryServer.getNewMove(startingPosition, endingPosition, null);
 
         //send command
         Map<String, List<TestModels.TestMessage>> messages =
@@ -257,9 +256,9 @@ public class WebSocketTests {
         setupNormalGame();
 
         //try to move pawn out of turn
-        ChessPosition startingPosition = TestFactory.getNewPosition(7, 5);
-        ChessPosition endingPosition = TestFactory.getNewPosition(5, 5);
-        ChessMove move = TestFactory.getNewMove(startingPosition, endingPosition, null);
+        ChessPosition startingPosition = TestFactoryServer.getNewPosition(7, 5);
+        ChessPosition endingPosition = TestFactoryServer.getNewPosition(5, 5);
+        ChessMove move = TestFactoryServer.getNewMove(startingPosition, endingPosition, null);
 
         Map<String, List<TestModels.TestMessage>> messages =
                 makeMove(black.user, black.authToken, gameID, move, Set.of(),
@@ -280,9 +279,9 @@ public class WebSocketTests {
         setupNormalGame();
 
         //try to move pawn of other player
-        ChessPosition startingPosition = TestFactory.getNewPosition(2, 5);
-        ChessPosition endingPosition = TestFactory.getNewPosition(4, 5);
-        ChessMove move = TestFactory.getNewMove(startingPosition, endingPosition, null);
+        ChessPosition startingPosition = TestFactoryServer.getNewPosition(2, 5);
+        ChessPosition endingPosition = TestFactoryServer.getNewPosition(4, 5);
+        ChessMove move = TestFactoryServer.getNewMove(startingPosition, endingPosition, null);
 
         Map<String, List<TestModels.TestMessage>> messages =
                 makeMove(black.user, black.authToken, gameID, move, Set.of(),
@@ -303,9 +302,9 @@ public class WebSocketTests {
         setupNormalGame();
 
         //have observer attempt to make a move
-        ChessPosition startingPosition = TestFactory.getNewPosition(2, 5);
-        ChessPosition endingPosition = TestFactory.getNewPosition(4, 5);
-        ChessMove move = TestFactory.getNewMove(startingPosition, endingPosition, null);
+        ChessPosition startingPosition = TestFactoryServer.getNewPosition(2, 5);
+        ChessPosition endingPosition = TestFactoryServer.getNewPosition(4, 5);
+        ChessMove move = TestFactoryServer.getNewMove(startingPosition, endingPosition, null);
 
         Map<String, List<TestModels.TestMessage>> messages =
                 makeMove(observer.user, observer.authToken, gameID, move, Set.of(),
@@ -325,35 +324,35 @@ public class WebSocketTests {
     public void invalidMoveGameOver() {
         setupNormalGame();
 
-        ChessPosition startingPosition = TestFactory.getNewPosition(2, 7);
-        ChessPosition endingPosition = TestFactory.getNewPosition(4, 7);
-        ChessMove move = TestFactory.getNewMove(startingPosition, endingPosition, null);
+        ChessPosition startingPosition = TestFactoryServer.getNewPosition(2, 7);
+        ChessPosition endingPosition = TestFactoryServer.getNewPosition(4, 7);
+        ChessMove move = TestFactoryServer.getNewMove(startingPosition, endingPosition, null);
         makeMove(white.user, white.authToken, gameID, move, Set.of(black.user, observer.user),
                 Set.of());
 
-        startingPosition = TestFactory.getNewPosition(7, 5);
-        endingPosition = TestFactory.getNewPosition(6, 5);
-        move = TestFactory.getNewMove(startingPosition, endingPosition, null);
+        startingPosition = TestFactoryServer.getNewPosition(7, 5);
+        endingPosition = TestFactoryServer.getNewPosition(6, 5);
+        move = TestFactoryServer.getNewMove(startingPosition, endingPosition, null);
         makeMove(black.user, black.authToken, gameID, move, Set.of(white.user, observer.user),
                 Set.of());
 
-        startingPosition = TestFactory.getNewPosition(2, 6);
-        endingPosition = TestFactory.getNewPosition(3, 6);
-        move = TestFactory.getNewMove(startingPosition, endingPosition, null);
+        startingPosition = TestFactoryServer.getNewPosition(2, 6);
+        endingPosition = TestFactoryServer.getNewPosition(3, 6);
+        move = TestFactoryServer.getNewMove(startingPosition, endingPosition, null);
         makeMove(white.user, white.authToken, gameID, move, Set.of(black.user, observer.user),
                 Set.of());
 
-        startingPosition = TestFactory.getNewPosition(8, 4);
-        endingPosition = TestFactory.getNewPosition(4, 8);
-        move = TestFactory.getNewMove(startingPosition, endingPosition, null);
+        startingPosition = TestFactoryServer.getNewPosition(8, 4);
+        endingPosition = TestFactoryServer.getNewPosition(4, 8);
+        move = TestFactoryServer.getNewMove(startingPosition, endingPosition, null);
         makeMove(black.user, black.authToken, gameID, move, Set.of(white.user, observer.user),
                 Set.of());
         //checkmate
 
         //attempt another move
-        startingPosition = TestFactory.getNewPosition(2, 5);
-        endingPosition = TestFactory.getNewPosition(4, 5);
-        move = TestFactory.getNewMove(startingPosition, endingPosition, null);
+        startingPosition = TestFactoryServer.getNewPosition(2, 5);
+        endingPosition = TestFactoryServer.getNewPosition(4, 5);
+        move = TestFactoryServer.getNewMove(startingPosition, endingPosition, null);
         Map<String, List<TestModels.TestMessage>> messages =
                 makeMove(white.user, white.authToken, gameID, move, Set.of(),
                         Set.of(black.user, observer.user));
@@ -393,9 +392,9 @@ public class WebSocketTests {
         resign(black.user, black.authToken, gameID, Set.of(white.user, observer.user), Set.of());
 
         //attempt to make a move after other player resigns
-        ChessPosition startingPosition = TestFactory.getNewPosition(2, 5);
-        ChessPosition endingPosition = TestFactory.getNewPosition(4, 5);
-        ChessMove move = TestFactory.getNewMove(startingPosition, endingPosition, null);
+        ChessPosition startingPosition = TestFactoryServer.getNewPosition(2, 5);
+        ChessPosition endingPosition = TestFactoryServer.getNewPosition(4, 5);
+        ChessMove move = TestFactoryServer.getNewMove(startingPosition, endingPosition, null);
         Map<String, List<TestModels.TestMessage>> messages =
                 makeMove(white.user, white.authToken, gameID, move, Set.of(),
                         Set.of(black.user, observer.user));
@@ -523,9 +522,9 @@ public class WebSocketTests {
         Assertions.assertTrue(messages.get(observer.user).isEmpty(),
                 "Observer got a message after player from another lobby sent a command");
 
-        ChessPosition startingPosition = TestFactory.getNewPosition(2, 5);
-        ChessPosition endingPosition = TestFactory.getNewPosition(3, 5);
-        ChessMove move = TestFactory.getNewMove(startingPosition, endingPosition, null);
+        ChessPosition startingPosition = TestFactoryServer.getNewPosition(2, 5);
+        ChessPosition endingPosition = TestFactoryServer.getNewPosition(3, 5);
+        ChessMove move = TestFactoryServer.getNewMove(startingPosition, endingPosition, null);
         messages = makeMove(white.user, white.authToken, gameID, move,
                 Set.of(black.user, observer.user), Set.of(white2.user, black2.user, observer2.user));
         assertLoadGameMessage(messages.get(white.user));
