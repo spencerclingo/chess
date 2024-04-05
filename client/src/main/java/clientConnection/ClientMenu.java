@@ -206,7 +206,7 @@ public class ClientMenu {
                 webSocket = new ClientWebSocketHandler(port);
 
                 UserGameCommand userGameCommand = new UserGameCommand(authToken, UserGameCommand.CommandType.JOIN_PLAYER);
-                webSocket.send(userGameCommand);
+                webSocket.sendMessage(userGameCommand);
             } catch(DeploymentException | URISyntaxException | IOException e) {
                 System.out.println("Error opening client-side webSocket: " + e.getMessage());
                 return;

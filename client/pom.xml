@@ -68,6 +68,11 @@
             <artifactId>server</artifactId>
             <version>1.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.glassfish.tyrus</groupId>
+            <artifactId>tyrus-server</artifactId>
+            <version>1.15</version> <!-- Adjust version as needed -->
+        </dependency>
     </dependencies>
 
 </project>
