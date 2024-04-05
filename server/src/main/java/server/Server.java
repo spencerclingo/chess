@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import spark.*;
 import service.*;
 import response.*;
@@ -31,7 +32,7 @@ public class Server {
         Spark.get("/game", this::listGames);
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
-        //Spark.get("/myGame", this::getGame);
+        Spark.webSocket("/connect", ServerWebSocketHandler.class);
 
         Spark.awaitInitialization();
         return Spark.port();
