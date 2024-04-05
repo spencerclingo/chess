@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+//mvn install gives an error about something not implementing WebSocketListener or being annotated with @WebSocket
+
 @ClientEndpoint
 public class ClientWebSocketHandler {
 
