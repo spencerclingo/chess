@@ -10,8 +10,12 @@ import response.GameIDResponse;
 import response.GameListResponse;
 import response.JoinGameRequest;
 import ui.ChessBoardPicture;
+import webSocketMessages.userCommands.UserGameCommand;
 
+import javax.websocket.DeploymentException;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -24,9 +28,11 @@ public class ClientMenu {
     final String baseUrl;
     String authToken = "";
     final String clearPassword = "clear";
+    final int port;
     final PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
     public ClientMenu(int port) {
+        this.port = port;
         baseUrl = "http://localhost:" + port + "/";
         preLoginMenu();
     }
@@ -195,6 +201,17 @@ public class ClientMenu {
         if (request.statusCode() != 200) {
             printErrorMessages(request.statusCode());
         } else {
+            ClientWebSocketHandler webSocket;
+            try {
+                webSocket = new ClientWebSocketHandler(port);
+
+                UserGameCommand userGameCommand = new UserGameCommand(authToken, UserGameCommand.CommandType.JOIN_PLAYER);
+                webSocket.send(userGameCommand);
+            } catch(DeploymentException | URISyntaxException | IOException e) {
+                System.out.println("Error opening client-side webSocket: " + e.getMessage());
+                return;
+            }
+
             System.out.println("Successfully joined game!");
 
             ChessBoard chessBoard = new ChessBoard();
