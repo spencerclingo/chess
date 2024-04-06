@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.UserGameCommand;
 
+
 import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
@@ -11,30 +12,21 @@ import java.net.URISyntaxException;
 
 //mvn install gives an error about something not implementing WebSocketListener or being annotated with @WebSocket
 
-@ClientEndpoint
-public class ClientWebSocketHandler {
+public class ClientWebSocketHandler extends Endpoint {
 
     private final Gson gson = new Gson();
     public Session session;
 
-    public ClientWebSocketHandler(int port) throws URISyntaxException, DeploymentException, IOException {
-        System.out.println(0);
-        System.out.println(port);
-        String uriString = "ws://localhost:" + port + "/connect";
-        System.out.println(uriString);
+    public ClientWebSocketHandler(String baseUrl) throws URISyntaxException, DeploymentException, IOException {
+        String replaced = baseUrl.replace("http", "ws");
+        String uriString = replaced + "connect";
         URI uri = new URI(uriString);
-        System.out.println(1);
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-        System.out.println(2);
         this.session = container.connectToServer(this, uri);
-        System.out.println(3);
-
-        this.session.addMessageHandler((MessageHandler.Whole<String>) System.out::println);
-        System.out.println(4);
     }
 
-    @OnMessage
-    public void onMessage(Session session, String message) {
+
+    public void onMessage(String message) {
         ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
 
         switch (serverMessage.getServerMessageType()) {
@@ -55,13 +47,18 @@ public class ClientWebSocketHandler {
         this.session.getBasicRemote().sendText(jsonMessage);
     }
 
-    @OnOpen
-    public void onOpen() {
+    @Override
+    public void onOpen(Session session, EndpointConfig endpointConfig) {
         System.out.println("ClientWebSocketHandler onOpen method called");
     }
 
-    @OnClose
-    public void onClose (Session session) {
+    @OnError
+    public void onError(Throwable t) {
+        System.out.println(t.getMessage());
+    }
 
+    @OnClose
+    public void onClose() {
+        System.out.println("Client ws closed");
     }
 }

@@ -155,6 +155,47 @@ public class ClientMenu {
         }
     }
 
+    private void inGameMenu(Scanner scanner) {
+        boolean help = true;
+
+        while (true) {
+            setCommandLine();
+            if (help) {
+                System.out.println("Here are your in-game commands. Type help if you need help!");
+                System.out.println("\t redraw   - redraws the current chess board");
+                System.out.println("\t make move");
+                System.out.println("\t highlight");
+                System.out.println("\t resign");
+                System.out.println("\t leave");
+                System.out.println("\t help");
+            }
+            help = true;
+
+            System.out.print(">>>  ");
+
+            String choice = scanner.nextLine().toLowerCase();
+
+            if (choice.equals("help")) {
+                help(2);
+                help = false;
+                continue;
+            }
+
+            switch (choice) {
+                case "redraw":
+                    break;
+                case "make move":
+                    break;
+                case "highlight":
+                    break;
+                case "resign":
+                    break;
+                case "leave":
+                    break;
+            }
+        }
+    }
+
     private void clear(Scanner scanner) {
         String password = scanner.nextLine().toLowerCase();
 
@@ -178,7 +219,7 @@ public class ClientMenu {
 
         String jsonString = gson.toJson(new JoinGameRequest(null, id));
 
-        joinGameHttp(jsonString, null);
+        joinGameHttp(jsonString, null, scanner);
     }
 
     private void joinGame(Scanner scanner) {
@@ -192,10 +233,10 @@ public class ClientMenu {
 
         String jsonString = gson.toJson(new JoinGameRequest(color, id));
 
-        joinGameHttp(jsonString, color);
+        joinGameHttp(jsonString, color, scanner);
     }
 
-    private void joinGameHttp(String jsonString, String color) {
+    private void joinGameHttp(String jsonString, String color, Scanner scanner) {
         ResponseRequest request = HttpConnection.getRequest("/game", "PUT", jsonString, authToken);
 
         if (request.statusCode() != 200) {
@@ -203,25 +244,32 @@ public class ClientMenu {
         } else {
             ClientWebSocketHandler webSocket;
             try {
-                webSocket = new ClientWebSocketHandler(port);
+                webSocket = new ClientWebSocketHandler(baseUrl);
 
                 UserGameCommand userGameCommand = new UserGameCommand(authToken, UserGameCommand.CommandType.JOIN_PLAYER);
                 webSocket.sendMessage(userGameCommand);
+                inGameMenu(scanner);
             } catch(DeploymentException | URISyntaxException | IOException e) {
                 System.out.println("Error opening client-side webSocket: " + e.getMessage());
+                //e.printStackTrace();
                 return;
             }
 
+
+
+            /*
             System.out.println("Successfully joined game!");
 
             ChessBoard chessBoard = new ChessBoard();
             chessBoard.resetBoard();
 
+
             if (color == null || color.equalsIgnoreCase("white")) {
                 ChessBoardPicture.init(chessBoard, true);
             } else {
-                ChessBoardPicture.init(chessBoard, ! color.equalsIgnoreCase("black"));
+                ChessBoardPicture.init(chessBoard, !color.equalsIgnoreCase("black"));
             }
+            */
         }
     }
 

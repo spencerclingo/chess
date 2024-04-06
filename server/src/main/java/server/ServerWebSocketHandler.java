@@ -1,24 +1,26 @@
 package server;
 
 import com.google.gson.Gson;
-import org.glassfish.tyrus.core.wsadl.model.Endpoint;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.annotations.*;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.UserGameCommand;
 
-import javax.websocket.*;
-import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.ArrayList;
 
-@ServerEndpoint("/connect")
-public class ServerWebSocketHandler extends Endpoint {
+@WebSocket
+public class ServerWebSocketHandler {
     final Gson gson = new Gson();
+    ArrayList<Session> sessions = new ArrayList<>();
 
-    @OnOpen
-    public void onOpen(Session session) {
-        System.out.println("OnConnect");
+    @OnWebSocketConnect
+    public void onConnect(Session session) {
+        System.out.println("OnConnect in server");
+        sessions.add(session);
     }
 
-    @OnMessage
+    @OnWebSocketMessage
     public void onMessage(Session session, String message) {
         UserGameCommand userGameCommand = gson.fromJson(message, UserGameCommand.class);
 
@@ -48,14 +50,15 @@ public class ServerWebSocketHandler extends Endpoint {
         String jsonMessage = gson.toJson(message);
 
         try {
-            session.getBasicRemote().sendText(jsonMessage);
+            session.getRemote().sendString(jsonMessage);
         } catch(IOException e) {
             System.out.println("Error in sendMessage: " + e.getMessage());
         }
     }
 
-    @OnClose
+    @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {
         System.out.println("OnClose");
     }
+
 }

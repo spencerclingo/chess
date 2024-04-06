@@ -71,7 +71,7 @@
         <dependency>
             <groupId>org.glassfish.tyrus</groupId>
             <artifactId>tyrus-server</artifactId>
-            <version>1.15</version> <!-- Adjust version as needed -->
+            <version>2.1.5</version> <!-- Adjust version as needed -->
         </dependency>
     </dependencies>
 

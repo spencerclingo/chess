@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="passoffTests.chessTests.chessPieceTests.PawnMoveTests" time="0.017" tests="13" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="passoffTests.chessTests.chessPieceTests.PawnMoveTests" time="0.025" tests="13" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.cpu.isalist" value="amd64"/>
@@ -15,7 +15,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="US"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk-21\bin"/>
-    <property name="sun.java.command" value="C:\Users\spenc\AppData\Local\Temp\surefire15171530558751101071\surefirebooter-20240405102306677_3.jar C:\Users\spenc\AppData\Local\Temp\surefire15171530558751101071 2024-04-05T10-23-06_517-jvmRun1 surefire-20240405102306677_1tmp surefire_0-20240405102306677_2tmp"/>
+    <property name="sun.java.command" value="C:\Users\spenc\AppData\Local\Temp\surefire14184352838844910896\surefirebooter-20240406102350510_3.jar C:\Users\spenc\AppData\Local\Temp\surefire14184352838844910896 2024-04-06T10-23-50_408-jvmRun1 surefire-20240406102350510_1tmp surefire_0-20240406102350510_2tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="C:\Users\spenc\OneDrive\Desktop\CS 240\chess\shared\target\test-classes;C:\Users\spenc\OneDrive\Desktop\CS 240\chess\shared\target\classes;C:\Users\spenc\.m2\repository\com\google\code\gson\gson\2.10.1\gson-2.10.1.jar;C:\Users\spenc\.m2\repository\org\junit\jupiter\junit-jupiter\5.9.2\junit-jupiter-5.9.2.jar;C:\Users\spenc\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.9.2\junit-jupiter-api-5.9.2.jar;C:\Users\spenc\.m2\repository\org\opentest4j\opentest4j\1.2.0\opentest4j-1.2.0.jar;C:\Users\spenc\.m2\repository\org\junit\platform\junit-platform-commons\1.9.2\junit-platform-commons-1.9.2.jar;C:\Users\spenc\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\spenc\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.9.2\junit-jupiter-params-5.9.2.jar;C:\Users\spenc\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.9.2\junit-jupiter-engine-5.9.2.jar;C:\Users\spenc\.m2\repository\org\junit\platform\junit-platform-engine\1.9.2\junit-platform-engine-1.9.2.jar;"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -30,7 +30,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="C:\Users\spenc\AppData\Local\Temp\surefire15171530558751101071\surefirebooter-20240405102306677_3.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\spenc\AppData\Local\Temp\surefire14184352838844910896\surefirebooter-20240406102350510_3.jar"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="21.0.1+12-LTS-29"/>
@@ -59,17 +59,17 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="65.0"/>
   </properties>
-  <testcase name="pawnAdvanceBlockedBlack" classname="passoffTests.chessTests.chessPieceTests.PawnMoveTests" time="0.001"/>
-  <testcase name="pawnAdvanceBlockedWhite" classname="passoffTests.chessTests.chessPieceTests.PawnMoveTests" time="0.001"/>
-  <testcase name="pawnAdvanceBlockedDoubleMoveBlack" classname="passoffTests.chessTests.chessPieceTests.PawnMoveTests" time="0.003"/>
-  <testcase name="pawnAdvanceBlockedDoubleMoveWhite" classname="passoffTests.chessTests.chessPieceTests.PawnMoveTests" time="0.001"/>
+  <testcase name="pawnAdvanceBlockedBlack" classname="passoffTests.chessTests.chessPieceTests.PawnMoveTests" time="0.0"/>
+  <testcase name="pawnAdvanceBlockedWhite" classname="passoffTests.chessTests.chessPieceTests.PawnMoveTests" time="0.0"/>
+  <testcase name="pawnAdvanceBlockedDoubleMoveBlack" classname="passoffTests.chessTests.chessPieceTests.PawnMoveTests" time="0.0"/>
+  <testcase name="pawnAdvanceBlockedDoubleMoveWhite" classname="passoffTests.chessTests.chessPieceTests.PawnMoveTests" time="0.002"/>
   <testcase name="pawnPromotionCapture" classname="passoffTests.chessTests.chessPieceTests.PawnMoveTests" time="0.001"/>
   <testcase name="pawnPromotionWhite" classname="passoffTests.chessTests.chessPieceTests.PawnMoveTests" time="0.001"/>
   <testcase name="pawnMiddleOfBoardBlack" classname="passoffTests.chessTests.chessPieceTests.PawnMoveTests" time="0.0"/>
-  <testcase name="pawnMiddleOfBoardWhite" classname="passoffTests.chessTests.chessPieceTests.PawnMoveTests" time="0.0"/>
-  <testcase name="edgePromotionBlack" classname="passoffTests.chessTests.chessPieceTests.PawnMoveTests" time="0.0"/>
-  <testcase name="pawnInitialMoveBlack" classname="passoffTests.chessTests.chessPieceTests.PawnMoveTests" time="0.001"/>
-  <testcase name="pawnInitialMoveWhite" classname="passoffTests.chessTests.chessPieceTests.PawnMoveTests" time="0.001"/>
+  <testcase name="pawnMiddleOfBoardWhite" classname="passoffTests.chessTests.chessPieceTests.PawnMoveTests" time="0.001"/>
+  <testcase name="edgePromotionBlack" classname="passoffTests.chessTests.chessPieceTests.PawnMoveTests" time="0.001"/>
+  <testcase name="pawnInitialMoveBlack" classname="passoffTests.chessTests.chessPieceTests.PawnMoveTests" time="0.002"/>
+  <testcase name="pawnInitialMoveWhite" classname="passoffTests.chessTests.chessPieceTests.PawnMoveTests" time="0.0"/>
   <testcase name="pawnCaptureBlack" classname="passoffTests.chessTests.chessPieceTests.PawnMoveTests" time="0.0"/>
-  <testcase name="pawnCaptureWhite" classname="passoffTests.chessTests.chessPieceTests.PawnMoveTests" time="0.0"/>
+  <testcase name="pawnCaptureWhite" classname="passoffTests.chessTests.chessPieceTests.PawnMoveTests" time="0.001"/>
 </testsuite>
