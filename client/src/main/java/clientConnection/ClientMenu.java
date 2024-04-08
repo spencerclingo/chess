@@ -223,7 +223,7 @@ public class ClientMenu {
 
         String jsonString = gson.toJson(new JoinGameRequest(null, id));
 
-        joinGameHttp(jsonString, null, scanner);
+        joinGameHttp(jsonString, null, id, scanner);
     }
 
     private void joinGame(Scanner scanner) {
