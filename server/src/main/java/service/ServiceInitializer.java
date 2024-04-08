@@ -15,6 +15,8 @@ public class ServiceInitializer {
         GameService.setAuthDAO(authDAO);
         UserService.setUserDAO(userDAO);
         UserService.setAuthDAO(authDAO);
+        WebSocketService.setAuthStoredDAO(authDAO);
+        WebSocketService.setGameStoredDAO(gameDAO);
 
         DatabaseManager.createDatabase();
         DatabaseManager.createAuthTable();

@@ -1,5 +1,8 @@
 package webSocketMessages.userCommands;
 
+import chess.ChessMove;
+
+import java.util.ArrayList;
 import java.util.Objects;
 
 /**
@@ -9,6 +12,8 @@ import java.util.Objects;
  * methods.
  */
 public class UserGameCommand {
+
+    ArrayList<ChessMove> moves;
 
     public UserGameCommand(String authToken, CommandType type) {
         this.authToken = authToken;
@@ -33,6 +38,14 @@ public class UserGameCommand {
 
     public CommandType getCommandType() {
         return this.commandType;
+    }
+
+    public void setMoves(ArrayList<ChessMove> newMoves) {
+        moves = newMoves;
+    }
+
+    public ArrayList<ChessMove> getMoves() {
+        return moves;
     }
 
     @Override

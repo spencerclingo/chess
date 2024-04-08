@@ -118,8 +118,6 @@ public class SQLGameDAO implements GameDAO{
         DatabaseManager.executeUpdate(statement, username, gameID);
     }
 
-    //Unused
-
     /**
      * Updates a game with given gameID to given ChessGame
      *
@@ -128,11 +126,11 @@ public class SQLGameDAO implements GameDAO{
      */
     public void updateGame(GameData gameData) throws DataAccessException {
         int gameID = gameData.gameID();
-        ChessGame newGame = gameData.game();
+        String jsonString = gson.toJson(gameData.game());
 
         String statement = "UPDATE `game` SET `game` = ? WHERE `gameID` = ?;";
 
-        DatabaseManager.executeUpdate(statement, newGame, gameID);
+        DatabaseManager.executeUpdate(statement, jsonString, gameID);
     }
 
     /**

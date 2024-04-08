@@ -1,6 +1,6 @@
 package response;
 
-import chess.ChessGame;
+import models.GameData;
 
-public record GetGameResponse(ChessGame chessGame, int httpCode) {
+public record GetGameResponse(GameData gameData, String authToken, int httpCode) {
 }

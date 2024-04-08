@@ -66,10 +66,8 @@ public class GameService {
 
         try {
             data = gameStoredDAO.getGame(new GameData(joinGameRequest.gameID(), null,null,null,null));
-        } catch(DataAccessException dae) {
+        } catch(DataAccessException | SQLException dae) {
             return new JoinGameResponse(400);
-        } catch(SQLException e) {
-            throw new RuntimeException(e);
         }
 
         if (joinGameRequest.playerColor() == null || (!joinGameRequest.playerColor().equals("WHITE") && !joinGameRequest.playerColor().equals("white") && !joinGameRequest.playerColor().equals("BLACK") && !joinGameRequest.playerColor().equals("black"))) {

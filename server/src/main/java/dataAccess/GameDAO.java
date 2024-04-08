@@ -35,6 +35,8 @@ public interface GameDAO {
      */
     void joinGame(GameData gameData, int color) throws DataAccessException;
 
+    void updateGame(GameData gameData) throws DataAccessException;
+
     /**
      * Clears game database
      */

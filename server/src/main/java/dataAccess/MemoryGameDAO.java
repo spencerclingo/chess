@@ -66,6 +66,11 @@ public class MemoryGameDAO implements GameDAO{
         }
     }
 
+    @Override
+    public void updateGame(GameData gameData) throws DataAccessException {
+
+    }
+
     /**
      * Clears game database
      */

@@ -1,6 +1,5 @@
 package clientConnection;
 
-import chess.ChessBoard;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import models.AuthData;
@@ -9,7 +8,6 @@ import models.UserData;
 import response.GameIDResponse;
 import response.GameListResponse;
 import response.JoinGameRequest;
-import ui.ChessBoardPicture;
 import webSocketMessages.userCommands.UserGameCommand;
 
 import javax.websocket.DeploymentException;
@@ -162,12 +160,12 @@ public class ClientMenu {
             setCommandLine();
             if (help) {
                 System.out.println("Here are your in-game commands. Type help if you need help!");
-                System.out.println("\t redraw   - redraws the current chess board");
-                System.out.println("\t make move");
-                System.out.println("\t highlight");
-                System.out.println("\t resign");
-                System.out.println("\t leave");
-                System.out.println("\t help");
+                System.out.println("\t redraw    - redraws the current chess board");
+                System.out.println("\t make move - move one of your pieces");
+                System.out.println("\t highlight - highlight moves a piece can make");
+                System.out.println("\t resign    - concede to your opponent");
+                System.out.println("\t leave     - leave the game, return to logged in menu");
+                System.out.println("\t help      - gives a deeper explanation of each option");
             }
             help = true;
 
@@ -183,15 +181,21 @@ public class ClientMenu {
 
             switch (choice) {
                 case "redraw":
+                    //Just asks for the board from ChessBoardPicture with the correct orientation
                     break;
                 case "make move":
+                    //Sends a make move message, pass in start position and end position. Use dict for letter to number calculations
                     break;
                 case "highlight":
+
+                    //Passes a set of valid moves to ChessBoardPicture, highlights squares
                     break;
                 case "resign":
+                    //Send a resignation update, no more moves can happen
                     break;
                 case "leave":
-                    break;
+                    //Close the websocket, send leave message
+                    return;
             }
         }
     }
@@ -233,10 +237,10 @@ public class ClientMenu {
 
         String jsonString = gson.toJson(new JoinGameRequest(color, id));
 
-        joinGameHttp(jsonString, color, scanner);
+        joinGameHttp(jsonString, color, id, scanner);
     }
 
-    private void joinGameHttp(String jsonString, String color, Scanner scanner) {
+    private void joinGameHttp(String jsonString, String color, int gameID, Scanner scanner) {
         ResponseRequest request = HttpConnection.getRequest("/game", "PUT", jsonString, authToken);
 
         if (request.statusCode() != 200) {
@@ -244,32 +248,22 @@ public class ClientMenu {
         } else {
             ClientWebSocketHandler webSocket;
             try {
-                webSocket = new ClientWebSocketHandler(baseUrl);
+                webSocket = new ClientWebSocketHandler(baseUrl, gameID);
+
+                //If it connects, then join the game
+                //Then check for error codes, I don't want the player to join the game then the websocket fails
+                //Also need to handle re-joining a game, maybe when checking the usernames I can check if it matches the player's username, then allow it
 
                 UserGameCommand userGameCommand = new UserGameCommand(authToken, UserGameCommand.CommandType.JOIN_PLAYER);
                 webSocket.sendMessage(userGameCommand);
                 inGameMenu(scanner);
             } catch(DeploymentException | URISyntaxException | IOException e) {
                 System.out.println("Error opening client-side webSocket: " + e.getMessage());
-                //e.printStackTrace();
-                return;
+                e.printStackTrace();
+                try {
+                    wait(1000);
+                } catch(InterruptedException ignored) {}
             }
-
-
-
-            /*
-            System.out.println("Successfully joined game!");
-
-            ChessBoard chessBoard = new ChessBoard();
-            chessBoard.resetBoard();
-
-
-            if (color == null || color.equalsIgnoreCase("white")) {
-                ChessBoardPicture.init(chessBoard, true);
-            } else {
-                ChessBoardPicture.init(chessBoard, !color.equalsIgnoreCase("black"));
-            }
-            */
         }
     }
 
@@ -423,6 +417,12 @@ public class ClientMenu {
             System.out.println("\t list     - lists all games, played or unplayed, in the database");
             System.out.println("\t join     - join a game you or someone else created by the ID of the game");
             System.out.println("\t watch    - watch a game as it happens");
+        } else if (helpPage == 2) {
+            System.out.println("\t redraw    - redraws the current chess board to make sure it is the current version");
+            System.out.println("\t make move - pick a square, then pick the square that piece is moving to");
+            System.out.println("\t highlight - pick a square, highlight all legal moves for a piece in that position");
+            System.out.println("\t resign    - concede defeat to your opponent. Board stays drawn and notifications are sent");
+            System.out.println("\t leave     - leave the game, does not have you resign so another player can take your place");
         }
     }
 

@@ -17,9 +17,9 @@ public class ClientWebSocketHandler extends Endpoint {
     private final Gson gson = new Gson();
     public Session session;
 
-    public ClientWebSocketHandler(String baseUrl) throws URISyntaxException, DeploymentException, IOException {
+    public ClientWebSocketHandler(String baseUrl, int gameID) throws URISyntaxException, DeploymentException, IOException {
         String replaced = baseUrl.replace("http", "ws");
-        String uriString = replaced + "connect";
+        String uriString = replaced + "connect?gameID=" + gameID;
         URI uri = new URI(uriString);
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         this.session = container.connectToServer(this, uri);

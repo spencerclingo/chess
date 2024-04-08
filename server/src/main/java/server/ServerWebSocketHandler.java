@@ -8,16 +8,23 @@ import webSocketMessages.userCommands.UserGameCommand;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 @WebSocket
 public class ServerWebSocketHandler {
     final Gson gson = new Gson();
-    ArrayList<Session> sessions = new ArrayList<>();
+    HashMap<Integer, ArrayList<Session>> map = new HashMap<>();
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
         System.out.println("OnConnect in server");
-        sessions.add(session);
+        int gameID = Integer.parseInt(session.getUpgradeRequest().getParameterMap().get("gameID").getFirst());
+        ArrayList<Session> sessionList = map.get(gameID);
+        if (sessionList == null) {
+            sessionList = new ArrayList<>();
+        }
+        sessionList.add(session);
+        map.put(gameID, sessionList);
     }
 
     @OnWebSocketMessage
