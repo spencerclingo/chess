@@ -1,6 +1,8 @@
 package clientConnection;
 
 import com.google.gson.Gson;
+import models.GameData;
+import ui.ChessBoardPicture;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.UserGameCommand;
 
@@ -16,6 +18,7 @@ public class ClientWebSocketHandler extends Endpoint {
 
     private final Gson gson = new Gson();
     public Session session;
+    String username = "";
 
     public ClientWebSocketHandler(String baseUrl, int gameID) throws URISyntaxException, DeploymentException, IOException {
         String replaced = baseUrl.replace("http", "ws");
@@ -28,10 +31,13 @@ public class ClientWebSocketHandler extends Endpoint {
 
     public void onMessage(String message) {
         ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
+        GameData gameData = serverMessage.getGameData();
 
         switch (serverMessage.getServerMessageType()) {
             case LOAD_GAME:
-                // Load the game for all players
+                // Load the game for this player
+                System.out.println(serverMessage.getNotification());
+                ChessBoardPicture.init(gameData.game().getBoard(), ! username.equalsIgnoreCase(gameData.blackUsername()));
                 break;
             case ERROR:
                 // Print error and what error happened
@@ -43,6 +49,7 @@ public class ClientWebSocketHandler extends Endpoint {
     }
 
     public void sendMessage(UserGameCommand command) throws IOException {
+        username = command.getUsername();
         String jsonMessage = gson.toJson(command);
         this.session.getBasicRemote().sendText(jsonMessage);
     }
@@ -60,5 +67,6 @@ public class ClientWebSocketHandler extends Endpoint {
     @OnClose
     public void onClose() {
         System.out.println("Client ws closed");
+        username = "";
     }
 }

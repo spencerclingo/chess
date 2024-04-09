@@ -155,7 +155,8 @@ public class ClientMenu {
     }
 
     private void inGameMenu(Scanner scanner) {
-        boolean help = true;
+        boolean help = false;
+        System.out.println("For a list of commands and their purpose, type 'help'");
 
         while (true) {
             setCommandLine();
@@ -265,6 +266,10 @@ public class ClientMenu {
             }
 
             webSocket.sendMessage(userGameCommand);
+            try {
+                wait(4000);
+            } catch(InterruptedException ignored) {}
+
             inGameMenu(scanner);
         } catch(DeploymentException | URISyntaxException | IOException e) {
             System.out.println("Error opening client-side webSocket: " + e.getMessage());

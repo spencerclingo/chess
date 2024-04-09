@@ -1,12 +1,11 @@
 package server;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
-import models.AuthData;
 import models.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import response.GetGameResponse;
-import response.WebSocketJoinGameResponse;
 import service.WebSocketService;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.UserGameCommand;
@@ -40,28 +39,32 @@ public class ServerWebSocketHandler {
 
         switch (userGameCommand.getCommandType()) {
             case JOIN_PLAYER, JOIN_OBSERVER:
-                joinPlayer(userGameCommand, session);
+                joinPlayer(userGameCommand);
                 break;
             case MAKE_MOVE:
                 // Change the board, update it in the database, print the database version
-                break;
+                //break;
             case LEAVE:
                 // Disconnect from the websocket
-                break;
+                //break;
             case RESIGN:
                 // Send a resignation notification, disallow any further movement
+                //break;
+            default:
+                // Send error message
                 break;
         }
     }
 
-    public void sendMessage(Session session, ServerMessage.ServerMessageType messageType) {
-        ServerMessage message = new ServerMessage(messageType);
+    public void sendMessage(Session session, ServerMessage.ServerMessageType messageType, GameData game, String notification) {
+        ServerMessage message = new ServerMessage(messageType, notification, game);
         String jsonMessage = gson.toJson(message);
 
         try {
             session.getRemote().sendString(jsonMessage);
         } catch(IOException e) {
-            System.out.println("Error in sendMessage: " + e.getMessage());
+            System.out.println("Problem sending message to client. " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -71,7 +74,7 @@ public class ServerWebSocketHandler {
         // Figure out how to get the gameID, so I know what session to remove
     }
 
-    public void joinPlayer(UserGameCommand userGameCommand, Session currentSession) {
+    public void joinPlayer(UserGameCommand userGameCommand) {
         int gameID = userGameCommand.getGameID();
         String authToken = userGameCommand.getAuthString();
         GameData gameData = new GameData(gameID, null, null, null, null);
@@ -87,17 +90,9 @@ public class ServerWebSocketHandler {
         }
 
         String message = userGameCommand.getUsername() + commandType + "the game!";
-        WebSocketJoinGameResponse joinGameResponse = new WebSocketJoinGameResponse(gameResponse.gameData().game(), message);
-
-        String jsonString = gson.toJson(joinGameResponse);
 
         for (Session session : sessionList) {
-            try {
-                session.getRemote().sendString(jsonString);
-            } catch (IOException e) {
-                System.out.println("Problem sending message to client in gameID: " + gameID);
-                e.printStackTrace();
-            }
+            sendMessage(session, ServerMessage.ServerMessageType.LOAD_GAME, gameResponse.gameData(), message);
         }
     }
 
