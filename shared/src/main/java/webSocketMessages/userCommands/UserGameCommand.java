@@ -1,5 +1,6 @@
 package webSocketMessages.userCommands;
 
+import chess.ChessGame;
 import chess.ChessMove;
 
 import java.util.ArrayList;
@@ -7,17 +8,23 @@ import java.util.Objects;
 
 /**
  * Represents a command a user can send the server over a websocket
- * 
  * Note: You can add to this class, but you should not alter the existing
  * methods.
  */
 public class UserGameCommand {
 
-    ArrayList<ChessMove> moves;
+    protected CommandType commandType;
+    private final String authToken;
+    private final int gameID;
+    private final String username;
+    private final ChessGame game;
 
-    public UserGameCommand(String authToken, CommandType type) {
+    public UserGameCommand(String authToken, CommandType type, int gameID, String username, ChessGame game) {
         this.authToken = authToken;
         commandType = type;
+        this.gameID = gameID;
+        this.username = username;
+        this.game = game;
     }
 
     public enum CommandType {
@@ -28,25 +35,28 @@ public class UserGameCommand {
         RESIGN
     }
 
-    protected CommandType commandType;
 
-    private final String authToken;
 
     public String getAuthString() {
         return authToken;
     }
 
     public CommandType getCommandType() {
-        return this.commandType;
+        return commandType;
     }
 
-    public void setMoves(ArrayList<ChessMove> newMoves) {
-        moves = newMoves;
+    public int getGameID() {
+        return gameID;
     }
 
-    public ArrayList<ChessMove> getMoves() {
-        return moves;
+    public String getUsername() {
+        return username;
     }
+
+    public ChessGame getGame() {
+        return game;
+    }
+
 
     @Override
     public boolean equals(Object o) {

@@ -25,6 +25,7 @@ public class ClientMenu {
     final Gson gson = new Gson();
     final String baseUrl;
     String authToken = "";
+    String savedUsername = "";
     final String clearPassword = "clear";
     final int port;
     final PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
@@ -223,7 +224,7 @@ public class ClientMenu {
 
         String jsonString = gson.toJson(new JoinGameRequest(null, id));
 
-        joinGameHttp(jsonString, null, id, scanner);
+        joinGameHttp(jsonString, id, false, scanner);
     }
 
     private void joinGame(Scanner scanner) {
@@ -237,33 +238,40 @@ public class ClientMenu {
 
         String jsonString = gson.toJson(new JoinGameRequest(color, id));
 
-        joinGameHttp(jsonString, color, id, scanner);
+        joinGameHttp(jsonString, id, true, scanner);
     }
 
-    private void joinGameHttp(String jsonString, String color, int gameID, Scanner scanner) {
-        ResponseRequest request = HttpConnection.getRequest("/game", "PUT", jsonString, authToken);
+    private void joinGameHttp(String jsonString, int gameID, boolean player, Scanner scanner) {
 
-        if (request.statusCode() != 200) {
-            printErrorMessages(request.statusCode());
-        } else {
-            ClientWebSocketHandler webSocket;
-            try {
-                webSocket = new ClientWebSocketHandler(baseUrl, gameID);
 
-                //If it connects, then join the game
-                //Then check for error codes, I don't want the player to join the game then the websocket fails
-                //Also need to handle re-joining a game, maybe when checking the usernames I can check if it matches the player's username, then allow it
+        ClientWebSocketHandler webSocket;
+        try {
+            webSocket = new ClientWebSocketHandler(baseUrl, gameID);
 
-                UserGameCommand userGameCommand = new UserGameCommand(authToken, UserGameCommand.CommandType.JOIN_PLAYER);
-                webSocket.sendMessage(userGameCommand);
-                inGameMenu(scanner);
-            } catch(DeploymentException | URISyntaxException | IOException e) {
-                System.out.println("Error opening client-side webSocket: " + e.getMessage());
-                e.printStackTrace();
-                try {
-                    wait(1000);
-                } catch(InterruptedException ignored) {}
+            ResponseRequest request = HttpConnection.getRequest("/game", "PUT", jsonString, authToken);
+
+            if (request.statusCode() == 201) {
+                System.out.println("Already joined as that color!");
+            } else if (request.statusCode() != 200) {
+                printErrorMessages(request.statusCode());
+                return;
             }
+
+            UserGameCommand userGameCommand;
+            if (player) {
+                userGameCommand = new UserGameCommand(authToken, UserGameCommand.CommandType.JOIN_PLAYER, gameID, savedUsername, null);
+            } else {
+                userGameCommand = new UserGameCommand(authToken, UserGameCommand.CommandType.JOIN_OBSERVER, gameID, savedUsername, null);
+            }
+
+            webSocket.sendMessage(userGameCommand);
+            inGameMenu(scanner);
+        } catch(DeploymentException | URISyntaxException | IOException e) {
+            System.out.println("Error opening client-side webSocket: " + e.getMessage());
+            e.printStackTrace();
+            try {
+                wait(1000);
+            } catch(InterruptedException ignored) {}
         }
     }
 
@@ -331,6 +339,7 @@ public class ClientMenu {
         } else {
             System.out.println("Successfully logged out!");
             authToken = "";
+            savedUsername = "";
         }
     }
 
@@ -356,6 +365,7 @@ public class ClientMenu {
 
         if (request.statusCode() == 200) {
             authToken = gson.fromJson(request.responseBody(), AuthData.class).authToken();
+            savedUsername = username;
         } else {
             printErrorMessages(request.statusCode());
         }
@@ -373,6 +383,7 @@ public class ClientMenu {
 
         if (request.statusCode() == 200) {
             authToken = gson.fromJson(request.responseBody(), AuthData.class).authToken();
+            savedUsername = username;
         } else {
             printLoginErrorMessages(request.statusCode());
         }

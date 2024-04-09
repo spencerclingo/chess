@@ -35,7 +35,6 @@ public class Server {
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
 
-
         Spark.awaitInitialization();
         return Spark.port();
     }
@@ -154,7 +153,7 @@ public class Server {
 
     private String switchCases(int httpCode) {
         switch (httpCode) {
-            case (200) -> {
+            case (200), (201) -> {
                 return "{}";
             }
             case (400) -> {
@@ -174,7 +173,7 @@ public class Server {
 
     private boolean find500Error(int httpCode) {
         return switch (httpCode) {
-            case (200), (400), (401), (403) -> false;
+            case (200), (201), (400), (401), (403) -> false;
             default -> true;
         };
     }

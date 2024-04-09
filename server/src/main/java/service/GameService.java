@@ -58,8 +58,7 @@ public class GameService {
      * @return JoinGameResponse with httpCode
      */
     public static JoinGameResponse joinGame(JoinGameRequest joinGameRequest, AuthData authData) throws DataAccessException {
-        String username;
-        username = authStoredDAO.getAuth(authData).username();
+        String username = authStoredDAO.getAuth(authData).username();
 
         int colorVal=-1;
         GameData data;
@@ -86,12 +85,18 @@ public class GameService {
         if (joinGameRequest.playerColor().equals("white") || joinGameRequest.playerColor().equals("WHITE")) {
             colorVal = 0;
             if (data.whiteUsername() != null) {
+                if (data.whiteUsername().equalsIgnoreCase(joinGameRequest.playerColor())) {
+                    return new JoinGameResponse(201);
+                }
                 return new JoinGameResponse(403);
             }
         }
         if (joinGameRequest.playerColor().equals("black") || joinGameRequest.playerColor().equals("BLACK")) {
             colorVal = 1;
             if (data.blackUsername() != null) {
+                if (data.blackUsername().equalsIgnoreCase(joinGameRequest.playerColor())) {
+                    return new JoinGameResponse(201);
+                }
                 return new JoinGameResponse(403);
             }
         }

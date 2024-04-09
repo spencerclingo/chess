@@ -43,7 +43,7 @@ public class ServerFacade {
     private static ResponseRequest receiveResponse(HttpURLConnection http) throws IOException {
         var statusCode = http.getResponseCode();
 
-        if (statusCode != 200) {
+        if (statusCode != 200 && statusCode != 201) {
             var statusMessage = "";
             String responseBody = "";
             return new ResponseRequest(statusCode, statusMessage, responseBody);
