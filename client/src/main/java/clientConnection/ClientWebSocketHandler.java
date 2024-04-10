@@ -18,19 +18,20 @@ public class ClientWebSocketHandler extends Endpoint {
     public Session session;
     String username = "";
 
-    public ClientWebSocketHandler(String baseUrl, int gameID) throws URISyntaxException, DeploymentException, IOException {
+    public ClientWebSocketHandler(String baseUrl) throws URISyntaxException, DeploymentException, IOException {
         String replaced = baseUrl.replace("http", "ws");
         String uriString = replaced + "connect";
         URI uri = new URI(uriString);
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         this.session = container.connectToServer(this, uri);
+
+        this.session.addMessageHandler((MessageHandler.Whole<String>) this::receiveMessage);
     }
 
-    @OnMessage
-    public void onMessage(String message) {
+    public void receiveMessage(String message) {
+        System.out.println("Received message back in client");
         ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
         GameData gameData = serverMessage.getGameData();
-        System.out.println("Received message back in client");
 
         switch (serverMessage.getServerMessageType()) {
             case LOAD_GAME:

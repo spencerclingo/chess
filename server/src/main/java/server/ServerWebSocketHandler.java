@@ -61,9 +61,10 @@ public class ServerWebSocketHandler {
         ServerMessage message = new ServerMessage(messageType, notification, game);
         String jsonMessage = gson.toJson(message);
 
+        System.out.println(session);
+
         try {
             session.getRemote().sendString(jsonMessage);
-            session.getRemote().sendBytes(ByteBuffer.wrap(jsonMessage.getBytes()));
             System.out.println("Message sent to client");
         } catch(IOException e) {
             System.out.println("Problem sending message to client. " + e.getMessage());

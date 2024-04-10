@@ -247,7 +247,7 @@ public class ClientMenu {
 
         ClientWebSocketHandler webSocket;
         try {
-            webSocket = new ClientWebSocketHandler(baseUrl, gameID);
+            webSocket = new ClientWebSocketHandler(baseUrl);
 
             ResponseRequest request = HttpConnection.getRequest("/game", "PUT", jsonString, authToken);
 
