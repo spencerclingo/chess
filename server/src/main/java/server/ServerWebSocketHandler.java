@@ -10,14 +10,14 @@ import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.UserGameCommand;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 @WebSocket
 public class ServerWebSocketHandler {
     final Gson gson = new Gson();
-    HashMap<Integer, ArrayList<Session>> sessionMap = new HashMap<>();
+    HashMap<Integer, ArrayList<Session>> gameIdToSessions = new HashMap<>();
+    HashMap<Session, Integer> sessionToGameID = new HashMap<>();
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
@@ -30,16 +30,17 @@ public class ServerWebSocketHandler {
 
         System.out.println("Websocket message received");
 
-        int gameID = userGameCommand.getGameID();
-        ArrayList<Session> sessionList = sessionMap.get(gameID);
-        if (sessionList == null) {
-            sessionList = new ArrayList<>();
-        }
-        sessionList.add(session);
-        sessionMap.put(gameID, sessionList);
-
         switch (userGameCommand.getCommandType()) {
             case JOIN_PLAYER, JOIN_OBSERVER:
+                int gameID = userGameCommand.getGameID();
+                ArrayList<Session> sessionList = gameIdToSessions.get(gameID);
+                if (sessionList == null) {
+                    sessionList = new ArrayList<>();
+                }
+                sessionList.add(session);
+                gameIdToSessions.put(gameID, sessionList);
+                sessionToGameID.put(session, gameID);
+
                 joinPlayer(userGameCommand);
                 break;
             case MAKE_MOVE:
@@ -47,7 +48,8 @@ public class ServerWebSocketHandler {
                 //break;
             case LEAVE:
                 // Disconnect from the websocket
-                //break;
+                leaveMessage(userGameCommand, session);
+                break;
             case RESIGN:
                 // Send a resignation notification, disallow any further movement
                 //break;
@@ -61,8 +63,6 @@ public class ServerWebSocketHandler {
         ServerMessage message = new ServerMessage(messageType, notification, game);
         String jsonMessage = gson.toJson(message);
 
-        System.out.println(session);
-
         try {
             session.getRemote().sendString(jsonMessage);
             System.out.println("Message sent to client");
@@ -75,22 +75,23 @@ public class ServerWebSocketHandler {
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {
         System.out.println("OnClose");
-        // Figure out how to get the gameID, so I know what session to remove
+        System.out.println(statusCode);
+        System.out.println("Reason: " + reason);
     }
 
     @OnWebSocketError
     public void onError(Throwable throwable) {
         System.out.println("onError Server");
-        System.out.println(throwable.getMessage());
+        System.out.println("Error message: " + throwable.getMessage());
         throwable.printStackTrace();
     }
 
-    public void joinPlayer(UserGameCommand userGameCommand) {
+    private void joinPlayer(UserGameCommand userGameCommand) {
         int gameID = userGameCommand.getGameID();
         String authToken = userGameCommand.getAuthString();
         GameData gameData = new GameData(gameID, null, null, null, null);
 
-        ArrayList<Session> sessionList = sessionMap.get(gameID);
+        ArrayList<Session> sessionList = gameIdToSessions.get(gameID);
         GetGameResponse gameResponse = WebSocketService.getGame(new GetGameResponse(gameData, authToken, 1));
 
         String commandType;
@@ -107,5 +108,28 @@ public class ServerWebSocketHandler {
         }
     }
 
+    private void leaveMessage(UserGameCommand userGameCommand, Session session) {
+        int id;
+        Integer gameID = sessionToGameID.get(session);
+        if (gameID != null) {
+            id = gameID;
+        } else {
+            session.close();
+            return;
+        }
 
+        ArrayList<Session> sessionList = gameIdToSessions.get(id);
+
+        for (Session s : sessionList) {
+            String notify = userGameCommand.getUsername() + " is leaving the game.";
+            sendMessage(s, ServerMessage.ServerMessageType.NOTIFICATION, null, notify);
+        }
+
+        sessionList.remove(session);
+        gameIdToSessions.put(id, sessionList);
+
+        sessionToGameID.remove(session);
+
+        session.close();
+    }
 }

@@ -28,6 +28,7 @@ public class ClientMenu {
     String savedUsername = "";
     final String clearPassword = "clear";
     final int port;
+    ClientWebSocketHandler webSocket;
     final PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
     public ClientMenu(int port) {
@@ -196,7 +197,7 @@ public class ClientMenu {
                     //Send a resignation update, no more moves can happen
                     break;
                 case "leave":
-                    //Close the websocket, send leave message
+                    leave();
                     return;
             }
         }
@@ -243,9 +244,6 @@ public class ClientMenu {
     }
 
     private void joinGameHttp(String jsonString, int gameID, boolean player, Scanner scanner) {
-
-
-        ClientWebSocketHandler webSocket;
         try {
             webSocket = new ClientWebSocketHandler(baseUrl);
 
@@ -257,6 +255,8 @@ public class ClientMenu {
                 printErrorMessages(request.statusCode());
                 return;
             }
+
+            System.out.println(gameID);
 
             UserGameCommand userGameCommand;
             if (player) {
@@ -385,6 +385,16 @@ public class ClientMenu {
             savedUsername = username;
         } else {
             printLoginErrorMessages(request.statusCode());
+        }
+    }
+
+    private void leave() {
+        UserGameCommand command = new UserGameCommand(null, UserGameCommand.CommandType.LEAVE, 0, null, null);
+        try {
+            webSocket.sendMessage(command);
+            webSocket = null;
+        } catch(Exception e) {
+            System.out.println("Leave failed, error thrown");
         }
     }
 

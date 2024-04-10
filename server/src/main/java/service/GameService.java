@@ -85,7 +85,7 @@ public class GameService {
         if (joinGameRequest.playerColor().equals("white") || joinGameRequest.playerColor().equals("WHITE")) {
             colorVal = 0;
             if (data.whiteUsername() != null) {
-                if (data.whiteUsername().equalsIgnoreCase(joinGameRequest.playerColor())) {
+                if (data.whiteUsername().equalsIgnoreCase(username)) {
                     return new JoinGameResponse(201);
                 }
                 return new JoinGameResponse(403);
@@ -94,7 +94,7 @@ public class GameService {
         if (joinGameRequest.playerColor().equals("black") || joinGameRequest.playerColor().equals("BLACK")) {
             colorVal = 1;
             if (data.blackUsername() != null) {
-                if (data.blackUsername().equalsIgnoreCase(joinGameRequest.playerColor())) {
+                if (data.blackUsername().equalsIgnoreCase(username)) {
                     return new JoinGameResponse(201);
                 }
                 return new JoinGameResponse(403);

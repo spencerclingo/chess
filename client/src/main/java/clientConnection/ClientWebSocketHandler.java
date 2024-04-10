@@ -25,7 +25,12 @@ public class ClientWebSocketHandler extends Endpoint {
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         this.session = container.connectToServer(this, uri);
 
-        this.session.addMessageHandler((MessageHandler.Whole<String>) this::receiveMessage);
+        this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+            @Override
+            public void onMessage(String message) {
+                receiveMessage(message);
+            }
+        });
     }
 
     public void receiveMessage(String message) {
@@ -43,7 +48,7 @@ public class ClientWebSocketHandler extends Endpoint {
                 // Print error and what error happened
                 break;
             case NOTIFICATION:
-                // Print out the notification
+                System.out.println(serverMessage.getNotification());
                 break;
         }
     }
@@ -52,6 +57,7 @@ public class ClientWebSocketHandler extends Endpoint {
         username = command.getUsername();
         String jsonMessage = gson.toJson(command);
         this.session.getBasicRemote().sendText(jsonMessage);
+        System.out.println("message sent");
     }
 
     @Override
