@@ -266,17 +266,11 @@ public class ClientMenu {
             }
 
             webSocket.sendMessage(userGameCommand);
-            try {
-                wait(4000);
-            } catch(InterruptedException ignored) {}
 
             inGameMenu(scanner);
         } catch(DeploymentException | URISyntaxException | IOException e) {
             System.out.println("Error opening client-side webSocket: " + e.getMessage());
             e.printStackTrace();
-            try {
-                wait(1000);
-            } catch(InterruptedException ignored) {}
         }
     }
 

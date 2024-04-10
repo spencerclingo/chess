@@ -1,6 +1,5 @@
 package server;
 
-import chess.ChessGame;
 import com.google.gson.Gson;
 import models.GameData;
 import org.eclipse.jetty.websocket.api.Session;
@@ -11,6 +10,7 @@ import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.UserGameCommand;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -22,13 +22,6 @@ public class ServerWebSocketHandler {
     @OnWebSocketConnect
     public void onConnect(Session session) {
         System.out.println("OnConnect in server");
-        int gameID = Integer.parseInt(session.getUpgradeRequest().getParameterMap().get("gameID").getFirst());
-        ArrayList<Session> sessionList = sessionMap.get(gameID);
-        if (sessionList == null) {
-            sessionList = new ArrayList<>();
-        }
-        sessionList.add(session);
-        sessionMap.put(gameID, sessionList);
     }
 
     @OnWebSocketMessage
@@ -36,6 +29,14 @@ public class ServerWebSocketHandler {
         UserGameCommand userGameCommand = gson.fromJson(message, UserGameCommand.class);
 
         System.out.println("Websocket message received");
+
+        int gameID = userGameCommand.getGameID();
+        ArrayList<Session> sessionList = sessionMap.get(gameID);
+        if (sessionList == null) {
+            sessionList = new ArrayList<>();
+        }
+        sessionList.add(session);
+        sessionMap.put(gameID, sessionList);
 
         switch (userGameCommand.getCommandType()) {
             case JOIN_PLAYER, JOIN_OBSERVER:
@@ -62,6 +63,8 @@ public class ServerWebSocketHandler {
 
         try {
             session.getRemote().sendString(jsonMessage);
+            session.getRemote().sendBytes(ByteBuffer.wrap(jsonMessage.getBytes()));
+            System.out.println("Message sent to client");
         } catch(IOException e) {
             System.out.println("Problem sending message to client. " + e.getMessage());
             e.printStackTrace();
@@ -72,6 +75,13 @@ public class ServerWebSocketHandler {
     public void onClose(Session session, int statusCode, String reason) {
         System.out.println("OnClose");
         // Figure out how to get the gameID, so I know what session to remove
+    }
+
+    @OnWebSocketError
+    public void onError(Throwable throwable) {
+        System.out.println("onError Server");
+        System.out.println(throwable.getMessage());
+        throwable.printStackTrace();
     }
 
     public void joinPlayer(UserGameCommand userGameCommand) {

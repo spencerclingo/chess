@@ -6,14 +6,12 @@ import ui.ChessBoardPicture;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.UserGameCommand;
 
-
 import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-//mvn install gives an error about something not implementing WebSocketListener or being annotated with @WebSocket
-
+@ClientEndpoint
 public class ClientWebSocketHandler extends Endpoint {
 
     private final Gson gson = new Gson();
@@ -22,16 +20,17 @@ public class ClientWebSocketHandler extends Endpoint {
 
     public ClientWebSocketHandler(String baseUrl, int gameID) throws URISyntaxException, DeploymentException, IOException {
         String replaced = baseUrl.replace("http", "ws");
-        String uriString = replaced + "connect?gameID=" + gameID;
+        String uriString = replaced + "connect";
         URI uri = new URI(uriString);
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         this.session = container.connectToServer(this, uri);
     }
 
-
+    @OnMessage
     public void onMessage(String message) {
         ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
         GameData gameData = serverMessage.getGameData();
+        System.out.println("Received message back in client");
 
         switch (serverMessage.getServerMessageType()) {
             case LOAD_GAME:
@@ -61,6 +60,7 @@ public class ClientWebSocketHandler extends Endpoint {
 
     @OnError
     public void onError(Throwable t) {
+        System.out.println("Error in ClientWebSocketHandler");
         System.out.println(t.getMessage());
     }
 
