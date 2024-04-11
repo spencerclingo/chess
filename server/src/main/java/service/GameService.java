@@ -58,7 +58,12 @@ public class GameService {
      * @return JoinGameResponse with httpCode
      */
     public static JoinGameResponse joinGame(JoinGameRequest joinGameRequest, AuthData authData) throws DataAccessException {
-        String username = authStoredDAO.getAuth(authData).username();
+        String username;
+        try {
+            username = authStoredDAO.getAuth(authData).username();
+        } catch(DataAccessException e) {
+            return new JoinGameResponse(401);
+        }
 
         int colorVal=-1;
         GameData data;

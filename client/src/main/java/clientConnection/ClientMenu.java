@@ -323,6 +323,7 @@ public class ClientMenu {
         }
         ChessGame chessGame = new ChessGame();
         chessGame.getBoard().resetBoard();
+        chessGame.getBoard().visualBoardFix();
 
         GameData gameData = new GameData(gameID, null, null, gameName, chessGame);
         String jsonData = gson.toJson(gameData);
@@ -522,7 +523,6 @@ public class ClientMenu {
 
     private void resign() {
         try {
-            game.setGameOver(true);
             UserGameCommand command = new UserGameCommand(authToken, UserGameCommand.CommandType.RESIGN, -1, savedUsername, game);
             webSocket.sendMessage(command);
         } catch(IOException e) {

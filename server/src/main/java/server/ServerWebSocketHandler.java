@@ -131,10 +131,21 @@ public class ServerWebSocketHandler {
     }
 
     private void makeMove(UserGameCommand userGameCommand, Session session) {
+        if (gameOver(userGameCommand, session)) {
+            String notify = "Game is over, no moves can be played!";
+            sendMessage(session, ServerMessage.ServerMessageType.NOTIFICATION, null, notify, userGameCommand.getUsername());
+        }
+
         int gameID = sessionToGameID.get(session);
 
         GameData gameData = new GameData(gameID, null, null, null, userGameCommand.getGame());
         GetGameResponse updateResponse = new GetGameResponse(gameData, userGameCommand.getAuthString(), 0);
+
+        ChessGame game = userGameCommand.getGame();
+
+        if (userGameCommand.getCommandType() == UserGameCommand.CommandType.RESIGN) {
+            game.setGameOver(true);
+        }
 
         ClearResponse clearResponse = WebSocketService.updateGame(updateResponse);
 
@@ -144,6 +155,15 @@ public class ServerWebSocketHandler {
             if (clearResponse.httpCode() == 200) {
                 for (Session s : sessionList) {
                     String notify = userGameCommand.getUsername() + " made a move!";
+                    if (game.isInCheckmate(game.getTeamTurn())) {
+                        notify += "\nCheckmate!";
+                    } else if (game.isInCheck(game.getTeamTurn())) {
+                        notify += "\nCheck!";
+                    } else if (game.isInStalemate(game.getTeamTurn())) {
+                        notify += "\nStalemate!";
+                        game.setGameOver(true);
+                    }
+
                     sendMessage(s, ServerMessage.ServerMessageType.LOAD_GAME, gameData, notify, userGameCommand.getUsername());
                 }
             } else {
@@ -165,5 +185,9 @@ public class ServerWebSocketHandler {
                 }
             }
         }
+    }
+
+    private boolean gameOver(UserGameCommand userGameCommand, Session session) {
+        return userGameCommand.getGame().getGameOver();
     }
 }

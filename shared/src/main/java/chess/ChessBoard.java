@@ -70,10 +70,22 @@ public class ChessBoard {
             case 1, 8 -> ChessPiece.PieceType.ROOK;
             case 2, 7 -> ChessPiece.PieceType.KNIGHT;
             case 3, 6 -> ChessPiece.PieceType.BISHOP;
-            case 5 -> ChessPiece.PieceType.QUEEN;
-            case 4 -> ChessPiece.PieceType.KING;
+            case 4 -> ChessPiece.PieceType.QUEEN;
+            case 5 -> ChessPiece.PieceType.KING;
             default -> throw new RuntimeException("Invalid piece");
         };
+    }
+
+    public void visualBoardFix() {
+        ChessPiece kingWhite  = chessPieceArray[1][5];
+        ChessPiece queenWhite = chessPieceArray[1][4];
+        ChessPiece kingBlack  = chessPieceArray[8][5];
+        ChessPiece queenBlack = chessPieceArray[8][4];
+
+        chessPieceArray[1][5] = queenWhite;
+        chessPieceArray[1][4] = kingWhite;
+        chessPieceArray[8][5] = queenBlack;
+        chessPieceArray[8][4] = kingBlack;
     }
 
     public void makeMove(ChessMove move, boolean permanent) {
