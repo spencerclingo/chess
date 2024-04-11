@@ -479,9 +479,9 @@ public class ClientMenu {
 
             String location = scanner.nextLine();
 
-            char column = location.charAt(1);
+            char column = location.charAt(0);
             int col = letterToNumberMap.get(column);
-            int row = Integer.parseInt(location.substring(0, 1));
+            int row = Integer.parseInt(location.substring(1, 2));
 
             if (location.length() == 2) {
                 return new ChessPosition(row, col);
