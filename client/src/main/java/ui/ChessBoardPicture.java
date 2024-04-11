@@ -115,12 +115,12 @@ public class ChessBoardPicture {
         boolean foundPiece = false;
         for (ChessMove move : validMoves) {
             int row = move.getEndPosition().row();
-            int col = move.getEndPosition().col() - 1;
+            int col = move.getEndPosition().col();
 
             if (row == rowNum && col == colNum) {
                 highlightSquare(out, chessBoard, row, col);
                 highlighted = true;
-            } else if (startPosition.row() == rowNum && startPosition.col() - 1 == colNum) {
+            } else if (startPosition.row() == rowNum && startPosition.col() == colNum) {
                 if (!foundPiece) {
                     foundPiece = true;
                     highlightSquare(out, chessBoard, rowNum, colNum);

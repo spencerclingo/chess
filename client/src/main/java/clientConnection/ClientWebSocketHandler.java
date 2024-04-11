@@ -17,7 +17,6 @@ public class ClientWebSocketHandler extends Endpoint {
 
     private final Gson gson = new Gson();
     public Session session;
-    String username = "";
 
     public ClientWebSocketHandler(String baseUrl) throws URISyntaxException, DeploymentException, IOException {
         String replaced = baseUrl.replace("http", "ws");
@@ -42,7 +41,11 @@ public class ClientWebSocketHandler extends Endpoint {
         switch (serverMessage.getServerMessageType()) {
             case LOAD_GAME:
                 System.out.println(serverMessage.getNotification());
-                ChessBoardPicture.init(gameData.game().getBoard(), ! username.equalsIgnoreCase(gameData.blackUsername()), new ArrayList<>(), null);
+                if (ClientMenu.getColor().equals("black")) {
+                    ChessBoardPicture.init(gameData.game().getBoard(), false, new ArrayList<>(), null);
+                } else {
+                    ChessBoardPicture.init(gameData.game().getBoard(), true, new ArrayList<>(), null);
+                }
                 ClientMenu.saveGame(serverMessage.getGameData().game());
                 break;
             case ERROR:
@@ -64,7 +67,7 @@ public class ClientWebSocketHandler extends Endpoint {
     }
 
     public void sendMessage(UserGameCommand command) throws IOException {
-        username = command.getUsername();
+        ClientMenu.savedUsername = command.getUsername();
         String jsonMessage = gson.toJson(command);
         this.session.getBasicRemote().sendText(jsonMessage);
         System.out.println("message sent");
@@ -84,6 +87,7 @@ public class ClientWebSocketHandler extends Endpoint {
     @OnClose
     public void onClose() {
         System.out.println("Client ws closed");
-        username = "";
+        ClientMenu.savedUsername = "";
+        session = null;
     }
 }

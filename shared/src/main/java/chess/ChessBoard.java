@@ -70,8 +70,8 @@ public class ChessBoard {
             case 1, 8 -> ChessPiece.PieceType.ROOK;
             case 2, 7 -> ChessPiece.PieceType.KNIGHT;
             case 3, 6 -> ChessPiece.PieceType.BISHOP;
-            case 4 -> ChessPiece.PieceType.QUEEN;
-            case 5 -> ChessPiece.PieceType.KING;
+            case 5 -> ChessPiece.PieceType.QUEEN;
+            case 4 -> ChessPiece.PieceType.KING;
             default -> throw new RuntimeException("Invalid piece");
         };
     }

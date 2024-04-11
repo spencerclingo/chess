@@ -396,7 +396,7 @@ public class ClientMenu {
     }
 
     private void leave() {
-        UserGameCommand command = new UserGameCommand(null, UserGameCommand.CommandType.LEAVE, 0, null, null);
+        UserGameCommand command = new UserGameCommand(null, UserGameCommand.CommandType.LEAVE, 0, savedUsername, null);
         try {
             webSocket.sendMessage(command);
             webSocket = null;
@@ -410,7 +410,7 @@ public class ClientMenu {
     private void movePiece(Scanner scanner) {
         System.out.println("Where is the piece you want to move?");
         ChessPosition startPosition = getPositionFromUser(scanner);
-        
+
         ChessPiece piece = game.getBoard().getPiece(startPosition);
         boolean isPawn = (piece.getPieceType() == ChessPiece.PieceType.PAWN);
 
@@ -481,14 +481,14 @@ public class ClientMenu {
 
     private ChessPosition getPositionFromUser(Scanner scanner) {
         HashMap<Character, Integer> letterToNumberMap = new HashMap<>();
-        letterToNumberMap.put('a', 1);
-        letterToNumberMap.put('b', 2);
-        letterToNumberMap.put('c', 3);
-        letterToNumberMap.put('d', 4);
-        letterToNumberMap.put('e', 5);
-        letterToNumberMap.put('f', 6);
-        letterToNumberMap.put('g', 7);
-        letterToNumberMap.put('h', 8);
+        letterToNumberMap.put('a', 8);
+        letterToNumberMap.put('b', 7);
+        letterToNumberMap.put('c', 6);
+        letterToNumberMap.put('d', 5);
+        letterToNumberMap.put('e', 4);
+        letterToNumberMap.put('f', 3);
+        letterToNumberMap.put('g', 2);
+        letterToNumberMap.put('h', 1);
 
         while (true) {
             System.out.println("(Do only letter then number, i.e. e7)");
@@ -611,5 +611,9 @@ public class ClientMenu {
 
     public static void saveGame(ChessGame game) {
         ClientMenu.game = game;
+    }
+
+    public static String getColor() {
+        return color;
     }
 }
