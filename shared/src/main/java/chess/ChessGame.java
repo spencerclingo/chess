@@ -17,7 +17,7 @@ public class ChessGame {
     private TeamColor teamTurn;
     private ChessMove previousMove;
     private ChessBoard currentBoard;
-
+    private boolean gameOver = false;
 
     public ChessGame() {
         currentBoard = new ChessBoard();
@@ -30,6 +30,15 @@ public class ChessGame {
         currentBoard = copyGame.getBoard();
         setTeamTurn(copyGame.getTeamTurn());
         previousMove = copyGame.getPreviousMove();
+        gameOver = copyGame.getGameOver();
+    }
+
+    public boolean getGameOver() {
+        return gameOver;
+    }
+
+    public void setGameOver(boolean end) {
+        gameOver = end;
     }
 
     /**
@@ -134,6 +143,10 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        if (gameOver) {
+            return;
+        }
+
         if (teamTurn != currentBoard.getPiece(move.getStartPosition()).getTeamColor()) {
             throw new InvalidMoveException("Not your turn!");
         }
@@ -143,7 +156,6 @@ public class ChessGame {
 
         ArrayList<ChessMove> allValidMoves =(ArrayList<ChessMove>) validMoves(move.getStartPosition());
         boolean validMove = false;
-
 
         for (ChessMove testMove : allValidMoves) {
             if (testMove.equals(move)) {
@@ -209,7 +221,11 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        return (isInCheck(teamColor) && isInStalemate(teamColor));
+        if (isInCheck(teamColor) && isInStalemate(teamColor)) {
+            gameOver = true;
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -234,11 +250,11 @@ public class ChessGame {
             }
         }
 
+        gameOver = true;
         return true;
     }
 
     private ChessMove enPassant(ChessPosition startPosition) {
-
         ChessPiece piece = currentBoard.getPiece(startPosition);
         ChessMove newMove;
 
@@ -246,9 +262,7 @@ public class ChessGame {
             return null;
         }
 
-
         ChessPiece possiblePawn = currentBoard.getPiece(previousMove.getEndPosition());
-
 
         if (possiblePawn == null) {
             return null;
