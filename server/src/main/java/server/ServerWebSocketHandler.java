@@ -1,5 +1,6 @@
 package server;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import models.GameData;
 import org.eclipse.jetty.websocket.api.Session;
@@ -44,18 +45,14 @@ public class ServerWebSocketHandler {
 
                 joinPlayer(userGameCommand);
                 break;
-            case MAKE_MOVE:
+            case MAKE_MOVE, RESIGN:
                 makeMove(userGameCommand, session);
                 break;
             case LEAVE:
                 leaveMessage(userGameCommand, session);
                 break;
-            case RESIGN:
-                // Send a resignation notification, disallow any further movement
-                //break;
             default:
-                // Send error message
-                break;
+                System.out.println("Malformed request");
         }
     }
 
@@ -137,21 +134,35 @@ public class ServerWebSocketHandler {
         int gameID = sessionToGameID.get(session);
 
         GameData gameData = new GameData(gameID, null, null, null, userGameCommand.getGame());
-        GetGameResponse response = new GetGameResponse(gameData, userGameCommand.getAuthString(), 0);
+        GetGameResponse updateResponse = new GetGameResponse(gameData, userGameCommand.getAuthString(), 0);
 
-        ClearResponse clearResponse = WebSocketService.updateGame(response);
+        ClearResponse clearResponse = WebSocketService.updateGame(updateResponse);
 
         ArrayList<Session> sessionList = gameIdToSessions.get(gameID);
 
-        if (clearResponse.httpCode() == 200) {
-            for (Session s : sessionList) {
-                String notify = userGameCommand.getUsername() + " made a move!";
-                sendMessage(s, ServerMessage.ServerMessageType.LOAD_GAME, gameData, notify, userGameCommand.getUsername());
+        if (userGameCommand.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE) {
+            if (clearResponse.httpCode() == 200) {
+                for (Session s : sessionList) {
+                    String notify = userGameCommand.getUsername() + " made a move!";
+                    sendMessage(s, ServerMessage.ServerMessageType.LOAD_GAME, gameData, notify, userGameCommand.getUsername());
+                }
+            } else {
+                for (Session s : sessionList) {
+                    String notify = "Error: " + userGameCommand.getUsername() + " attempted to make a move but something bad happened. Either " + userGameCommand.getUsername() + " needs to log back in or the game was deleted :/";
+                    sendMessage(s, ServerMessage.ServerMessageType.ERROR, null, notify, userGameCommand.getUsername());
+                }
             }
         } else {
-            for (Session s : sessionList) {
-                String notify = "Error: " + userGameCommand.getUsername() + " attempted to make a move but something bad happened. Either " + userGameCommand.getUsername() + " needs to log back in or the game was deleted :/";
-                sendMessage(s, ServerMessage.ServerMessageType.ERROR, null, notify, userGameCommand.getUsername());
+            if (clearResponse.httpCode() == 200) {
+                for (Session s : sessionList) {
+                    String notify = userGameCommand.getUsername() + " has resigned!";
+                    sendMessage(s, ServerMessage.ServerMessageType.LOAD_GAME, gameData, notify, userGameCommand.getUsername());
+                }
+            } else {
+                for (Session s : sessionList) {
+                    String notify = "Error: " + userGameCommand.getUsername() + " attempted to resign but something bad happened. Either " + userGameCommand.getUsername() + " needs to log back in or the game was deleted :/";
+                    sendMessage(s, ServerMessage.ServerMessageType.ERROR, null, notify, userGameCommand.getUsername());
+                }
             }
         }
     }

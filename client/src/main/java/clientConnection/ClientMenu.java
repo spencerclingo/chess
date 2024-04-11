@@ -188,7 +188,7 @@ public class ClientMenu {
 
             switch (choice) {
                 case "redraw":
-                    //Just asks for the board from ChessBoardPicture with the correct orientation
+                    redraw();
                     break;
                 case "make move":
                     movePiece(scanner);
@@ -199,7 +199,7 @@ public class ClientMenu {
                     //Passes a set of valid moves to ChessBoardPicture, highlights squares
                     break;
                 case "resign":
-                    //Send a resignation update, no more moves can happen
+                    resign();
                     break;
                 case "leave":
                     leave();
@@ -410,6 +410,22 @@ public class ClientMenu {
     private void movePiece(Scanner scanner) {
         System.out.println("Where is the piece you want to move?");
         ChessPosition startPosition = getPositionFromUser(scanner);
+        
+        ChessPiece piece = game.getBoard().getPiece(startPosition);
+        boolean isPawn = (piece.getPieceType() == ChessPiece.PieceType.PAWN);
+
+        ChessGame.TeamColor pieceColor = piece.getTeamColor();
+        if (color.equalsIgnoreCase("white")) {
+            if (pieceColor != ChessGame.TeamColor.WHITE) {
+                System.out.println("Error: That's not your piece");
+                return;
+            }
+        } else {
+            if (pieceColor != ChessGame.TeamColor.BLACK) {
+                System.out.println("Error: That's not your piece");
+                return;
+            }
+        }
 
         System.out.println("Where do you want to move your piece?");
         ChessPosition endPosition = getPositionFromUser(scanner);
@@ -417,8 +433,6 @@ public class ClientMenu {
         ChessPiece.PieceType pieceType = null;
         int row = endPosition.row();
 
-        ChessPiece piece = game.getBoard().getPiece(startPosition);
-        boolean isPawn = (piece.getPieceType() == ChessPiece.PieceType.PAWN);
 
         if (isPawn) {
             if ((piece.getTeamColor() == ChessGame.TeamColor.WHITE && row == 8) || (piece.getTeamColor() == ChessGame.TeamColor.BLACK && row == 1)) {
@@ -447,7 +461,6 @@ public class ClientMenu {
                     }
                     break;
                 }
-
             }
         }
 
@@ -460,7 +473,7 @@ public class ClientMenu {
             webSocket.sendMessage(command);
         } catch(InvalidMoveException ime) {
             System.out.println("Error: " + ime.getMessage());
-        } catch(IOException e) {
+        } catch(IOException | RuntimeException e) {
             System.out.println("Error: " + e.getMessage());
             game = tempGame;
         }
@@ -499,6 +512,22 @@ public class ClientMenu {
         boolean isWhite = color.equalsIgnoreCase("white");
 
         ChessBoardPicture.init(game.getBoard(), isWhite, validMoves, position);
+    }
+
+    private void redraw() {
+        boolean isWhite = color.equalsIgnoreCase("white");
+
+        ChessBoardPicture.init(game.getBoard(), isWhite, new ArrayList<>(), null);
+    }
+
+    private void resign() {
+        try {
+            game.setGameOver(true);
+            UserGameCommand command = new UserGameCommand(authToken, UserGameCommand.CommandType.RESIGN, -1, savedUsername, game);
+            webSocket.sendMessage(command);
+        } catch(IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 
     private String[] getUserInfo(Scanner scanner) {
