@@ -10,6 +10,7 @@ import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 @ClientEndpoint
 public class ClientWebSocketHandler extends Endpoint {
@@ -41,7 +42,7 @@ public class ClientWebSocketHandler extends Endpoint {
         switch (serverMessage.getServerMessageType()) {
             case LOAD_GAME:
                 System.out.println(serverMessage.getNotification());
-                ChessBoardPicture.init(gameData.game().getBoard(), ! username.equalsIgnoreCase(gameData.blackUsername()));
+                ChessBoardPicture.init(gameData.game().getBoard(), ! username.equalsIgnoreCase(gameData.blackUsername()), new ArrayList<>(), null);
                 ClientMenu.saveGame(serverMessage.getGameData().game());
                 break;
             case ERROR:

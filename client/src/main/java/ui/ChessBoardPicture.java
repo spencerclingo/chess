@@ -1,11 +1,10 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
+import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 import static ui.EscapeSequences.*;
 
@@ -24,20 +23,26 @@ public class ChessBoardPicture {
     private static final String[] COLUMN_LABELS = {" \u2003\u2003"," h\u2003"," g\u2003"," f\u2003"," e\u2003"," d\u2003"," c\u2003"," b\u2003"," a\u2003"," \u2003\u2003"};
     private static final String[] ROW_LABELS = {"\u20031\u2003","\u20032\u2003","\u20033\u2003","\u20034\u2003","\u20035\u2003","\u20036\u2003","\u20037\u2003","\u20038\u2003"};
 
+
+
     public static void main(String[] args) {
         ChessGame chessGame = new ChessGame();
         chessGame.getBoard().resetBoard();
-        init(chessGame.getBoard(), true);
-        init(chessGame.getBoard(), false);
+        init(chessGame.getBoard(), true, new ArrayList<>(), null);
+        init(chessGame.getBoard(), false, new ArrayList<>(), null);
     }
 
-    public static void init(ChessBoard chessBoard, boolean white) {
+    public static void init(ChessBoard chessBoard, boolean white, ArrayList<ChessMove> validMoves, ChessPosition startPosition) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+
+        if (startPosition == null) {
+            startPosition = new ChessPosition(0,0);
+        }
 
         out.print(EscapeSequences.ERASE_SCREEN);
 
         drawHeader(out, white);
-        drawChessBoard(out, white, chessBoard);
+        drawChessBoard(out, white, chessBoard, validMoves, startPosition);
         drawHeader(out, white);
 
         setBlack(out);
@@ -75,13 +80,13 @@ public class ChessBoardPicture {
         out.print(SET_TEXT_COLOR_WHITE);
     }
 
-    private static void drawChessBoard(PrintStream out, boolean white, ChessBoard chessBoard) {
-        if (!white) {
-            for (int rowNum = 1; rowNum <= BOARD_SIZE_IN_SQUARES; rowNum++) {
+    private static void drawChessBoard(PrintStream out, boolean white, ChessBoard chessBoard, ArrayList<ChessMove> validMoves, ChessPosition startPosition) {
+        if (white) {
+            for (int rowNum = BOARD_SIZE_IN_SQUARES; rowNum > 0; rowNum--) {
                 setBoundary(out);
                 out.print(ROW_LABELS[rowNum - 1]);
-                for (int colNum = 1; colNum <= BOARD_SIZE_IN_SQUARES; colNum++) {
-                    alternatingLines(out, chessBoard, rowNum, colNum);
+                for (int colNum = BOARD_SIZE_IN_SQUARES; colNum > 0; colNum--) {
+                    findValidSquares(out, chessBoard, validMoves, rowNum, colNum, startPosition);
                 }
 
                 setBoundary(out);
@@ -90,11 +95,11 @@ public class ChessBoardPicture {
                 out.println();
             }
         } else {
-            for (int rowNum = BOARD_SIZE_IN_SQUARES; rowNum > 0; rowNum--) {
+            for (int rowNum = 1; rowNum <= BOARD_SIZE_IN_SQUARES; rowNum++) {
                 setBoundary(out);
                 out.print(ROW_LABELS[rowNum - 1]);
-                for (int colNum = BOARD_SIZE_IN_SQUARES; colNum > 0; colNum--) {
-                    alternatingLines(out, chessBoard, rowNum, colNum);
+                for (int colNum = 1; colNum <= BOARD_SIZE_IN_SQUARES; colNum++) {
+                    findValidSquares(out, chessBoard, validMoves, rowNum, colNum, startPosition);
                 }
 
                 setBoundary(out);
@@ -102,6 +107,29 @@ public class ChessBoardPicture {
                 setBlack(out);
                 out.println();
             }
+        }
+    }
+
+    private static void findValidSquares(PrintStream out, ChessBoard chessBoard, ArrayList<ChessMove> validMoves, int rowNum, int colNum, ChessPosition startPosition) {
+        boolean highlighted = false;
+        boolean foundPiece = false;
+        for (ChessMove move : validMoves) {
+            int row = move.getEndPosition().row();
+            int col = move.getEndPosition().col() - 1;
+
+            if (row == rowNum && col == colNum) {
+                highlightSquare(out, chessBoard, row, col);
+                highlighted = true;
+            } else if (startPosition.row() == rowNum && startPosition.col() - 1 == colNum) {
+                if (!foundPiece) {
+                    foundPiece = true;
+                    highlightSquare(out, chessBoard, rowNum, colNum);
+                    highlighted = true;
+                }
+            }
+        }
+        if (!highlighted) {
+            alternatingLines(out, chessBoard, rowNum, colNum);
         }
     }
 
@@ -123,6 +151,11 @@ public class ChessBoardPicture {
 
             printPiece(out, chessBoard, rowNum, colNum);
         }
+    }
+
+    private static void highlightSquare(PrintStream out, ChessBoard chessBoard, int rowNum, int colNum) {
+        out.print(SET_BG_COLOR_YELLOW);
+        printPiece(out, chessBoard, rowNum, colNum);
     }
 
     private static void printPiece(PrintStream out, ChessBoard chessBoard, int rowNum, int colNum) {

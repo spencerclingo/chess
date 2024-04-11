@@ -8,6 +8,7 @@ import models.UserData;
 import response.GameIDResponse;
 import response.GameListResponse;
 import response.JoinGameRequest;
+import ui.ChessBoardPicture;
 import webSocketMessages.userCommands.UserGameCommand;
 
 import javax.websocket.DeploymentException;
@@ -31,7 +32,7 @@ public class ClientMenu {
     final int port;
     ClientWebSocketHandler webSocket;
     private static ChessGame game;
-    int gameID;
+    private static String color;
     final PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
     public ClientMenu(int port) {
@@ -194,7 +195,7 @@ public class ClientMenu {
                     //Sends a make move message, pass in start position and end position. Use dict for letter to number calculations
                     break;
                 case "highlight":
-
+                    highlight(scanner);
                     //Passes a set of valid moves to ChessBoardPicture, highlights squares
                     break;
                 case "resign":
@@ -230,7 +231,7 @@ public class ClientMenu {
 
         String jsonString = gson.toJson(new JoinGameRequest(null, id));
 
-        joinGameHttp(jsonString, id, false, scanner);
+        joinGameHttp(jsonString, id, false, null, scanner);
     }
 
     private void joinGame(Scanner scanner) {
@@ -244,10 +245,10 @@ public class ClientMenu {
 
         String jsonString = gson.toJson(new JoinGameRequest(color, id));
 
-        joinGameHttp(jsonString, id, true, scanner);
+        joinGameHttp(jsonString, id, true, color, scanner);
     }
 
-    private void joinGameHttp(String jsonString, int gameID, boolean player, Scanner scanner) {
+    private void joinGameHttp(String jsonString, int gameID, boolean player, String color, Scanner scanner) {
         try {
             webSocket = new ClientWebSocketHandler(baseUrl);
 
@@ -259,6 +260,8 @@ public class ClientMenu {
                 printErrorMessages(request.statusCode());
                 return;
             }
+
+            ClientMenu.color = color;
 
             System.out.println(gameID);
 
@@ -398,6 +401,7 @@ public class ClientMenu {
             webSocket.sendMessage(command);
             webSocket = null;
             game = null;
+            color = null;
         } catch(Exception e) {
             System.out.println("Leave failed, error thrown");
         }
@@ -405,10 +409,10 @@ public class ClientMenu {
 
     private void movePiece(Scanner scanner) {
         System.out.println("Where is the piece you want to move?");
-        ChessPosition startPosition = getMoveFromUser(scanner);
+        ChessPosition startPosition = getPositionFromUser(scanner);
 
         System.out.println("Where do you want to move your piece?");
-        ChessPosition endPosition = getMoveFromUser(scanner);
+        ChessPosition endPosition = getPositionFromUser(scanner);
 
         ChessPiece.PieceType pieceType = null;
         int row = endPosition.row();
@@ -462,7 +466,7 @@ public class ClientMenu {
         }
     }
 
-    private ChessPosition getMoveFromUser(Scanner scanner) {
+    private ChessPosition getPositionFromUser(Scanner scanner) {
         HashMap<Character, Integer> letterToNumberMap = new HashMap<>();
         letterToNumberMap.put('a', 1);
         letterToNumberMap.put('b', 2);
@@ -487,6 +491,14 @@ public class ClientMenu {
                 return new ChessPosition(row, col);
             }
         }
+    }
+
+    private void highlight(Scanner scanner) {
+        ChessPosition position = getPositionFromUser(scanner);
+        ArrayList<ChessMove> validMoves = (ArrayList<ChessMove>) game.validMoves(position);
+        boolean isWhite = color.equalsIgnoreCase("white");
+
+        ChessBoardPicture.init(game.getBoard(), isWhite, validMoves, position);
     }
 
     private String[] getUserInfo(Scanner scanner) {
