@@ -40,12 +40,21 @@ public class ClientWebSocketHandler extends Endpoint {
 
         switch (serverMessage.getServerMessageType()) {
             case LOAD_GAME:
-                // Load the game for this player
                 System.out.println(serverMessage.getNotification());
                 ChessBoardPicture.init(gameData.game().getBoard(), ! username.equalsIgnoreCase(gameData.blackUsername()));
+                ClientMenu.saveGame(serverMessage.getGameData().game());
                 break;
             case ERROR:
-                // Print error and what error happened
+                System.out.println(serverMessage.getNotification());
+
+                if (serverMessage.getUsername().equalsIgnoreCase(ClientMenu.savedUsername)) {
+                    UserGameCommand command = new UserGameCommand(null, UserGameCommand.CommandType.LEAVE, 0, ClientMenu.savedUsername, null);
+                    try {
+                        sendMessage(command);
+                    } catch(Exception e) {
+                        System.out.println("When trying to remove you from the game, an error occurred while communicating to the server. ");
+                    }
+                }
                 break;
             case NOTIFICATION:
                 System.out.println(serverMessage.getNotification());

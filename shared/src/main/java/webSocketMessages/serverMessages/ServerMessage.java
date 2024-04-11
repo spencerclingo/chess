@@ -15,6 +15,7 @@ public class ServerMessage {
     private final ServerMessageType serverMessageType;
     private final String notification;
     private final GameData gameData;
+    private final String username;
 
     public enum ServerMessageType {
         LOAD_GAME,
@@ -22,10 +23,11 @@ public class ServerMessage {
         NOTIFICATION
     }
 
-    public ServerMessage(ServerMessageType type, String message, GameData gameData) {
+    public ServerMessage(ServerMessageType type, String message, GameData gameData, String username) {
         serverMessageType = type;
         notification = message;
         this.gameData = gameData;
+        this.username = username;
     }
 
     public ServerMessageType getServerMessageType() {
@@ -38,6 +40,9 @@ public class ServerMessage {
 
     public GameData getGameData() {
         return gameData;
+    }
+    public String getUsername() {
+        return username;
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import models.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
+import response.ClearResponse;
 import response.GetGameResponse;
 import service.WebSocketService;
 import webSocketMessages.serverMessages.ServerMessage;
@@ -44,10 +45,9 @@ public class ServerWebSocketHandler {
                 joinPlayer(userGameCommand);
                 break;
             case MAKE_MOVE:
-                // Change the board, update it in the database, print the database version
-                //break;
+                makeMove(userGameCommand, session);
+                break;
             case LEAVE:
-                // Disconnect from the websocket
                 leaveMessage(userGameCommand, session);
                 break;
             case RESIGN:
@@ -59,8 +59,8 @@ public class ServerWebSocketHandler {
         }
     }
 
-    public void sendMessage(Session session, ServerMessage.ServerMessageType messageType, GameData game, String notification) {
-        ServerMessage message = new ServerMessage(messageType, notification, game);
+    public void sendMessage(Session session, ServerMessage.ServerMessageType messageType, GameData game, String notification, String username) {
+        ServerMessage message = new ServerMessage(messageType, notification, game, username);
         String jsonMessage = gson.toJson(message);
 
         try {
@@ -104,7 +104,7 @@ public class ServerWebSocketHandler {
         String message = userGameCommand.getUsername() + commandType + "the game!";
 
         for (Session session : sessionList) {
-            sendMessage(session, ServerMessage.ServerMessageType.LOAD_GAME, gameResponse.gameData(), message);
+            sendMessage(session, ServerMessage.ServerMessageType.LOAD_GAME, gameResponse.gameData(), message, userGameCommand.getUsername());
         }
     }
 
@@ -122,7 +122,7 @@ public class ServerWebSocketHandler {
 
         for (Session s : sessionList) {
             String notify = userGameCommand.getUsername() + " is leaving the game.";
-            sendMessage(s, ServerMessage.ServerMessageType.NOTIFICATION, null, notify);
+            sendMessage(s, ServerMessage.ServerMessageType.NOTIFICATION, null, notify, userGameCommand.getUsername());
         }
 
         sessionList.remove(session);
@@ -131,5 +131,28 @@ public class ServerWebSocketHandler {
         sessionToGameID.remove(session);
 
         session.close();
+    }
+
+    private void makeMove(UserGameCommand userGameCommand, Session session) {
+        int gameID = sessionToGameID.get(session);
+
+        GameData gameData = new GameData(gameID, null, null, null, userGameCommand.getGame());
+        GetGameResponse response = new GetGameResponse(gameData, userGameCommand.getAuthString(), 0);
+
+        ClearResponse clearResponse = WebSocketService.updateGame(response);
+
+        ArrayList<Session> sessionList = gameIdToSessions.get(gameID);
+
+        if (clearResponse.httpCode() == 200) {
+            for (Session s : sessionList) {
+                String notify = userGameCommand.getUsername() + " made a move!";
+                sendMessage(s, ServerMessage.ServerMessageType.LOAD_GAME, gameData, notify, userGameCommand.getUsername());
+            }
+        } else {
+            for (Session s : sessionList) {
+                String notify = "Error: " + userGameCommand.getUsername() + " attempted to make a move but something bad happened. Either " + userGameCommand.getUsername() + " needs to log back in or the game was deleted :/";
+                sendMessage(s, ServerMessage.ServerMessageType.ERROR, null, notify, userGameCommand.getUsername());
+            }
+        }
     }
 }

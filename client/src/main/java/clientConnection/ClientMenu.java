@@ -1,6 +1,6 @@
 package clientConnection;
 
-import chess.ChessGame;
+import chess.*;
 import com.google.gson.Gson;
 import models.AuthData;
 import models.GameData;
@@ -16,6 +16,7 @@ import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -25,10 +26,12 @@ public class ClientMenu {
     final Gson gson = new Gson();
     final String baseUrl;
     String authToken = "";
-    String savedUsername = "";
+    static String savedUsername = "";
     final String clearPassword = "clear";
     final int port;
     ClientWebSocketHandler webSocket;
+    private static ChessGame game;
+    int gameID;
     final PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
     public ClientMenu(int port) {
@@ -187,6 +190,7 @@ public class ClientMenu {
                     //Just asks for the board from ChessBoardPicture with the correct orientation
                     break;
                 case "make move":
+                    movePiece(scanner);
                     //Sends a make move message, pass in start position and end position. Use dict for letter to number calculations
                     break;
                 case "highlight":
@@ -393,8 +397,95 @@ public class ClientMenu {
         try {
             webSocket.sendMessage(command);
             webSocket = null;
+            game = null;
         } catch(Exception e) {
             System.out.println("Leave failed, error thrown");
+        }
+    }
+
+    private void movePiece(Scanner scanner) {
+        System.out.println("Where is the piece you want to move?");
+        ChessPosition startPosition = getMoveFromUser(scanner);
+
+        System.out.println("Where do you want to move your piece?");
+        ChessPosition endPosition = getMoveFromUser(scanner);
+
+        ChessPiece.PieceType pieceType = null;
+        int row = endPosition.row();
+
+        ChessPiece piece = game.getBoard().getPiece(startPosition);
+        boolean isPawn = (piece.getPieceType() == ChessPiece.PieceType.PAWN);
+
+        if (isPawn) {
+            if ((piece.getTeamColor() == ChessGame.TeamColor.WHITE && row == 8) || (piece.getTeamColor() == ChessGame.TeamColor.BLACK && row == 1)) {
+                ArrayList<String> possiblePromotions = new ArrayList<>();
+                possiblePromotions.add("knight");
+                possiblePromotions.add("bishop");
+                possiblePromotions.add("rook");
+                possiblePromotions.add("queen");
+
+                while(true) {
+                    System.out.println("What piece would you like to promote to: knight, bishop, rook, queen");
+                    System.out.print(">>>  ");
+
+                    String promote = scanner.nextLine();
+                    promote = promote.toLowerCase();
+
+                    if (!possiblePromotions.contains(promote)) {
+                        continue;
+                    }
+
+                    switch (promote) {
+                        case "knight" -> pieceType = ChessPiece.PieceType.KNIGHT;
+                        case "bishop" -> pieceType = ChessPiece.PieceType.BISHOP;
+                        case "rook"   -> pieceType = ChessPiece.PieceType.ROOK;
+                        case "queen"  -> pieceType = ChessPiece.PieceType.QUEEN;
+                    }
+                    break;
+                }
+
+            }
+        }
+
+        ChessMove move = new ChessMove(startPosition, endPosition, pieceType);
+        ChessGame tempGame = new ChessGame(game);
+        try {
+            game.makeMove(move);
+
+            UserGameCommand command = new UserGameCommand(authToken, UserGameCommand.CommandType.MAKE_MOVE, -1, savedUsername, game);
+            webSocket.sendMessage(command);
+        } catch(InvalidMoveException ime) {
+            System.out.println("Error: " + ime.getMessage());
+        } catch(IOException e) {
+            System.out.println("Error: " + e.getMessage());
+            game = tempGame;
+        }
+    }
+
+    private ChessPosition getMoveFromUser(Scanner scanner) {
+        HashMap<Character, Integer> letterToNumberMap = new HashMap<>();
+        letterToNumberMap.put('a', 1);
+        letterToNumberMap.put('b', 2);
+        letterToNumberMap.put('c', 3);
+        letterToNumberMap.put('d', 4);
+        letterToNumberMap.put('e', 5);
+        letterToNumberMap.put('f', 6);
+        letterToNumberMap.put('g', 7);
+        letterToNumberMap.put('h', 8);
+
+        while (true) {
+            System.out.println("(Do only letter then number, i.e. e7)");
+            System.out.print(">>>  ");
+
+            String location = scanner.nextLine();
+
+            char column = location.charAt(1);
+            int col = letterToNumberMap.get(column);
+            int row = Integer.parseInt(location.substring(0, 1));
+
+            if (location.length() == 2) {
+                return new ChessPosition(row, col);
+            }
         }
     }
 
@@ -475,5 +566,9 @@ public class ClientMenu {
         } else {
             System.out.println("Something went wrong. Please contact sysadmin");
         }
+    }
+
+    public static void saveGame(ChessGame game) {
+        ClientMenu.game = game;
     }
 }

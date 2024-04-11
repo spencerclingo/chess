@@ -26,6 +26,12 @@ public class ChessGame {
         previousMove = null;
     }
 
+    public ChessGame(ChessGame copyGame) {
+        currentBoard = copyGame.getBoard();
+        setTeamTurn(copyGame.getTeamTurn());
+        previousMove = copyGame.getPreviousMove();
+    }
+
     /**
      * @return Which team's turn it is
      */
@@ -89,7 +95,7 @@ public class ChessGame {
         return allValidMoves;
     }
 
-    private boolean doMove(ChessMove move){
+    private boolean doMove(ChessMove move) {
         if (move.isEnPassant()) {
             return testEnPassantMove(move);
         }
@@ -132,7 +138,7 @@ public class ChessGame {
             throw new InvalidMoveException("Not your turn!");
         }
         if (currentBoard.getPiece(move.getStartPosition()) == null) {
-            throw new InvalidMoveException();
+            throw new InvalidMoveException("There's no piece to move at that start position!");
         }
 
         ArrayList<ChessMove> allValidMoves =(ArrayList<ChessMove>) validMoves(move.getStartPosition());
@@ -371,4 +377,6 @@ public class ChessGame {
                 ", currentBoard=" + currentBoard +
                 '}';
     }
+
+
 }
