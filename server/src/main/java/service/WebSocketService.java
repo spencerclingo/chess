@@ -8,6 +8,8 @@ import models.GameData;
 import response.ClearResponse;
 import response.GetGameResponse;
 
+import java.util.Objects;
+
 public class WebSocketService {
     private static GameDAO gameStoredDAO;
     private static AuthDAO authStoredDAO;
@@ -18,14 +20,14 @@ public class WebSocketService {
         try {
             authStoredDAO.getAuth(authData);
         } catch(Exception e) {
-            return new GetGameResponse(null, null, 401); //Unauthorized
+            return new GetGameResponse(null, null, null, 401); //Unauthorized
         }
 
         try {
             GameData gameData = gameStoredDAO.getGame(getGame.gameData());
-            return new GetGameResponse(gameData, authData.authToken(), 200);
+            return new GetGameResponse(gameData, authData.authToken(), null, 200);
         } catch(Exception e) {
-            return new GetGameResponse(null, null, 400); //Does not exist
+            return new GetGameResponse(null, null, null,400); //Does not exist
         }
     }
 
@@ -43,6 +45,42 @@ public class WebSocketService {
             return new ClearResponse(200); //Worked properly
         } catch(Exception e) {
             return new ClearResponse(400); //Game doesn't exist
+        }
+    }
+
+    public static ClearResponse playerLeaves(GetGameResponse setGame) {
+        AuthData authData = new AuthData(setGame.authToken(), null);
+
+        try {
+            authStoredDAO.getAuth(authData);
+        } catch(Exception e) {
+            return new ClearResponse( 401); //Unauthorized
+        }
+
+        GameData oldGameData;
+        try {
+            oldGameData = gameStoredDAO.getGame(setGame.gameData());
+        } catch(Exception e) {
+            return new ClearResponse(400);
+        }
+
+        GameData newGameData;
+        boolean white;
+        if (Objects.equals(setGame.username(), oldGameData.whiteUsername())) {
+            white = true;
+            newGameData = new GameData(oldGameData.gameID(), null, oldGameData.blackUsername(), oldGameData.gameName(), oldGameData.game());
+        } else if (Objects.equals(setGame.username(), oldGameData.blackUsername())){
+            white = false;
+            newGameData = new GameData(oldGameData.gameID(), oldGameData.whiteUsername(), null, oldGameData.gameName(), oldGameData.game());
+        } else {
+            return new ClearResponse(200);
+        }
+
+        try {
+            gameStoredDAO.removePlayer(newGameData, white);
+            return new ClearResponse(200);
+        } catch(Exception e) {
+            return new ClearResponse(400);
         }
     }
 

@@ -43,13 +43,13 @@ public class ServerWebSocketHandler {
                 gameIdToSessions.put(gameID, sessionList);
                 sessionToGameID.put(session, gameID);
 
-                joinPlayer(userGameCommand);
+                joinPlayer(userGameCommand, session);
                 break;
             case MAKE_MOVE, RESIGN:
                 makeMove(userGameCommand, session);
                 break;
             case LEAVE:
-                leaveMessage(userGameCommand, session);
+                leaveMessage(userGameCommand, session, true);
                 break;
             default:
                 System.out.println("Malformed request");
@@ -74,6 +74,8 @@ public class ServerWebSocketHandler {
         System.out.println("OnClose");
         System.out.println(statusCode);
         System.out.println("Reason: " + reason);
+
+        leaveMessage(new UserGameCommand(null,null, -1, null,null), session, false);
     }
 
     @OnWebSocketError
@@ -81,31 +83,48 @@ public class ServerWebSocketHandler {
         System.out.println("onError Server");
         System.out.println("Error message: " + throwable.getMessage());
         throwable.printStackTrace();
+
+        //leaveMessage(new UserGameCommand(null,null, -1, null,null), session, false);
     }
 
-    private void joinPlayer(UserGameCommand userGameCommand) {
+    private void joinPlayer(UserGameCommand userGameCommand, Session thisSession) {
         int gameID = userGameCommand.getGameID();
         String authToken = userGameCommand.getAuthString();
         GameData gameData = new GameData(gameID, null, null, null, null);
 
         ArrayList<Session> sessionList = gameIdToSessions.get(gameID);
-        GetGameResponse gameResponse = WebSocketService.getGame(new GetGameResponse(gameData, authToken, 1));
+        GetGameResponse gameResponse = WebSocketService.getGame(new GetGameResponse(gameData, authToken,null, 1));
 
-        String commandType;
-        if (userGameCommand.getCommandType() == UserGameCommand.CommandType.JOIN_PLAYER) {
-            commandType = " has joined ";
-        } else {
-            commandType = " is observing ";
-        }
-
-        String message = userGameCommand.getUsername() + commandType + "the game!";
+        String commandType = joinNotification(userGameCommand, gameResponse);
 
         for (Session session : sessionList) {
-            sendMessage(session, ServerMessage.ServerMessageType.LOAD_GAME, gameResponse.gameData(), message, userGameCommand.getUsername());
+            if (session.equals(thisSession)) {
+                sendMessage(session, ServerMessage.ServerMessageType.LOAD_GAME, gameResponse.gameData(), "", userGameCommand.getUsername());
+            } else {
+                sendMessage(session, ServerMessage.ServerMessageType.NOTIFICATION, gameResponse.gameData(), commandType, userGameCommand.getUsername());
+            }
         }
     }
 
-    private void leaveMessage(UserGameCommand userGameCommand, Session session) {
+    private static String joinNotification(UserGameCommand userGameCommand, GetGameResponse gameResponse) {
+        String message = "the game";
+
+        String commandType;
+        if (userGameCommand.getCommandType() == UserGameCommand.CommandType.JOIN_PLAYER) {
+            commandType = userGameCommand.getUsername() + " has joined " + message + " as ";
+
+            if (gameResponse.gameData().whiteUsername() != null && gameResponse.gameData().whiteUsername().equals(userGameCommand.getUsername())) {
+                commandType = commandType + "white!";
+            } else {
+                commandType = commandType + "black!";
+            }
+        } else {
+            commandType = userGameCommand.getUsername() + " is observing " + message + "!";
+        }
+        return commandType;
+    }
+
+    private void leaveMessage(UserGameCommand userGameCommand, Session session, boolean onPurpose) {
         int id;
         Integer gameID = sessionToGameID.get(session);
         if (gameID != null) {
@@ -115,11 +134,24 @@ public class ServerWebSocketHandler {
             return;
         }
 
+        GameData gameData = new GameData(id, null,null, null,null);
+        GetGameResponse getGameResponse = new GetGameResponse(gameData, userGameCommand.getAuthString(), userGameCommand.getUsername(), 0);
+        ClearResponse clearResponse = WebSocketService.playerLeaves(getGameResponse);
+
+        if (clearResponse.httpCode() != 200) {
+            String notify = "Error: Either your authToken failed or you aren't in this game";
+            sendMessage(session, ServerMessage.ServerMessageType.ERROR, null, notify, userGameCommand.getUsername());
+        }
+
         ArrayList<Session> sessionList = gameIdToSessions.get(id);
 
-        for (Session s : sessionList) {
-            String notify = userGameCommand.getUsername() + " is leaving the game.";
-            sendMessage(s, ServerMessage.ServerMessageType.NOTIFICATION, null, notify, userGameCommand.getUsername());
+        if (onPurpose) {
+            for (Session s : sessionList) {
+                if (! s.equals(session)) {
+                    String notify = userGameCommand.getUsername() + " is leaving the game.";
+                    sendMessage(s, ServerMessage.ServerMessageType.NOTIFICATION, null, notify, userGameCommand.getUsername());
+                }
+            }
         }
 
         sessionList.remove(session);
@@ -139,7 +171,7 @@ public class ServerWebSocketHandler {
         int gameID = sessionToGameID.get(session);
 
         GameData gameData = new GameData(gameID, null, null, null, userGameCommand.getGame());
-        GetGameResponse updateResponse = new GetGameResponse(gameData, userGameCommand.getAuthString(), 0);
+        GetGameResponse updateResponse = new GetGameResponse(gameData, userGameCommand.getAuthString(), null, 0);
 
         ChessGame game = userGameCommand.getGame();
 
@@ -164,13 +196,15 @@ public class ServerWebSocketHandler {
                         game.setGameOver(true);
                     }
 
-                    sendMessage(s, ServerMessage.ServerMessageType.LOAD_GAME, gameData, notify, userGameCommand.getUsername());
+                    if (session.equals(s)) {
+                        sendMessage(s, ServerMessage.ServerMessageType.LOAD_GAME, gameData, "", userGameCommand.getUsername());
+                    } else {
+                        sendMessage(s, ServerMessage.ServerMessageType.LOAD_GAME, gameData, notify, userGameCommand.getUsername());
+                    }
                 }
             } else {
-                for (Session s : sessionList) {
-                    String notify = "Error: " + userGameCommand.getUsername() + " attempted to make a move but something bad happened. Either " + userGameCommand.getUsername() + " needs to log back in or the game was deleted :/";
-                    sendMessage(s, ServerMessage.ServerMessageType.ERROR, null, notify, userGameCommand.getUsername());
-                }
+                String notify = "Error: " + userGameCommand.getUsername() + " attempted to make a move but something bad happened. Either " + userGameCommand.getUsername() + " needs to log back in or the game was deleted :/";
+                sendMessage(session, ServerMessage.ServerMessageType.ERROR, null, notify, userGameCommand.getUsername());
             }
         } else {
             if (clearResponse.httpCode() == 200) {
@@ -179,10 +213,8 @@ public class ServerWebSocketHandler {
                     sendMessage(s, ServerMessage.ServerMessageType.LOAD_GAME, gameData, notify, userGameCommand.getUsername());
                 }
             } else {
-                for (Session s : sessionList) {
-                    String notify = "Error: " + userGameCommand.getUsername() + " attempted to resign but something bad happened. Either " + userGameCommand.getUsername() + " needs to log back in or the game was deleted :/";
-                    sendMessage(s, ServerMessage.ServerMessageType.ERROR, null, notify, userGameCommand.getUsername());
-                }
+                String notify = "Error: " + userGameCommand.getUsername() + " attempted to resign but something bad happened. Either " + userGameCommand.getUsername() + " needs to log back in or the game was deleted :/";
+                sendMessage(session, ServerMessage.ServerMessageType.ERROR, null, notify, userGameCommand.getUsername());
             }
         }
     }

@@ -79,4 +79,6 @@ public class MemoryGameDAO implements GameDAO{
         gameMap.clear();
         nextGameID = 0;
     }
+
+    public void removePlayer(GameData gameData, boolean white) throws DataAccessException {}
 }

@@ -123,7 +123,7 @@ public class ChessBoardPicture {
             } else if (startPosition.row() == rowNum && startPosition.col() == colNum) {
                 if (!foundPiece) {
                     foundPiece = true;
-                    highlightSquare(out, chessBoard, rowNum, colNum);
+                    highlightPieceSquare(out, chessBoard, rowNum, colNum);
                     highlighted = true;
                 }
             }
@@ -155,6 +155,11 @@ public class ChessBoardPicture {
 
     private static void highlightSquare(PrintStream out, ChessBoard chessBoard, int rowNum, int colNum) {
         out.print(SET_BG_COLOR_YELLOW);
+        printPiece(out, chessBoard, rowNum, colNum);
+    }
+
+    private static void highlightPieceSquare(PrintStream out, ChessBoard chessBoard, int rowNum, int colNum) {
+        out.print(SET_BG_COLOR_GREEN);
         printPiece(out, chessBoard, rowNum, colNum);
     }
 

@@ -25,7 +25,11 @@ public class SQLGameDAO implements GameDAO{
         nextGameID++;
         String statement = "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
 
-        DatabaseManager.executeUpdate(statement, nextGameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gson.toJson(gameData.game()));
+        try {
+            DatabaseManager.executeUpdate(statement, nextGameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gson.toJson(gameData.game()));
+        } catch(Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
         return nextGameID;
     }
 
@@ -143,5 +147,18 @@ public class SQLGameDAO implements GameDAO{
         DatabaseManager.executeUpdate(statement);
 
         nextGameID = 0;
+    }
+
+    public void removePlayer(GameData gameData, boolean white) throws DataAccessException {
+        int gameID = gameData.gameID();
+
+        String statement;
+        if (white) {
+            statement = "UPDATE 'game' SET 'whiteUsername' = NULL WHERE 'gameID' = ?;";
+        } else {
+            statement = "UPDATE 'game' SET 'blackUsername' = NULL WHERE 'gameID' = ?;";
+        }
+
+        DatabaseManager.executeUpdate(statement, gameID);
     }
 }

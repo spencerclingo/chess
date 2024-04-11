@@ -27,6 +27,7 @@ public class ClientMenu {
     final Gson gson = new Gson();
     final String baseUrl;
     String authToken = "";
+    String doubleAuth = "";
     static String savedUsername = "";
     final String clearPassword = "clear";
     final int port;
@@ -199,7 +200,7 @@ public class ClientMenu {
                     //Passes a set of valid moves to ChessBoardPicture, highlights squares
                     break;
                 case "resign":
-                    resign();
+                    resign(scanner);
                     break;
                 case "leave":
                     leave();
@@ -274,6 +275,8 @@ public class ClientMenu {
 
             webSocket.sendMessage(userGameCommand);
 
+            doubleAuth = authToken;
+
             inGameMenu(scanner);
         } catch(DeploymentException | URISyntaxException | IOException e) {
             System.out.println("Error opening client-side webSocket: " + e.getMessage());
@@ -310,6 +313,8 @@ public class ClientMenu {
     }
 
     private void createGame(Scanner scanner) {
+        System.out.println("AuthToken: " + authToken);
+
         String gameName = null;
         int gameID = -1;
 
@@ -346,6 +351,7 @@ public class ClientMenu {
         } else {
             System.out.println("Successfully logged out!");
             authToken = "";
+            doubleAuth = "";
             savedUsername = "";
         }
     }
@@ -403,6 +409,8 @@ public class ClientMenu {
             webSocket = null;
             game = null;
             color = null;
+            System.out.println("AuthToken: " + authToken);
+            authToken = doubleAuth;
         } catch(Exception e) {
             System.out.println("Leave failed, error thrown");
         }
@@ -521,7 +529,17 @@ public class ClientMenu {
         ChessBoardPicture.init(game.getBoard(), isWhite, new ArrayList<>(), null);
     }
 
-    private void resign() {
+    private void resign(Scanner scanner) {
+        System.out.println("Are you sure you want to resign? (y/n)");
+        System.out.print(">>>  ");
+
+        String response = scanner.nextLine();
+
+        if (!response.equalsIgnoreCase("y") && !response.equalsIgnoreCase("yes")) {
+            System.out.println("Okay, not resigning");
+            return;
+        }
+
         try {
             UserGameCommand command = new UserGameCommand(authToken, UserGameCommand.CommandType.RESIGN, -1, savedUsername, game);
             webSocket.sendMessage(command);

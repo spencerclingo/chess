@@ -41,4 +41,6 @@ public interface GameDAO {
      * Clears game database
      */
     void clear() throws DataAccessException;
+
+    public void removePlayer(GameData gameData, boolean white) throws DataAccessException;
 }
