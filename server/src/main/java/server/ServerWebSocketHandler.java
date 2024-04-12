@@ -32,12 +32,10 @@ public class ServerWebSocketHandler {
     HashMap<Integer, ArrayList<Session>> gameIdToSessions = new HashMap<>();
     HashMap<Session, Integer> sessionToGameID = new HashMap<>();
 
-    @OnOpen
     @OnWebSocketConnect
     public void onConnect(Session session) {
     }
 
-    @OnMessage
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
         UserGameCommand userGameCommand = gson.fromJson(message, UserGameCommand.class);
@@ -84,13 +82,11 @@ public class ServerWebSocketHandler {
         }
     }
 
-    @OnClose
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {
         leaveMessage(new UserGameCommand(null,null, -1, null,new ChessGame()), session, false);
     }
 
-    @OnError
     @OnWebSocketError
     public void onError(Throwable throwable) {
         System.out.println("onError Server");
