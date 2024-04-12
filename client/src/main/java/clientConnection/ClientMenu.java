@@ -407,10 +407,14 @@ public class ClientMenu {
     }
 
     private void movePiece(Scanner scanner) {
-        System.out.println("Where is the piece you want to move?");
-        ChessPosition startPosition = getPositionFromUser(scanner);
+        ChessPiece piece;
+        ChessPosition startPosition;
+        do {
+            System.out.println("Where is the piece you want to move?");
+            startPosition = getPositionFromUser(scanner);
 
-        ChessPiece piece = game.getBoard().getPiece(startPosition);
+            piece = game.getBoard().getPiece(startPosition);
+        } while (piece == null);
         boolean isPawn = (piece.getPieceType() == ChessPiece.PieceType.PAWN);
 
         ChessGame.TeamColor pieceColor = piece.getTeamColor();

@@ -168,6 +168,7 @@ public class ServerWebSocketHandler {
         if (gameOver(userGameCommand, session)) {
             String notify = "Game is over, no moves can be played!";
             sendMessage(session, ServerMessage.ServerMessageType.NOTIFICATION, null, notify, userGameCommand.getUsername());
+            return;
         }
 
         int gameID = sessionToGameID.get(session);

@@ -39,7 +39,7 @@ public class ClientWebSocketHandler extends Endpoint {
 
         switch (serverMessage.getServerMessageType()) {
             case LOAD_GAME:
-                System.out.println(ClientMenu.getColor());
+                System.out.println(serverMessage.getNotification());
                 if (ClientMenu.getColor().equals("black")) {
                     ChessBoardPicture.init(gameData.game().getBoard(), false, new ArrayList<>(), null);
                 } else {
