@@ -8,7 +8,6 @@ import models.UserData;
 import response.GameIDResponse;
 import response.GameListResponse;
 import response.JoinGameRequest;
-import ui.ChessBoardPicture;
 import webSocketMessages.userCommands.UserGameCommand;
 
 import javax.websocket.DeploymentException;
@@ -17,7 +16,6 @@ import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -26,13 +24,13 @@ public class ClientMenu {
 
     final Gson gson = new Gson();
     final String baseUrl;
-    String authToken = "";
+    static String authToken = "";
     static String savedUsername = "";
     final String clearPassword = "clear";
     final int port;
-    ClientWebSocketHandler webSocket;
-    private static ChessGame game;
-    private static String color = "";
+    static ClientWebSocketHandler webSocket;
+    static ChessGame game;
+    static String color = "";
     final PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
     public ClientMenu(int port) {
@@ -188,21 +186,21 @@ public class ClientMenu {
 
             switch (choice) {
                 case "redraw":
-                    redraw();
+                    InGameMenu.redraw();
                     break;
                 case "make move":
-                    movePiece(scanner);
+                    InGameMenu.movePiece(scanner);
                     //Sends a make move message, pass in start position and end position. Use dict for letter to number calculations
                     break;
                 case "highlight":
-                    highlight(scanner);
+                    InGameMenu.highlight(scanner);
                     //Passes a set of valid moves to ChessBoardPicture, highlights squares
                     break;
                 case "resign":
-                    resign(scanner);
+                    InGameMenu.resign(scanner);
                     break;
                 case "leave":
-                    leave();
+                    InGameMenu.leave();
                     return;
             }
         }
@@ -391,159 +389,6 @@ public class ClientMenu {
             savedUsername = username;
         } else {
             printLoginErrorMessages(request.statusCode());
-        }
-    }
-
-    private void leave() {
-        UserGameCommand command = new UserGameCommand(null, UserGameCommand.CommandType.LEAVE, 0, savedUsername, null);
-        try {
-            webSocket.sendMessage(command);
-            webSocket = null;
-            game = null;
-            color = "";
-        } catch(Exception e) {
-            System.out.println("Leave failed, error thrown");
-        }
-    }
-
-    private void movePiece(Scanner scanner) {
-        ChessPiece piece;
-        ChessPosition startPosition;
-        do {
-            System.out.println("Where is the piece you want to move?");
-            startPosition = getPositionFromUser(scanner);
-
-            piece = game.getBoard().getPiece(startPosition);
-        } while (piece == null);
-        boolean isPawn = (piece.getPieceType() == ChessPiece.PieceType.PAWN);
-
-        ChessGame.TeamColor pieceColor = piece.getTeamColor();
-        if (color.equalsIgnoreCase("white")) {
-            if (pieceColor != ChessGame.TeamColor.WHITE) {
-                System.out.println("Error: That's not your piece");
-                return;
-            }
-        } else {
-            if (pieceColor != ChessGame.TeamColor.BLACK) {
-                System.out.println("Error: That's not your piece");
-                return;
-            }
-        }
-
-        System.out.println("Where do you want to move your piece?");
-        ChessPosition endPosition = getPositionFromUser(scanner);
-
-        ChessPiece.PieceType pieceType = null;
-        int row = endPosition.row();
-
-
-        if (isPawn) {
-            if ((piece.getTeamColor() == ChessGame.TeamColor.WHITE && row == 8) || (piece.getTeamColor() == ChessGame.TeamColor.BLACK && row == 1)) {
-                ArrayList<String> possiblePromotions = new ArrayList<>();
-                possiblePromotions.add("knight");
-                possiblePromotions.add("bishop");
-                possiblePromotions.add("rook");
-                possiblePromotions.add("queen");
-
-                while(true) {
-                    System.out.println("What piece would you like to promote to: knight, bishop, rook, queen");
-                    System.out.print(">>>  ");
-
-                    String promote = scanner.nextLine();
-                    promote = promote.toLowerCase();
-
-                    if (!possiblePromotions.contains(promote)) {
-                        continue;
-                    }
-
-                    switch (promote) {
-                        case "knight" -> pieceType = ChessPiece.PieceType.KNIGHT;
-                        case "bishop" -> pieceType = ChessPiece.PieceType.BISHOP;
-                        case "rook"   -> pieceType = ChessPiece.PieceType.ROOK;
-                        case "queen"  -> pieceType = ChessPiece.PieceType.QUEEN;
-                    }
-                    break;
-                }
-            }
-        }
-
-        ChessMove move = new ChessMove(startPosition, endPosition, pieceType);
-        ChessGame tempGame = new ChessGame(game);
-        try {
-            game.makeMove(move);
-
-            UserGameCommand command = new UserGameCommand(authToken, UserGameCommand.CommandType.MAKE_MOVE, -1, savedUsername, game);
-            webSocket.sendMessage(command);
-        } catch(InvalidMoveException ime) {
-            System.out.println("Error: " + ime.getMessage());
-        } catch(IOException | RuntimeException e) {
-            System.out.println("Error: " + e.getMessage());
-            game = tempGame;
-        }
-    }
-
-    private ChessPosition getPositionFromUser(Scanner scanner) {
-        HashMap<Character, Integer> letterToNumberMap = new HashMap<>();
-        letterToNumberMap.put('a', 8);
-        letterToNumberMap.put('b', 7);
-        letterToNumberMap.put('c', 6);
-        letterToNumberMap.put('d', 5);
-        letterToNumberMap.put('e', 4);
-        letterToNumberMap.put('f', 3);
-        letterToNumberMap.put('g', 2);
-        letterToNumberMap.put('h', 1);
-
-        while (true) {
-            System.out.println("(Do only letter then number, i.e. e7)");
-            System.out.print(">>>  ");
-
-            String location = scanner.nextLine();
-
-            char column = location.charAt(0);
-            int col = letterToNumberMap.get(column);
-            int row = Integer.parseInt(location.substring(1, 2));
-
-            if (location.length() == 2) {
-                return new ChessPosition(row, col);
-            }
-        }
-    }
-
-    private void highlight(Scanner scanner) {
-        ChessPosition position = getPositionFromUser(scanner);
-        ArrayList<ChessMove> validMoves = (ArrayList<ChessMove>) game.validMoves(position);
-        boolean isWhite = color.equalsIgnoreCase("white");
-
-        ChessBoardPicture.init(game.getBoard(), isWhite, validMoves, position);
-    }
-
-    private void redraw() {
-        boolean isWhite;
-        if (color == null) {
-            isWhite = true;
-        } else {
-            isWhite = color.equalsIgnoreCase("white");
-        }
-
-        ChessBoardPicture.init(game.getBoard(), isWhite, new ArrayList<>(), null);
-    }
-
-    private void resign(Scanner scanner) {
-        System.out.println("Are you sure you want to resign? (y/n)");
-        System.out.print(">>>  ");
-
-        String response = scanner.nextLine();
-
-        if (!response.equalsIgnoreCase("y") && !response.equalsIgnoreCase("yes")) {
-            System.out.println("Okay, not resigning");
-            return;
-        }
-
-        try {
-            UserGameCommand command = new UserGameCommand(authToken, UserGameCommand.CommandType.RESIGN, -1, savedUsername, game);
-            webSocket.sendMessage(command);
-        } catch(IOException e) {
-            System.out.println("Error: " + e.getMessage());
         }
     }
 

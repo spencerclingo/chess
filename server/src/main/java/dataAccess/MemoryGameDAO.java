@@ -80,5 +80,6 @@ public class MemoryGameDAO implements GameDAO{
         nextGameID = 0;
     }
 
+    @Override
     public void removePlayer(GameData gameData, boolean white) throws DataAccessException {}
 }
