@@ -83,8 +83,6 @@ public class ServerWebSocketHandler {
         System.out.println("onError Server");
         System.out.println("Error message: " + throwable.getMessage());
         throwable.printStackTrace();
-
-        //leaveMessage(new UserGameCommand(null,null, -1, null,null), session, false);
     }
 
     private void joinPlayer(UserGameCommand userGameCommand, Session thisSession) {
@@ -97,11 +95,14 @@ public class ServerWebSocketHandler {
 
         String commandType = joinNotification(userGameCommand, gameResponse);
 
+        System.out.println(gameResponse.gameData().game());
+
         for (Session session : sessionList) {
             if (session.equals(thisSession)) {
+                System.out.println("Sending the game");
                 sendMessage(session, ServerMessage.ServerMessageType.LOAD_GAME, gameResponse.gameData(), "", userGameCommand.getUsername());
             } else {
-                sendMessage(session, ServerMessage.ServerMessageType.NOTIFICATION, gameResponse.gameData(), commandType, userGameCommand.getUsername());
+                sendMessage(session, ServerMessage.ServerMessageType.NOTIFICATION, null, commandType, userGameCommand.getUsername());
             }
         }
     }
@@ -119,6 +120,7 @@ public class ServerWebSocketHandler {
                 commandType = commandType + "black!";
             }
         } else {
+            System.out.println("joinNotification");
             commandType = userGameCommand.getUsername() + " is observing " + message + "!";
         }
         return commandType;
@@ -136,12 +138,12 @@ public class ServerWebSocketHandler {
 
         GameData gameData = new GameData(id, null,null, null,null);
         GetGameResponse getGameResponse = new GetGameResponse(gameData, userGameCommand.getAuthString(), userGameCommand.getUsername(), 0);
-        ClearResponse clearResponse = WebSocketService.playerLeaves(getGameResponse);
+        //ClearResponse clearResponse = WebSocketService.playerLeaves(getGameResponse);
 
-        if (clearResponse.httpCode() != 200) {
-            String notify = "Error: Either your authToken failed or you aren't in this game";
-            sendMessage(session, ServerMessage.ServerMessageType.ERROR, null, notify, userGameCommand.getUsername());
-        }
+        //if (clearResponse.httpCode() != 200) {
+        //    String notify = "Error: Either your authToken failed or you aren't in this game";
+        //    sendMessage(session, ServerMessage.ServerMessageType.ERROR, null, notify, userGameCommand.getUsername());
+        //}
 
         ArrayList<Session> sessionList = gameIdToSessions.get(id);
 

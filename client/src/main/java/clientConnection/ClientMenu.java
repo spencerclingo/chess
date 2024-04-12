@@ -27,13 +27,12 @@ public class ClientMenu {
     final Gson gson = new Gson();
     final String baseUrl;
     String authToken = "";
-    String doubleAuth = "";
     static String savedUsername = "";
     final String clearPassword = "clear";
     final int port;
     ClientWebSocketHandler webSocket;
     private static ChessGame game;
-    private static String color;
+    private static String color = "";
     final PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
     public ClientMenu(int port) {
@@ -232,7 +231,7 @@ public class ClientMenu {
 
         String jsonString = gson.toJson(new JoinGameRequest(null, id));
 
-        joinGameHttp(jsonString, id, false, null, scanner);
+        joinGameHttp(jsonString, id, false, "", scanner);
     }
 
     private void joinGame(Scanner scanner) {
@@ -264,8 +263,6 @@ public class ClientMenu {
 
             ClientMenu.color = color;
 
-            System.out.println(gameID);
-
             UserGameCommand userGameCommand;
             if (player) {
                 userGameCommand = new UserGameCommand(authToken, UserGameCommand.CommandType.JOIN_PLAYER, gameID, savedUsername, null);
@@ -274,8 +271,6 @@ public class ClientMenu {
             }
 
             webSocket.sendMessage(userGameCommand);
-
-            doubleAuth = authToken;
 
             inGameMenu(scanner);
         } catch(DeploymentException | URISyntaxException | IOException e) {
@@ -313,8 +308,6 @@ public class ClientMenu {
     }
 
     private void createGame(Scanner scanner) {
-        System.out.println("AuthToken: " + authToken);
-
         String gameName = null;
         int gameID = -1;
 
@@ -351,7 +344,6 @@ public class ClientMenu {
         } else {
             System.out.println("Successfully logged out!");
             authToken = "";
-            doubleAuth = "";
             savedUsername = "";
         }
     }
@@ -408,9 +400,7 @@ public class ClientMenu {
             webSocket.sendMessage(command);
             webSocket = null;
             game = null;
-            color = null;
-            System.out.println("AuthToken: " + authToken);
-            authToken = doubleAuth;
+            color = "";
         } catch(Exception e) {
             System.out.println("Leave failed, error thrown");
         }
@@ -524,7 +514,12 @@ public class ClientMenu {
     }
 
     private void redraw() {
-        boolean isWhite = color.equalsIgnoreCase("white");
+        boolean isWhite;
+        if (color == null) {
+            isWhite = true;
+        } else {
+            isWhite = color.equalsIgnoreCase("white");
+        }
 
         ChessBoardPicture.init(game.getBoard(), isWhite, new ArrayList<>(), null);
     }

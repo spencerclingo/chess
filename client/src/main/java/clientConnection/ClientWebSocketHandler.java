@@ -34,13 +34,12 @@ public class ClientWebSocketHandler extends Endpoint {
     }
 
     public void receiveMessage(String message) {
-        System.out.println("Received message back in client");
         ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
         GameData gameData = serverMessage.getGameData();
 
         switch (serverMessage.getServerMessageType()) {
             case LOAD_GAME:
-                System.out.println(serverMessage.getNotification());
+                System.out.println(ClientMenu.getColor());
                 if (ClientMenu.getColor().equals("black")) {
                     ChessBoardPicture.init(gameData.game().getBoard(), false, new ArrayList<>(), null);
                 } else {
@@ -70,12 +69,10 @@ public class ClientWebSocketHandler extends Endpoint {
         ClientMenu.savedUsername = command.getUsername();
         String jsonMessage = gson.toJson(command);
         this.session.getBasicRemote().sendText(jsonMessage);
-        System.out.println("message sent");
     }
 
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
-        System.out.println("ClientWebSocketHandler onOpen method called");
     }
 
     @OnError
