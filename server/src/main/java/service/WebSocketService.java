@@ -26,7 +26,6 @@ public class WebSocketService {
 
         try {
             GameData gameData = gameStoredDAO.getGame(getGame.gameData());
-            System.out.println(gameData.game());
             return new GetGameResponse(gameData, authData.authToken(), null, 200);
         } catch(Exception e) {
             System.out.println("Invalid game");
