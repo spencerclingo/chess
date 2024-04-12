@@ -1,7 +1,7 @@
 package clientConnection;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
-import models.GameData;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import ui.ChessBoardPicture;
@@ -37,17 +37,17 @@ public class ClientWebSocketHandler extends Endpoint {
 
     public void receiveMessage(String message) {
         ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
-        GameData gameData = serverMessage.getGameData();
+        ChessGame game = serverMessage.getGame();
 
         switch (serverMessage.getServerMessageType()) {
             case LOAD_GAME:
                 System.out.println(serverMessage.getNotification());
                 if (ClientMenu.getColor().equals("black")) {
-                    ChessBoardPicture.init(gameData.game().getBoard(), false, new ArrayList<>(), null);
+                    ChessBoardPicture.init(game.getBoard(), false, new ArrayList<>(), null);
                 } else {
-                    ChessBoardPicture.init(gameData.game().getBoard(), true, new ArrayList<>(), null);
+                    ChessBoardPicture.init(game.getBoard(), true, new ArrayList<>(), null);
                 }
-                ClientMenu.saveGame(serverMessage.getGameData().game());
+                ClientMenu.saveGame(serverMessage.getGame());
                 break;
             case ERROR:
                 System.out.println(serverMessage.getNotification());

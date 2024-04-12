@@ -48,36 +48,6 @@ public class WebSocketService {
         }
     }
 
-    public static ClearResponse playerLeaves(GetGameResponse setGame) {
-        GameData oldGameData;
-        try {
-            oldGameData = gameStoredDAO.getGame(setGame.gameData());
-        } catch(Exception e) {
-            System.out.println("game invalid");
-            return new ClearResponse(400);
-        }
-
-        GameData newGameData;
-        boolean white;
-        if (setGame.username().equals(oldGameData.whiteUsername())) {
-            white = true;
-            newGameData = new GameData(oldGameData.gameID(), null, oldGameData.blackUsername(), oldGameData.gameName(), oldGameData.game());
-        } else if (setGame.username().equals(oldGameData.blackUsername())){
-            white = false;
-            newGameData = new GameData(oldGameData.gameID(), oldGameData.whiteUsername(), null, oldGameData.gameName(), oldGameData.game());
-        } else {
-            return new ClearResponse(200);
-        }
-
-        try {
-            gameStoredDAO.removePlayer(newGameData, white);
-            return new ClearResponse(200);
-        } catch(Exception e) {
-            System.out.println("removing player failed");
-            return new ClearResponse(400);
-        }
-    }
-
     public static void setGameStoredDAO(GameDAO gameStoredDAO) {
         WebSocketService.gameStoredDAO = gameStoredDAO;
     }

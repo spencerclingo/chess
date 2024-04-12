@@ -28,15 +28,12 @@ public class ServerWebSocketHandler {
     @OnOpen
     @OnWebSocketConnect
     public void onConnect(Session session) {
-        System.out.println("OnConnect in server");
     }
 
     @OnMessage
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
         UserGameCommand userGameCommand = gson.fromJson(message, UserGameCommand.class);
-
-        System.out.println("Websocket message received");
 
         switch (userGameCommand.getCommandType()) {
             case JOIN_PLAYER, JOIN_OBSERVER:
@@ -63,12 +60,11 @@ public class ServerWebSocketHandler {
     }
 
     public void sendMessage(Session session, ServerMessage.ServerMessageType messageType, GameData game, String notification, String username) {
-        ServerMessage message = new ServerMessage(messageType, notification, game, username);
+        ServerMessage message = new ServerMessage(messageType, notification, game.game(), username);
         String jsonMessage = gson.toJson(message);
 
         try {
             session.getRemote().sendString(jsonMessage);
-            System.out.println("Message sent to client");
         } catch(IOException e) {
             System.out.println("Problem sending message to client. " + e.getMessage());
             e.printStackTrace();
@@ -78,10 +74,6 @@ public class ServerWebSocketHandler {
     @OnClose
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {
-        System.out.println("OnClose");
-        System.out.println(statusCode);
-        System.out.println("Reason: " + reason);
-
         leaveMessage(new UserGameCommand(null,null, -1, null,null), session, false);
     }
 
@@ -103,11 +95,8 @@ public class ServerWebSocketHandler {
 
         String commandType = joinNotification(userGameCommand, gameResponse);
 
-        System.out.println(gameResponse.gameData().game());
-
         for (Session session : sessionList) {
             if (session.equals(thisSession)) {
-                System.out.println("Sending the game");
                 sendMessage(session, ServerMessage.ServerMessageType.LOAD_GAME, gameResponse.gameData(), "", userGameCommand.getUsername());
             } else {
                 sendMessage(session, ServerMessage.ServerMessageType.NOTIFICATION, null, commandType, userGameCommand.getUsername());
@@ -128,7 +117,6 @@ public class ServerWebSocketHandler {
                 commandType = commandType + "black!";
             }
         } else {
-            System.out.println("joinNotification");
             commandType = userGameCommand.getUsername() + " is observing " + message + "!";
         }
         return commandType;
@@ -146,12 +134,6 @@ public class ServerWebSocketHandler {
 
         GameData gameData = new GameData(id, null,null, null,null);
         GetGameResponse getGameResponse = new GetGameResponse(gameData, userGameCommand.getAuthString(), userGameCommand.getUsername(), 0);
-        //ClearResponse clearResponse = WebSocketService.playerLeaves(getGameResponse);
-
-        //if (clearResponse.httpCode() != 200) {
-        //    String notify = "Error: Either your authToken failed or you aren't in this game";
-        //    sendMessage(session, ServerMessage.ServerMessageType.ERROR, null, notify, userGameCommand.getUsername());
-        //}
 
         ArrayList<Session> sessionList = gameIdToSessions.get(id);
 
