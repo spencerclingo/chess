@@ -10,18 +10,11 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import response.ClearResponse;
 import response.GetGameResponse;
-import response.JoinGameRequest;
-import response.JoinGameResponse;
 import service.AuthService;
-import service.GameService;
 import service.WebSocketService;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.UserGameCommand;
 
-import javax.websocket.OnClose;
-import javax.websocket.OnError;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
