@@ -27,6 +27,7 @@ public class ServerWebSocketHandler {
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
+        System.out.println("temp");
     }
 
     @OnWebSocketMessage
