@@ -6,14 +6,14 @@ import java.util.Objects;
 
 /**
  * Represents a Message the server can send through a WebSocket
- * 
+ * <p>
  * Note: You can add to this class, but you should not alter the existing
  * methods.
  */
 public class ServerMessage {
-    private final ServerMessageType serverMessageType;
-    private final String notification;
     private final ChessGame game;
+    private final ServerMessageType serverMessageType;
+    private final String message;
     private final String username;
 
     public enum ServerMessageType {
@@ -24,7 +24,7 @@ public class ServerMessage {
 
     public ServerMessage(ServerMessageType type, String message, ChessGame game, String username) {
         serverMessageType = type;
-        notification = message;
+        this.message = message;
         this.game = game;
         this.username = username;
     }
@@ -33,8 +33,8 @@ public class ServerMessage {
         return serverMessageType;
     }
 
-    public String getNotification() {
-        return notification;
+    public String getMessage() {
+        return message;
     }
 
     public ChessGame getGame() {
@@ -44,14 +44,13 @@ public class ServerMessage {
         return username;
     }
 
+
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (!(o instanceof ServerMessage))
-            return false;
-        ServerMessage that = (ServerMessage) o;
-        return getServerMessageType() == that.getServerMessageType();
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ServerMessage message = (ServerMessage) o;
+        return getServerMessageType() == message.getServerMessageType() && Objects.equals(getMessage(), message.getMessage()) && Objects.equals(getGame(), message.getGame()) && Objects.equals(getUsername(), message.getUsername());
     }
 
     @Override

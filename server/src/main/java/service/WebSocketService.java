@@ -20,13 +20,16 @@ public class WebSocketService {
         try {
             authStoredDAO.getAuth(authData);
         } catch(Exception e) {
+            System.out.println("Invalid auth");
             return new GetGameResponse(null, null, null, 401); //Unauthorized
         }
 
         try {
             GameData gameData = gameStoredDAO.getGame(getGame.gameData());
+            System.out.println(gameData.game());
             return new GetGameResponse(gameData, authData.authToken(), null, 200);
         } catch(Exception e) {
+            System.out.println("Invalid game");
             return new GetGameResponse(null, null, null,400); //Does not exist
         }
     }

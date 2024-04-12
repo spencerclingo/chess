@@ -41,7 +41,7 @@ public class ClientWebSocketHandler extends Endpoint {
 
         switch (serverMessage.getServerMessageType()) {
             case LOAD_GAME:
-                System.out.println(serverMessage.getNotification());
+                System.out.println(serverMessage.getMessage());
                 if (ClientMenu.getColor().equals("black")) {
                     ChessBoardPicture.init(game.getBoard(), false, new ArrayList<>(), null);
                 } else {
@@ -50,7 +50,7 @@ public class ClientWebSocketHandler extends Endpoint {
                 ClientMenu.saveGame(serverMessage.getGame());
                 break;
             case ERROR:
-                System.out.println(serverMessage.getNotification());
+                System.out.println(serverMessage.getMessage());
 
                 if (serverMessage.getUsername().equalsIgnoreCase(ClientMenu.savedUsername)) {
                     UserGameCommand command = new UserGameCommand(null, UserGameCommand.CommandType.LEAVE, 0, ClientMenu.savedUsername, null);
@@ -62,7 +62,7 @@ public class ClientWebSocketHandler extends Endpoint {
                 }
                 break;
             case NOTIFICATION:
-                System.out.println(serverMessage.getNotification());
+                System.out.println(serverMessage.getMessage());
                 break;
         }
     }

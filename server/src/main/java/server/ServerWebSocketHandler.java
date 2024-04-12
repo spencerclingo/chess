@@ -59,8 +59,8 @@ public class ServerWebSocketHandler {
         }
     }
 
-    public void sendMessage(Session session, ServerMessage.ServerMessageType messageType, GameData game, String notification, String username) {
-        ServerMessage message = new ServerMessage(messageType, notification, game.game(), username);
+    public void sendMessage(Session session, ServerMessage.ServerMessageType messageType, ChessGame game, String notification, String username) {
+        ServerMessage message = new ServerMessage(messageType, notification, game, username);
         String jsonMessage = gson.toJson(message);
 
         try {
@@ -74,7 +74,7 @@ public class ServerWebSocketHandler {
     @OnClose
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {
-        leaveMessage(new UserGameCommand(null,null, -1, null,null), session, false);
+        leaveMessage(new UserGameCommand(null,null, -1, null,new ChessGame()), session, false);
     }
 
     @OnError
@@ -88,7 +88,7 @@ public class ServerWebSocketHandler {
     private void joinPlayer(UserGameCommand userGameCommand, Session thisSession) {
         int gameID = userGameCommand.getGameID();
         String authToken = userGameCommand.getAuthString();
-        GameData gameData = new GameData(gameID, null, null, null, null);
+        GameData gameData = new GameData(gameID, null, null, null, new ChessGame());
 
         ArrayList<Session> sessionList = gameIdToSessions.get(gameID);
         GetGameResponse gameResponse = WebSocketService.getGame(new GetGameResponse(gameData, authToken,null, 1));
@@ -97,9 +97,9 @@ public class ServerWebSocketHandler {
 
         for (Session session : sessionList) {
             if (session.equals(thisSession)) {
-                sendMessage(session, ServerMessage.ServerMessageType.LOAD_GAME, gameResponse.gameData(), "", userGameCommand.getUsername());
+                sendMessage(session, ServerMessage.ServerMessageType.LOAD_GAME, gameResponse.gameData().game(), "", userGameCommand.getUsername());
             } else {
-                sendMessage(session, ServerMessage.ServerMessageType.NOTIFICATION, null, commandType, userGameCommand.getUsername());
+                sendMessage(session, ServerMessage.ServerMessageType.NOTIFICATION, gameResponse.gameData().game(), commandType, userGameCommand.getUsername());
             }
         }
     }
@@ -132,7 +132,7 @@ public class ServerWebSocketHandler {
             return;
         }
 
-        GameData gameData = new GameData(id, null,null, null,null);
+        GameData gameData = new GameData(id, null,null, null,new ChessGame());
         GetGameResponse getGameResponse = new GetGameResponse(gameData, userGameCommand.getAuthString(), userGameCommand.getUsername(), 0);
 
         ArrayList<Session> sessionList = gameIdToSessions.get(id);
@@ -141,7 +141,7 @@ public class ServerWebSocketHandler {
             for (Session s : sessionList) {
                 if (! s.equals(session)) {
                     String notify = userGameCommand.getUsername() + " is leaving the game.";
-                    sendMessage(s, ServerMessage.ServerMessageType.NOTIFICATION, null, notify, userGameCommand.getUsername());
+                    sendMessage(s, ServerMessage.ServerMessageType.NOTIFICATION, new ChessGame(), notify, userGameCommand.getUsername());
                 }
             }
         }
@@ -157,7 +157,7 @@ public class ServerWebSocketHandler {
     private void makeMove(UserGameCommand userGameCommand, Session session) {
         if (gameOver(userGameCommand, session)) {
             String notify = "Game is over, no moves can be played!";
-            sendMessage(session, ServerMessage.ServerMessageType.NOTIFICATION, null, notify, userGameCommand.getUsername());
+            sendMessage(session, ServerMessage.ServerMessageType.NOTIFICATION, new ChessGame(), notify, userGameCommand.getUsername());
             return;
         }
 
@@ -190,24 +190,24 @@ public class ServerWebSocketHandler {
                     }
 
                     if (session.equals(s)) {
-                        sendMessage(s, ServerMessage.ServerMessageType.LOAD_GAME, gameData, "", userGameCommand.getUsername());
+                        sendMessage(s, ServerMessage.ServerMessageType.LOAD_GAME, gameData.game(), "", userGameCommand.getUsername());
                     } else {
-                        sendMessage(s, ServerMessage.ServerMessageType.LOAD_GAME, gameData, notify, userGameCommand.getUsername());
+                        sendMessage(s, ServerMessage.ServerMessageType.LOAD_GAME, gameData.game(), notify, userGameCommand.getUsername());
                     }
                 }
             } else {
                 String notify = "Error: " + userGameCommand.getUsername() + " attempted to make a move but something bad happened. Either " + userGameCommand.getUsername() + " needs to log back in or the game was deleted :/";
-                sendMessage(session, ServerMessage.ServerMessageType.ERROR, null, notify, userGameCommand.getUsername());
+                sendMessage(session, ServerMessage.ServerMessageType.ERROR, new ChessGame(), notify, userGameCommand.getUsername());
             }
         } else {
             if (clearResponse.httpCode() == 200) {
                 for (Session s : sessionList) {
                     String notify = userGameCommand.getUsername() + " has resigned!";
-                    sendMessage(s, ServerMessage.ServerMessageType.LOAD_GAME, gameData, notify, userGameCommand.getUsername());
+                    sendMessage(s, ServerMessage.ServerMessageType.LOAD_GAME, gameData.game(), notify, userGameCommand.getUsername());
                 }
             } else {
                 String notify = "Error: " + userGameCommand.getUsername() + " attempted to resign but something bad happened. Either " + userGameCommand.getUsername() + " needs to log back in or the game was deleted :/";
-                sendMessage(session, ServerMessage.ServerMessageType.ERROR, null, notify, userGameCommand.getUsername());
+                sendMessage(session, ServerMessage.ServerMessageType.ERROR, new ChessGame(), notify, userGameCommand.getUsername());
             }
         }
     }

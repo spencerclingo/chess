@@ -25,8 +25,13 @@ public class SQLGameDAO implements GameDAO{
         nextGameID++;
         String statement = "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
 
+        GameData newGame = gameData.copyChangedID(nextGameID);
+        if (gameData.game() == null) {
+            newGame = gameData.copyNoNullGame();
+        }
+
         try {
-            DatabaseManager.executeUpdate(statement, nextGameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gson.toJson(gameData.game()));
+            DatabaseManager.executeUpdate(statement, nextGameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gson.toJson(newGame.game()));
         } catch(Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
