@@ -1,6 +1,8 @@
 package server;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import models.AuthData;
 import models.GameData;
@@ -98,40 +100,20 @@ public class ServerWebSocketHandler {
 
     private void joinPlayer(UserGameCommand userGameCommand, Session thisSession) {
         int gameID = userGameCommand.getGameID();
+
         String authToken = userGameCommand.getAuthString();
 
-        String username = AuthService.getAuth(new AuthData(authToken, null)).username();
+        AuthData authData = verifyAuth(thisSession, authToken);
+
+        if (authData == null) {
+            return;
+        }
+
+        String username = authData.username();
 
         GameData gameData = new GameData(gameID, null, null, null, new ChessGame());
 
         ArrayList<Session> sessionList = gameIdToSessions.get(gameID);
-
-        //JoinGameRequest joinRequest = new JoinGameRequest(userGameCommand.getPlayerColor(), gameID);
-        JoinGameResponse joinResponse;
-        /*try {
-            joinResponse = GameService.joinGame(joinRequest, new AuthData(authToken, username));
-        } catch(Exception e) {
-            System.out.println("Something went wrong");
-            sendMessage(thisSession, ServerMessage.ServerMessageType.ERROR, null, "Error: Something went wrong", null);
-            return;
-        }
-
-        if (joinResponse.httpCode() == 401 || username == null) {
-            System.out.println("Unauthorized");
-            sendMessage(thisSession, ServerMessage.ServerMessageType.ERROR, null, "Error: Unauthorized", null);
-            return;
-        } else if (joinResponse.httpCode() == 400) {
-            System.out.println(gameID);
-            System.out.println("No game at ID");
-            sendMessage(thisSession, ServerMessage.ServerMessageType.ERROR, null, "Error: No game at that ID", null);
-            return;
-        } else if (joinResponse.httpCode() == 403) {
-            System.out.println("Already taken");
-            sendMessage(thisSession, ServerMessage.ServerMessageType.ERROR, null, "Error: already taken", null);
-            return;
-        }
-
-         */
 
         GetGameResponse gameResponse = WebSocketService.getGame(new GetGameResponse(gameData, authToken,null, 1));
 
@@ -141,17 +123,19 @@ public class ServerWebSocketHandler {
             return;
         }
 
-        if (userGameCommand.getPlayerColor().equalsIgnoreCase("white")) {
-            if (gameResponse.gameData().whiteUsername() == null || !gameResponse.gameData().whiteUsername().equalsIgnoreCase(username)) {
-                System.out.println("Did not join");
-                sendMessage(thisSession, ServerMessage.ServerMessageType.ERROR, null, "Error: did not join the game", null);
-                return;
-            }
-        } else if (userGameCommand.getPlayerColor().equalsIgnoreCase("black")) {
-            if (gameResponse.gameData().blackUsername() == null || !gameResponse.gameData().blackUsername().equalsIgnoreCase(username)) {
-                System.out.println("Did not join");
-                sendMessage(thisSession, ServerMessage.ServerMessageType.ERROR, null, "Error: did not join the game", null);
-                return;
+        if (userGameCommand.getPlayerColor() != null) {
+            if (userGameCommand.getPlayerColor().equalsIgnoreCase("white")) {
+                if (gameResponse.gameData().whiteUsername() == null || ! gameResponse.gameData().whiteUsername().equalsIgnoreCase(username)) {
+                    System.out.println("Did not join");
+                    sendMessage(thisSession, ServerMessage.ServerMessageType.ERROR, null, "Error: did not join the game", null);
+                    return;
+                }
+            } else if (userGameCommand.getPlayerColor().equalsIgnoreCase("black")) {
+                if (gameResponse.gameData().blackUsername() == null || ! gameResponse.gameData().blackUsername().equalsIgnoreCase(username)) {
+                    System.out.println("Did not join");
+                    sendMessage(thisSession, ServerMessage.ServerMessageType.ERROR, null, "Error: did not join the game", null);
+                    return;
+                }
             }
         }
 
@@ -217,21 +201,77 @@ public class ServerWebSocketHandler {
     }
 
     private void makeMove(UserGameCommand userGameCommand, Session session) {
-        if (gameOver(userGameCommand, session)) {
+        GameData gameData = new GameData(userGameCommand.getGameID(), null,null,null,null);
+        GetGameResponse getGameResponse = WebSocketService.getGame(new GetGameResponse(gameData, userGameCommand.getAuthString(), null, 0));
+        gameData = getGameResponse.gameData();
+
+        ChessGame game = gameData.game();
+
+        if (gameOver(gameData, session)) {
             String notify = "Game is over, no moves can be played!";
-            sendMessage(session, ServerMessage.ServerMessageType.NOTIFICATION, new ChessGame(), notify, userGameCommand.getUsername());
+            sendMessage(session, ServerMessage.ServerMessageType.ERROR, null, notify, userGameCommand.getUsername());
             return;
         }
 
         int gameID = sessionToGameID.get(session);
 
-        GameData gameData = new GameData(gameID, null, null, null, userGameCommand.getGame());
-        GetGameResponse updateResponse = new GetGameResponse(gameData, userGameCommand.getAuthString(), null, 0);
-
-        ChessGame game = userGameCommand.getGame();
+        GameData gameData1 = new GameData(gameID, null, null, null, game);
+        GetGameResponse updateResponse = new GetGameResponse(gameData1, userGameCommand.getAuthString(), null, 0);
 
         if (userGameCommand.getCommandType() == UserGameCommand.CommandType.RESIGN) {
             game.setGameOver(true);
+        }
+
+        ChessMove move = null;
+
+        String authToken = userGameCommand.getAuthString();
+        AuthData authData = verifyAuth(session, authToken);
+
+        if (authData == null) {
+            return;
+        }
+        String username = authData.username();
+
+        if (userGameCommand.getMove() != null) {
+            move = userGameCommand.getMove();
+            if (game.getTeamTurn() != game.getBoard().getPiece(move.getStartPosition()).getTeamColor()) {
+                System.out.println("Wrong turn");
+                sendMessage(session, ServerMessage.ServerMessageType.ERROR, null, "Error: wrong turn", null);
+                return;
+            }
+
+
+            System.out.println("the username: " + username);
+
+            ChessGame.TeamColor teamColor = game.getBoard().getPiece(move.getStartPosition()).getTeamColor();
+
+            if (teamColor == ChessGame.TeamColor.WHITE) {
+                if (!gameData.whiteUsername().equalsIgnoreCase(username)) {
+                    System.out.println("Not your piece");
+                    sendMessage(session, ServerMessage.ServerMessageType.ERROR, null, "Error: Not your piece", null);
+                    return;
+                }
+            } else {
+                if (gameData.blackUsername().equalsIgnoreCase(username)) {
+                    System.out.println("Not your piece");
+                    sendMessage(session, ServerMessage.ServerMessageType.ERROR, null, "Error: Not your piece", null);
+                    return;
+                }
+            }
+        }
+
+        if (!username.equalsIgnoreCase(gameData.whiteUsername()) && !username.equalsIgnoreCase(gameData.blackUsername())) {
+            System.out.println("Have to be a player to resign");
+            sendMessage(session, ServerMessage.ServerMessageType.ERROR, null, "Error: Have to be a player to resign", null);
+            return;
+        }
+
+        try {
+            game.makeMove(move);
+        } catch(InvalidMoveException ime) {
+            System.out.println("Invalid move");
+            sendMessage(session, ServerMessage.ServerMessageType.ERROR, null, "Error: invalid move", null);
+            return;
         }
 
         ClearResponse clearResponse = WebSocketService.updateGame(updateResponse);
@@ -252,29 +292,43 @@ public class ServerWebSocketHandler {
                     }
 
                     if (session.equals(s)) {
-                        sendMessage(s, ServerMessage.ServerMessageType.LOAD_GAME, gameData.game(), "", userGameCommand.getUsername());
+                        sendMessage(s, ServerMessage.ServerMessageType.LOAD_GAME, game, "", userGameCommand.getUsername());
                     } else {
-                        sendMessage(s, ServerMessage.ServerMessageType.LOAD_GAME, gameData.game(), notify, userGameCommand.getUsername());
+                        sendMessage(s, ServerMessage.ServerMessageType.LOAD_GAME, game, "", userGameCommand.getUsername());
+                        sendMessage(s, ServerMessage.ServerMessageType.NOTIFICATION, null, notify, userGameCommand.getUsername());
                     }
                 }
             } else {
                 String notify = "Error: " + userGameCommand.getUsername() + " attempted to make a move but something bad happened. Either " + userGameCommand.getUsername() + " needs to log back in or the game was deleted :/";
-                sendMessage(session, ServerMessage.ServerMessageType.ERROR, new ChessGame(), notify, userGameCommand.getUsername());
+                sendMessage(session, ServerMessage.ServerMessageType.ERROR, null, notify, userGameCommand.getUsername());
             }
         } else {
             if (clearResponse.httpCode() == 200) {
                 for (Session s : sessionList) {
                     String notify = userGameCommand.getUsername() + " has resigned!";
-                    sendMessage(s, ServerMessage.ServerMessageType.LOAD_GAME, gameData.game(), notify, userGameCommand.getUsername());
+                    sendMessage(s, ServerMessage.ServerMessageType.NOTIFICATION, game, notify, userGameCommand.getUsername());
+                    game.setGameOver(true);
                 }
             } else {
                 String notify = "Error: " + userGameCommand.getUsername() + " attempted to resign but something bad happened. Either " + userGameCommand.getUsername() + " needs to log back in or the game was deleted :/";
-                sendMessage(session, ServerMessage.ServerMessageType.ERROR, new ChessGame(), notify, userGameCommand.getUsername());
+                sendMessage(session, ServerMessage.ServerMessageType.ERROR, null, notify, userGameCommand.getUsername());
             }
         }
     }
 
-    private boolean gameOver(UserGameCommand userGameCommand, Session session) {
-        return userGameCommand.getGame().getGameOver();
+    private AuthData verifyAuth(Session session, String authToken) {
+        AuthData authData = AuthService.getAuth(new AuthData(authToken, null));
+
+        if (authData == null) {
+            System.out.println("Bad authToken");
+            sendMessage(session, ServerMessage.ServerMessageType.ERROR, null, "Error: Bad authToken", null);
+            return null;
+        }
+
+        return authData;
+    }
+
+    private boolean gameOver(GameData gameData, Session session) {
+        return gameData.game().getGameOver();
     }
 }
