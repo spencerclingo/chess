@@ -11,6 +11,10 @@ import service.WebSocketService;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.UserGameCommand;
 
+import javax.websocket.OnClose;
+import javax.websocket.OnError;
+import javax.websocket.OnMessage;
+import javax.websocket.OnOpen;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,11 +25,13 @@ public class ServerWebSocketHandler {
     HashMap<Integer, ArrayList<Session>> gameIdToSessions = new HashMap<>();
     HashMap<Session, Integer> sessionToGameID = new HashMap<>();
 
+    @OnOpen
     @OnWebSocketConnect
     public void onConnect(Session session) {
         System.out.println("OnConnect in server");
     }
 
+    @OnMessage
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
         UserGameCommand userGameCommand = gson.fromJson(message, UserGameCommand.class);
@@ -69,6 +75,7 @@ public class ServerWebSocketHandler {
         }
     }
 
+    @OnClose
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {
         System.out.println("OnClose");
@@ -78,6 +85,7 @@ public class ServerWebSocketHandler {
         leaveMessage(new UserGameCommand(null,null, -1, null,null), session, false);
     }
 
+    @OnError
     @OnWebSocketError
     public void onError(Throwable throwable) {
         System.out.println("onError Server");

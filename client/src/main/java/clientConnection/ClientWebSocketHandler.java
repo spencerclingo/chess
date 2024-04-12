@@ -2,6 +2,8 @@ package clientConnection;
 
 import com.google.gson.Gson;
 import models.GameData;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import ui.ChessBoardPicture;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.UserGameCommand;
@@ -76,12 +78,14 @@ public class ClientWebSocketHandler extends Endpoint {
     }
 
     @OnError
+    @OnWebSocketError
     public void onError(Throwable t) {
         System.out.println("Error in ClientWebSocketHandler");
         System.out.println(t.getMessage());
     }
 
     @OnClose
+    @OnWebSocketClose
     public void onClose() {
         System.out.println("Client ws closed");
         ClientMenu.savedUsername = "";
