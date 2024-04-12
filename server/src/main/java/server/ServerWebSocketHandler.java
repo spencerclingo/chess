@@ -240,9 +240,6 @@ public class ServerWebSocketHandler {
                 return;
             }
 
-
-            System.out.println("the username: " + username);
-
             ChessGame.TeamColor teamColor = game.getBoard().getPiece(move.getStartPosition()).getTeamColor();
 
             if (teamColor == ChessGame.TeamColor.WHITE) {
