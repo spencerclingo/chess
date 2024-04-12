@@ -265,7 +265,7 @@ public class ClientMenu {
 
             UserGameCommand userGameCommand;
             if (player) {
-                userGameCommand = new UserGameCommand(authToken, UserGameCommand.CommandType.JOIN_PLAYER, gameID, savedUsername, null);
+                userGameCommand = new UserGameCommand(authToken, UserGameCommand.CommandType.JOIN_PLAYER, gameID, savedUsername, null, color);
             } else {
                 userGameCommand = new UserGameCommand(authToken, UserGameCommand.CommandType.JOIN_OBSERVER, gameID, savedUsername, null);
             }

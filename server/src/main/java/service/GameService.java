@@ -78,8 +78,16 @@ public class GameService {
             try {
                 GameData newGameData = new GameData(joinGameRequest.gameID(), null, null, null,null);
                 newGameData = gameStoredDAO.getGame(newGameData);
-                if ((newGameData.blackUsername() != null && newGameData.blackUsername().equals(username)) || (newGameData.whiteUsername() != null && newGameData.whiteUsername().equals(username))) {
-                    return new JoinGameResponse(400);
+                if (joinGameRequest.playerColor() != null) {
+                    if (joinGameRequest.playerColor().equalsIgnoreCase("white")) {
+                        if (newGameData.whiteUsername() != null && ! newGameData.whiteUsername().equalsIgnoreCase(username)) {
+                            return new JoinGameResponse(400);
+                        }
+                    } else if (joinGameRequest.playerColor().equalsIgnoreCase("black")) {
+                        if (newGameData.blackUsername() != null && ! newGameData.blackUsername().equalsIgnoreCase(username)) {
+                            return new JoinGameResponse(400);
+                        }
+                    }
                 }
                 return new JoinGameResponse(200);
             } catch(DataAccessException | SQLException dae) {

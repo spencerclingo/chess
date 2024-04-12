@@ -2,11 +2,16 @@ package server;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
+import models.AuthData;
 import models.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import response.ClearResponse;
 import response.GetGameResponse;
+import response.JoinGameRequest;
+import response.JoinGameResponse;
+import service.AuthService;
+import service.GameService;
 import service.WebSocketService;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.UserGameCommand;
@@ -60,7 +65,13 @@ public class ServerWebSocketHandler {
     }
 
     public void sendMessage(Session session, ServerMessage.ServerMessageType messageType, ChessGame game, String notification, String username) {
-        ServerMessage message = new ServerMessage(messageType, notification, game, username);
+        ServerMessage message;
+        if (messageType != ServerMessage.ServerMessageType.ERROR) {
+            message = new ServerMessage(messageType, notification, game, username);
+        } else {
+            message = new ServerMessage(messageType, "", game, username, notification);
+        }
+
         String jsonMessage = gson.toJson(message);
 
         try {
@@ -88,18 +99,69 @@ public class ServerWebSocketHandler {
     private void joinPlayer(UserGameCommand userGameCommand, Session thisSession) {
         int gameID = userGameCommand.getGameID();
         String authToken = userGameCommand.getAuthString();
+
+        String username = AuthService.getAuth(new AuthData(authToken, null)).username();
+
         GameData gameData = new GameData(gameID, null, null, null, new ChessGame());
 
         ArrayList<Session> sessionList = gameIdToSessions.get(gameID);
+
+        //JoinGameRequest joinRequest = new JoinGameRequest(userGameCommand.getPlayerColor(), gameID);
+        JoinGameResponse joinResponse;
+        /*try {
+            joinResponse = GameService.joinGame(joinRequest, new AuthData(authToken, username));
+        } catch(Exception e) {
+            System.out.println("Something went wrong");
+            sendMessage(thisSession, ServerMessage.ServerMessageType.ERROR, null, "Error: Something went wrong", null);
+            return;
+        }
+
+        if (joinResponse.httpCode() == 401 || username == null) {
+            System.out.println("Unauthorized");
+            sendMessage(thisSession, ServerMessage.ServerMessageType.ERROR, null, "Error: Unauthorized", null);
+            return;
+        } else if (joinResponse.httpCode() == 400) {
+            System.out.println(gameID);
+            System.out.println("No game at ID");
+            sendMessage(thisSession, ServerMessage.ServerMessageType.ERROR, null, "Error: No game at that ID", null);
+            return;
+        } else if (joinResponse.httpCode() == 403) {
+            System.out.println("Already taken");
+            sendMessage(thisSession, ServerMessage.ServerMessageType.ERROR, null, "Error: already taken", null);
+            return;
+        }
+
+         */
+
         GetGameResponse gameResponse = WebSocketService.getGame(new GetGameResponse(gameData, authToken,null, 1));
+
+        if (gameResponse.gameData() == null) {
+            System.out.println("Bad game ID");
+            sendMessage(thisSession, ServerMessage.ServerMessageType.ERROR, null, "Error: Bad gameID", null);
+            return;
+        }
+
+        if (userGameCommand.getPlayerColor().equalsIgnoreCase("white")) {
+            if (gameResponse.gameData().whiteUsername() == null || !gameResponse.gameData().whiteUsername().equalsIgnoreCase(username)) {
+                System.out.println("Did not join");
+                sendMessage(thisSession, ServerMessage.ServerMessageType.ERROR, null, "Error: did not join the game", null);
+                return;
+            }
+        } else if (userGameCommand.getPlayerColor().equalsIgnoreCase("black")) {
+            if (gameResponse.gameData().blackUsername() == null || !gameResponse.gameData().blackUsername().equalsIgnoreCase(username)) {
+                System.out.println("Did not join");
+                sendMessage(thisSession, ServerMessage.ServerMessageType.ERROR, null, "Error: did not join the game", null);
+                return;
+            }
+        }
 
         String commandType = joinNotification(userGameCommand, gameResponse);
 
         for (Session session : sessionList) {
             if (session.equals(thisSession)) {
-                sendMessage(session, ServerMessage.ServerMessageType.LOAD_GAME, gameResponse.gameData().game(), "", userGameCommand.getUsername());
+                sendMessage(session, ServerMessage.ServerMessageType.LOAD_GAME, gameResponse.gameData().game(), "", username);
             } else {
-                sendMessage(session, ServerMessage.ServerMessageType.NOTIFICATION, gameResponse.gameData().game(), commandType, userGameCommand.getUsername());
+                sendMessage(session, ServerMessage.ServerMessageType.NOTIFICATION, gameResponse.gameData().game(), commandType, username);
             }
         }
     }

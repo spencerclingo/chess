@@ -11,6 +11,8 @@ import java.util.Arrays;
  */
 public class ChessBoard {
     private final ChessPiece[][] chessPieceArray = new ChessPiece[10][10];
+    private boolean fixed = false;
+
     public ChessBoard() {}
 
     public ChessBoard(ChessPiece[][] chessPieceArray) {
@@ -86,6 +88,8 @@ public class ChessBoard {
         chessPieceArray[1][4] = kingWhite;
         chessPieceArray[8][5] = queenBlack;
         chessPieceArray[8][4] = kingBlack;
+
+        fixed = true;
     }
 
     public void makeMove(ChessMove move, boolean permanent) {
@@ -159,6 +163,10 @@ public class ChessBoard {
         }
 
         return allPositions;
+    }
+
+    public boolean getFixed() {
+        return fixed;
     }
 
     public ChessBoard copy() {
