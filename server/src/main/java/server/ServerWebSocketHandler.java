@@ -265,6 +265,10 @@ public class ServerWebSocketHandler {
 
         ArrayList<Session> sessionList = gameIdToSessions.get(gameID);
 
+        defineMessage(userGameCommand, session, clearResponse, sessionList, game);
+    }
+
+    private void defineMessage(UserGameCommand userGameCommand, Session session, ClearResponse clearResponse, ArrayList<Session> sessionList, ChessGame game) {
         if (userGameCommand.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE) {
             if (clearResponse.httpCode() == 200) {
                 for (Session s : sessionList) {
